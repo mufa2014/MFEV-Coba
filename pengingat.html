@@ -14,27 +14,26 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
   <!-- TOP HEADER -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-emerald-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center w-11 h-11">
-          <i class="fa-solid fa-bolt-lightning text-xl text-yellow-300"></i>
-        </div>
+        <!-- LOGO HEADER DARI GITHUB -->
+        <img src="logo-mfev.png" alt="Logo MF.EV" class="h-10 w-auto object-contain rounded-xl shadow-sm">
         <div>
-          <h1 class="font-bold text-lg text-slate-900 leading-tight flex items-center gap-2">
+          <h1 class="font-bold text-base sm:text-lg text-slate-900 leading-tight flex items-center gap-2">
             MF.EV <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">PENGINGAT</span>
           </h1>
-          <p class="text-xs text-slate-500">Jadwal Servis Berkala Pelanggan</p>
+          <p class="text-xs text-slate-500 hidden sm:block">Jadwal Servis Berkala Pelanggan</p>
         </div>
       </div>
-      <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 transition-all">
+      <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all">
         <i class="fa-solid fa-arrow-left"></i> Kembali
       </a>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+  <!-- MAIN CONTAINER (FULL RESPONSIVE) -->
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
     
     <!-- LEGEND & BAR -->
     <div class="bg-white border border-slate-200 rounded-2xl p-4 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -53,9 +52,9 @@
     </div>
 
     <!-- TABLE CARD -->
-    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden w-full">
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
           <i class="fa-solid fa-bell text-amber-500"></i> Daftar Pengingat Servis
         </h2>
         <div class="relative w-full sm:w-72">
@@ -65,8 +64,8 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-600">
+      <div class="overflow-x-auto w-full">
+        <table class="w-full text-left text-sm text-slate-600 min-w-[750px]">
           <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
             <tr>
               <th class="py-3.5 px-4 text-center">STATUS</th>
@@ -93,7 +92,6 @@
   </main>
 
   <script>
-    // 🔴 URL APPS SCRIPT AKTIF ANDA
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqMV2lQsLeG2C70787Qw4zarJWv1023AxZj2XLuo_tUOMSVkash0ZeiXSs14BwqpI4/exec";
 
     let rawData = [];
@@ -121,7 +119,6 @@
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
-            // Filter hanya data yang memiliki TanggalBerikutnya
             rawData = data.filter(item => item.TanggalBerikutnya && item.TanggalBerikutnya.trim() !== "" && item.TanggalBerikutnya !== "-");
             
             statusText.innerText = "Terhubung ke Sheets";
@@ -149,7 +146,6 @@
         (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q))
       );
 
-      // Hitung selisih hari & urutkan dari yang paling mendesak (Merah -> Kuning -> Hijau)
       const hariIni = new Date();
       hariIni.setHours(0,0,0,0);
 
@@ -178,20 +174,16 @@
         let sisaText = "";
 
         if (item.diffDays < 0) {
-          // TERLEWAT
           statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Terlewat</span>`;
           sisaText = `<span class="text-red-600 font-bold">Lewat ${Math.abs(item.diffDays)} hari</span>`;
         } else if (item.diffDays <= 7) {
-          // HARUS SERVIS (<= 7 Hari)
           statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><i class="fa-solid fa-clock mr-1"></i> Segera</span>`;
           sisaText = item.diffDays === 0 ? `<span class="text-amber-600 font-bold">Hari Ini!</span>` : `<span class="text-amber-600 font-bold">${item.diffDays} hari lagi</span>`;
         } else {
-          // AMAN
           statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i> Aman</span>`;
           sisaText = `<span class="text-slate-600">${item.diffDays} hari lagi</span>`;
         }
 
-        // Format No WA
         let noWa = (item.NoHP || "").replace(/[^0-9]/g, "");
         if (noWa.startsWith("0")) noWa = "62" + noWa.slice(1);
 
