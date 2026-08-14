@@ -9,7 +9,7 @@
         .status-lewat { background: #fee2e2; border-left: 4px solid #dc2626; }
         .status-segera { background: #fef3c7; border-left: 4px solid #f59e0b; }
         .status-baik { background: #dcfce7; border-left: 4px solid #22c55e; }
-        .sudah-dihubungi { opacity: 0.6; text-decoration: line-through; }
+        .sudah-dihubungi { opacity: 0.6; filter: grayscale(50%); }
     </style>
 </head>
 <body class="bg-gray-100 max-w-xl mx-auto p-3" onload="initApp()">
@@ -37,8 +37,7 @@
     </div>
 
 <script>
-// === PENTING: SAMA PERSIS DENGAN URL DI index.html ===
-const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbzDfnxXV81zCcSH50o48ainKbCt7s1vQ_lD1KCqPUSQFArX5ws5qZrNMCqZ0z35SQ0WNg/exec";
+const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbwBM1LwGMmGqaKvb6M8muJrsA0CjANmibC4BeQgTPEgxUtyvppdxiNf2f6c6J6h1TUS/exec";
 let daftarData = [];
 
 function initApp() {
@@ -48,10 +47,9 @@ function initApp() {
 function formatTanggalKeISO(t) {
     if (!t) return '';
     let s = String(t).replace(/T.*/,'').trim();
-    if (s.includes('-')) {
-        const p = s.split('-');
-        if (p[0].length===2 && p[2].length===4) return `${p[2]}-${p[1]}-${p[0]}`;
-        return s;
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+        const [d,m,y] = s.split('/');
+        return `${y}-${m}-${d}`;
     }
     return s;
 }
@@ -59,10 +57,9 @@ function formatTanggalKeISO(t) {
 function ubahFormatTanggal(t) {
     if (!t) return '';
     let s = String(t).replace(/T.*/,'').trim();
-    if (s.includes('-')) {
-        const p = s.split('-');
-        if (p[0].length===4) return `${p[2]}-${p[1]}-${p[0]}`;
-        return s;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        const [y,m,d] = s.split('-');
+        return `${d}/${m}/${y}`;
     }
     return s;
 }
@@ -71,7 +68,7 @@ function tarikDataDariSheets() {
     document.getElementById('btnMuat').disabled = true;
     document.getElementById('statusInfo').textContent = '⏳ Mengambil data...';
 
-    const scriptLama = document.getElementById('jsonpScript');
+    const scriptLama = document.getElementById('jsonpScriptPengingat');
     if (scriptLama) scriptLama.remove();
 
     window.prosesDataPengingat = function(res) {
@@ -79,21 +76,17 @@ function tarikDataDariSheets() {
         let rawList = [];
         if (Array.isArray(res)) rawList = res;
         else if (res && res.data && Array.isArray(res.data)) rawList = res.data;
-        else if (res && res.status === "berhasil") {
-            document.getElementById('statusInfo').textContent = '✅ Sheets terhubung, data belum ada';
-            tampilkanPengingat([]);
-            return;
-        }
+        
         if (rawList.length > 0) {
             daftarData = rawList.map((item, idx) => ({
-                rowId: item.rowId || (idx+2),
+                rowId: Number(item.rowId || idx + 2),
                 nama: item.Nama || item.nama || '',
                 nohp: String(item.NoHP || item.nohp || ''),
                 merk: item.MerkMotor || item.merk || '',
                 tipe: item.TipeMotor || item.tipe || '',
                 plat: item.NoPlat || item.plat || '',
                 tglBerikutnya: formatTanggalKeISO(item.TanggalBerikutnya || item.tglBerikutnya || ''),
-                sudahDihubungi: item.SudahDihubungi || item.sudahDihubungi || false
+                sudahDihubungi: String(item.SudahDihubungi || item.sudahDihubungi).toUpperCase() === 'TRUE' || item.SudahDihubungi === true
             }));
             tampilkanPengingat(daftarData);
             document.getElementById('statusInfo').textContent = `✅ ${daftarData.length} data dimuat`;
@@ -104,11 +97,11 @@ function tarikDataDariSheets() {
     };
 
     const script = document.createElement('script');
-    script.id = 'jsonpScript';
+    script.id = 'jsonpScriptPengingat';
     script.src = `${URL_GOOGLE_SHEETS}?callback=prosesDataPengingat&t=${Date.now()}`;
     script.onerror = function() {
         document.getElementById('btnMuat').disabled = false;
-        document.getElementById('statusInfo').textContent = '❌ Gagal terhubung';
+        document.getElementById('statusInfo').textContent = '❌ Gagal terhubung ke Sheets';
     };
     document.body.appendChild(script);
 }
@@ -144,7 +137,7 @@ function tampilkanPengingat(data) {
         }
 
         return `
-        <div class="p-3 mb-3 rounded ${kelas} ${item.sudahDihubungi?'sudah-dihubungi':''}">
+        <div class="p-3 mb-3 rounded ${kelas} ${item.sudahDihubungi ? 'sudah-dihubungi' : ''}">
             <div class="font-semibold">${item.nama}</div>
             <div class="text-sm text-gray-700">${item.merk} ${item.tipe||''} — Plat: ${item.plat}</div>
             <div class="text-sm mt-1">📅 Servis: ${ubahFormatTanggal(item.tglBerikutnya)}</div>
@@ -152,10 +145,10 @@ function tampilkanPengingat(data) {
             ${!item.sudahDihubungi ? `
             <div class="mt-2 flex gap-2">
                 <button onclick="kirimWA('${item.rowId}','${item.nama}','${item.merk}','${item.tipe}','${item.plat}','${item.nohp}','${ubahFormatTanggal(item.tglBerikutnya)}')" 
-                    class="bg-green-600 text-white px-3 py-1 rounded text-sm">📲 Kirim WA</button>
+                    class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">📲 Kirim WA</button>
                 <button onclick="tandaiSudah('${item.rowId}')" 
-                    class="bg-gray-600 text-white px-3 py-1 rounded text-sm">✅ Sudah Dihubungi</button>
-            </div>` : '<div class="mt-2 text-sm text-gray-500">✅ Sudah dicek</div>'}
+                    class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700">✅ Sudah Dihubungi</button>
+            </div>` : '<div class="mt-2 text-xs font-semibold text-green-700">✅ Sudah Dihubungi</div>'}
         </div>`;
     }).join('');
 }
@@ -164,14 +157,7 @@ function kirimWA(rowId, nama, merk, tipe, plat, nohp, tgl) {
     let hp = String(nohp).replace(/\D/g, '');
     if (hp.startsWith('0')) hp = '62' + hp.slice(1);
 
-    const pesan = `Assalamualaikum Bapak/Ibu ${nama} 🙏
-
-Dari MF.EV Service, kami mengingatkan bahwa kendaraan Bapak/Ibu (${merk} ${tipe||''}, No. Plat ${plat}) dijadwalkan untuk servis berkala pada tanggal ${tgl}.
-
-Semoga kabar Bapak/Ibu sehat selalu. Silakan mampir kapan saja ya. Terima kasih 🙏
-
-— MF.EV Service
-Pangkalpinang, Bangka Belitung`;
+    const pesan = `Assalamualaikum Bapak/Ibu ${nama} 🙏\n\nDari MF.EV Service, kami mengingatkan bahwa kendaraan Bapak/Ibu (${merk} ${tipe||''}, No. Plat ${plat}) dijadwalkan untuk servis berkala pada tanggal ${tgl}.\n\nSemoga kabar Bapak/Ibu sehat selalu. Silakan mampir kapan saja ya. Terima kasih 🙏\n\n— MF.EV Service\nPangkalpinang, Bangka Belitung`;
 
     const urlWA = `https://api.whatsapp.com/send?app=wa&phone=${hp}&text=${encodeURIComponent(pesan)}`;
     window.open(urlWA, '_blank');
@@ -179,10 +165,13 @@ Pangkalpinang, Bangka Belitung`;
 
 async function tandaiSudah(rowId) {
     if (!confirm('Tandai sudah dihubungi?')) return;
-    const payload = {
-        action: "tandaiSudahDihubungi",
-        rowId: rowId
-    };
+    
+    // Update tampilan lokal secara instant
+    daftarData = daftarData.map(d => String(d.rowId) === String(rowId) ? {...d, sudahDihubungi: true} : d);
+    tampilkanPengingat(daftarData);
+
+    const payload = { action: "tandaiSudahDihubungi", rowId: Number(rowId) };
+
     try {
         await fetch(URL_GOOGLE_SHEETS, {
             method: 'POST',
@@ -190,12 +179,9 @@ async function tandaiSudah(rowId) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        alert('✅ Ditandai sudah dihubungi!');
-        tarikDataDariSheets();
+        setTimeout(() => tarikDataDariSheets(), 1500);
     } catch (e) {
-        alert('⚠️ Tersimpan lokal saja. Silakan muat ulang nanti.');
-        daftarData = daftarData.map(d => String(d.rowId) === String(rowId) ? {...d, sudahDihubungi: true} : d);
-        tampilkanPengingat(daftarData);
+        console.error('Gagal simpan:', e);
     }
 }
 </script>
