@@ -47,15 +47,15 @@
       </div>
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-amber-500"></span>
-        <span>Kuning = ≤7 Hari Lagi</span>
+        <span>Kuning = &le;7 Hari Lagi</span>
       </div>
       <div class="flex items-center gap-2">
         <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
         <span>Hijau = Masih Aman</span>
       </div>
-      <div class="flex items-center gap-2 ml-auto border-l pl-4 border-slate-200">
+      <div class="flex items-center gap-2 sm:ml-auto border-t sm:border-t-0 sm:border-l pt-2 sm:pt-0 pl-0 sm:pl-4 border-slate-200 w-full sm:w-auto">
         <span class="w-3 h-3 rounded-full bg-blue-500"></span>
-        <span>Centang Biru = Sudah Dihubungi WA</span>
+        <span>Sudah Dihubungi WA</span>
       </div>
     </div>
 
@@ -81,7 +81,7 @@
             <tr>
               <th class="py-3.5 px-4">STATUS</th>
               <th class="py-3.5 px-4">PELANGGAN / HP</th>
-              <th class="py-3.5 px-4">MOTOR & PLAT</th>
+              <th class="py-3.5 px-4">MOTOR &amp; PLAT</th>
               <th class="py-3.5 px-4">SERVIS TERAKHIR</th>
               <th class="py-3.5 px-4">JADWAL NEXT</th>
               <th class="py-3.5 px-4">SISA WAKTU</th>
@@ -105,7 +105,7 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqMV2lQsLeG2C70787Qw4zarJWv1023AxZj2XLuo_tUOMSVkash0ZeiXSs14BwqpI4/exec";
     let rawData = [];
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", function() {
       muatData();
     });
 
@@ -124,34 +124,29 @@
 
     function muatData() {
       const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="7" class="py-12 text-center text-slate-400">
-            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-amber-500"></i>
-            <p>Memuat data dari Spreadsheet...</p>
-          </td>
-        </tr>`;
+      tbody.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-amber-500"></i><p>Memuat data dari Spreadsheet...</p></td></tr>';
 
-      fetch(`${SCRIPT_URL}?t=${new Date().getTime()}`)
-        .then(res => res.json())
-        .then(data => {
+      fetch(SCRIPT_URL + "?t=" + new Date().getTime())
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
           if (Array.isArray(data)) {
-            // Filter hanya data yang memiliki Tanggal Servis Berikutnya
-            rawData = data.filter(d => d.TanggalBerikutnya && d.TanggalBerikutnya.trim() !== "");
+            rawData = data.filter(function(d) {
+              return d.TanggalBerikutnya && String(d.TanggalBerikutnya).trim() !== "";
+            });
             renderTable(rawData);
           } else {
-            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Gagal memuat data.</td></tr>`;
+            tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Gagal memuat data.</td></tr>';
           }
         })
-        .catch(err => {
-          tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">Gagal terhubung ke koneksi internet/spreadsheet.</td></tr>`;
+        .catch(function(err) {
+          tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-500">Gagal terhubung ke koneksi internet/spreadsheet.</td></tr>';
         });
     }
 
     function renderTable(data) {
       const tbody = document.getElementById("tableBody");
       if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada jadwal pengingat servis.</td></tr>`;
+        tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada jadwal pengingat servis.</td></tr>';
         return;
       }
 
@@ -159,12 +154,12 @@
       today.setHours(0,0,0,0);
 
       let html = "";
-      data.forEach(item => {
+      data.forEach(function(item) {
         const hpFormatted = formatNoHP(item.NoHP);
         const waNumber = formatWA(item.NoHP);
 
-        // Hitung Selisih Hari
-        const tglNext = new Date(formatTanggalUntukInput(item.TanggalBerikutnya));
+        const isoNext = formatTanggalUntukInput(item.TanggalBerikutnya);
+        const tglNext = new Date(isoNext);
         tglNext.setHours(0,0,0,0);
 
         const diffTime = tglNext - today;
@@ -174,17 +169,16 @@
         let sisaWaktuText = "";
 
         if (diffDays < 0) {
-          statusBadge = `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-triangle-exclamation"></i> Terlewat</span>`;
-          sisaWaktuText = `<span class="text-red-600 font-semibold">Lewat ${Math.abs(diffDays)} hari</span>`;
+          statusBadge = '<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-triangle-exclamation"></i> Terlewat</span>';
+          sisaWaktuText = '<span class="text-red-600 font-semibold">Lewat ' + Math.abs(diffDays) + ' hari</span>';
         } else if (diffDays <= 7) {
-          statusBadge = `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-clock"></i> Segera</span>`;
-          sisaWaktuText = `<span class="text-amber-600 font-semibold">${diffDays === 0 ? 'Hari ini' : diffDays + ' hari lagi'}</span>`;
+          statusBadge = '<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-clock"></i> Segera</span>';
+          sisaWaktuText = '<span class="text-amber-600 font-semibold">' + (diffDays === 0 ? 'Hari ini' : diffDays + ' hari lagi') + '</span>';
         } else {
-          statusBadge = `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-circle-check"></i> Aman</span>`;
-          sisaWaktuText = `<span class="text-slate-600">${diffDays} hari lagi</span>`;
+          statusBadge = '<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-circle-check"></i> Aman</span>';
+          sisaWaktuText = '<span class="text-slate-600">' + diffDays + ' hari lagi</span>';
         }
 
-        // KONTROL NOTIFIKASI SUDAH DIHUBUNGI (KOLOM L / SudahDihubungi)
         const isDihubungi = item.SudahDihubungi === true || String(item.SudahDihubungi).toUpperCase() === "TRUE";
 
         let notifStatus = "";
@@ -192,68 +186,51 @@
         let btnWAText = "Kirim WA";
 
         if (isDihubungi) {
-          notifStatus = `
-            <div class="mt-1 flex items-center gap-1 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md w-max border border-blue-100">
-              <i class="fa-solid fa-circle-check"></i> Sudah Dihubungi
-            </div>`;
+          notifStatus = '<div class="mt-1 flex items-center gap-1 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md w-max border border-blue-100"><i class="fa-solid fa-circle-check"></i> Sudah Dihubungi</div>';
           btnWAClass = "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300";
           btnWAText = "Kirim Ulang WA";
         }
 
-        // Pesan Default WhatsApp
-        const pesanWA = encodeURIComponent(
-          `Halo Kak ${item.Nama},\n\n` +
-          `Kami dari *MF.EV Service* ingin menginfokan bahwa jadwal servis berkala untuk motor listrik Kakak (${item.MerkMotor} ${item.TipeMotor || ''} - ${item.NoPlat || ''}) adalah pada tanggal *${formatTanggalDisplay(item.TanggalBerikutnya)}*.\n\n` +
-          `Yuk lakukan servis berkala agar kondisi kendaraan tetap prima! Silakan balas pesan ini untuk booking jadwal ya Kak. Terima kasih! 🙏`
-        );
+        const teksPesan = "Halo Kak " + (item.Nama || '') + ",\n\n" +
+          "Kami dari *MF.EV Service* ingin menginfokan bahwa jadwal servis berkala untuk motor listrik Kakak (" + (item.MerkMotor || '') + " " + (item.TipeMotor || '') + " - " + (item.NoPlat || '') + ") adalah pada tanggal *" + formatTanggalDisplay(item.TanggalBerikutnya) + "*.\n\n" +
+          "Yuk lakukan servis berkala agar kondisi kendaraan tetap prima! Silakan balas pesan ini untuk booking jadwal ya Kak. Terima kasih!";
 
-        html += `
-          <tr class="hover:bg-slate-50/80 transition-colors">
-            <td class="py-4 px-4 whitespace-nowrap">
-              ${statusBadge}
-              ${notifStatus}
-            </td>
-            <td class="py-4 px-4">
-              <div class="font-bold text-slate-900">${item.Nama || '-'}</div>
-              <div class="text-xs text-slate-500 font-mono">${hpFormatted || '-'}</div>
-            </td>
-            <td class="py-4 px-4">
-              <div class="font-medium text-slate-800">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
-              <div class="text-xs text-slate-400">Plat: ${item.NoPlat || '-'}</div>
-            </td>
-            <td class="py-4 px-4 text-xs text-slate-500 whitespace-nowrap">${formatTanggalDisplay(item.Tanggal)}</td>
-            <td class="py-4 px-4 font-bold text-slate-800 whitespace-nowrap">${formatTanggalDisplay(item.TanggalBerikutnya)}</td>
-            <td class="py-4 px-4 text-xs whitespace-nowrap">${sisaWaktuText}</td>
-            <td class="py-4 px-4 text-center whitespace-nowrap">
-              <div class="flex items-center justify-center gap-1">
-                <button onclick="kirimWA(${item.rowId}, '${waNumber}', '${pesanWA}')" 
-                  class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${btnWAClass}">
-                  <i class="fa-brands fa-whatsapp text-sm"></i> ${btnWAText}
-                </button>
-                ${isDihubungi ? `
-                  <button onclick="resetStatusDihubungi(${item.rowId})" title="Tandai Belum Dihubungi" class="p-1.5 text-slate-400 hover:text-red-500 rounded-lg">
-                    <i class="fa-solid fa-rotate-left text-xs"></i>
-                  </button>
-                ` : ''}
-              </div>
-            </td>
-          </tr>
-        `;
+        const pesanEncoded = encodeURIComponent(teksPesan);
+
+        html += '<tr class="hover:bg-slate-50/80 transition-colors">' +
+            '<td class="py-4 px-4 whitespace-nowrap">' + statusBadge + notifStatus + '</td>' +
+            '<td class="py-4 px-4">' +
+              '<div class="font-bold text-slate-900">' + (item.Nama || '-') + '</div>' +
+              '<div class="text-xs text-slate-500 font-mono">' + (hpFormatted || '-') + '</div>' +
+            '</td>' +
+            '<td class="py-4 px-4">' +
+              '<div class="font-medium text-slate-800">' + (item.MerkMotor || '-') + ' ' + (item.TipeMotor || '') + '</div>' +
+              '<div class="text-xs text-slate-400">Plat: ' + (item.NoPlat || '-') + '</div>' +
+            '</td>' +
+            '<td class="py-4 px-4 text-xs text-slate-500 whitespace-nowrap">' + formatTanggalDisplay(item.Tanggal) + '</td>' +
+            '<td class="py-4 px-4 font-bold text-slate-800 whitespace-nowrap">' + formatTanggalDisplay(item.TanggalBerikutnya) + '</td>' +
+            '<td class="py-4 px-4 text-xs whitespace-nowrap">' + sisaWaktuText + '</td>' +
+            '<td class="py-4 px-4 text-center whitespace-nowrap">' +
+              '<div class="flex items-center justify-center gap-1">' +
+                '<button onclick="kirimWA(' + item.rowId + ', \'' + waNumber + '\', \'' + pesanEncoded + '\')" class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ' + btnWAClass + '">' +
+                  '<i class="fa-brands fa-whatsapp text-sm"></i> ' + btnWAText +
+                '</button>' +
+                (isDihubungi ? '<button onclick="resetStatusDihubungi(' + item.rowId + ')" title="Tandai Belum Dihubungi" class="p-1.5 text-slate-400 hover:text-red-500 rounded-lg"><i class="fa-solid fa-rotate-left text-xs"></i></button>' : '') +
+              '</div>' +
+            '</td>' +
+          '</tr>';
       });
 
       tbody.innerHTML = html;
     }
 
-    function kirimWA(rowId, waNumber, pesan) {
+    function kirimWA(rowId, waNumber, pesanEncoded) {
       if (!waNumber) {
         alert("Nomor HP / WA tidak valid!");
         return;
       }
 
-      // 1. Buka Tab WhatsApp
-      window.open(`https://wa.me/${waNumber}?text=${pesan}`, '_blank');
-
-      // 2. Simpan status Sudah Dihubungi = TRUE ke Google Sheets
+      window.open("https://wa.me/" + waNumber + "?text=" + pesanEncoded, "_blank");
       updateStatusDihubungi(rowId, true);
     }
 
@@ -264,14 +241,12 @@
     }
 
     function updateStatusDihubungi(rowId, isDihubungi) {
-      // Update lokal untuk performa instan
-      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
+      const item = rawData.find(function(d) { return Number(d.rowId) === Number(rowId); });
       if (item) {
         item.SudahDihubungi = isDihubungi;
         renderTable(rawData);
       }
 
-      // Kirim pembaruan ke Google Sheets
       fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
@@ -281,17 +256,19 @@
           rowId: rowId,
           SudahDihubungi: isDihubungi
         })
-      }).catch(err => console.error("Gagal memperbarui status ke Sheets:", err));
+      }).catch(function(err) {
+        console.error("Gagal memperbarui status ke Sheets:", err);
+      });
     }
 
     function filterTable() {
       const q = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = rawData.filter(d => 
-        (d.Nama && d.Nama.toLowerCase().includes(q)) ||
-        (d.NoHP && d.NoHP.toString().toLowerCase().includes(q)) ||
-        (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
-        (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q))
-      );
+      const filtered = rawData.filter(function(d) { 
+        return (d.Nama && d.Nama.toLowerCase().includes(q)) ||
+               (d.NoHP && String(d.NoHP).toLowerCase().includes(q)) ||
+               (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
+               (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q));
+      });
       renderTable(filtered);
     }
 
@@ -300,12 +277,12 @@
       if (str.includes("T")) str = str.split("T")[0];
       if (str.includes("/")) {
         const p = str.split("/");
-        if (p.length === 3) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+        if (p.length === 3) return p[2] + "-" + p[1].padStart(2,'0') + "-" + p[0].padStart(2,'0');
       }
       if (str.includes("-")) {
         const p = str.split("-");
         if (p[0].length === 4) return str; 
-        if (p[2].length === 4) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+        if (p[2].length === 4) return p[2] + "-" + p[1].padStart(2,'0') + "-" + p[0].padStart(2,'0');
       }
       return str;
     }
@@ -314,7 +291,7 @@
       if (!str) return "-";
       const iso = formatTanggalUntukInput(str);
       const p = iso.split("-");
-      if (p.length === 3) return `${p[2]}-${p[1]}-${p[0]}`;
+      if (p.length === 3) return p[2] + "-" + p[1] + "-" + p[0];
       return str;
     }
   </script>
