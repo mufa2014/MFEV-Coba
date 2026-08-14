@@ -198,7 +198,7 @@
         });
     }
 
-    // 🟢 RENDER TABEL
+    // 🟢 RENDER TABEL (DENGAN FIX PERBAIKAN Rp NaN)
     function renderTable(data) {
       const tbody = document.getElementById("tableBody");
       if (data.length === 0) {
@@ -208,7 +208,10 @@
 
       let html = "";
       data.forEach(item => {
-        const totalRp = Number(item.TotalBiaya || 0).toLocaleString("id-ID");
+        // PERBAIKAN Rp NaN: Ambil angka saja lalu konversi ke Format Rupiah
+        const angkaSaja = String(item.TotalBiaya || 0).replace(/[^0-9]/g, "");
+        const totalRp = Number(angkaSaja || 0).toLocaleString("id-ID");
+
         const tglDisplay = formatTanggalDisplay(item.Tanggal);
         const tglNextDisplay = item.TanggalBerikutnya ? formatTanggalDisplay(item.TanggalBerikutnya) : "-";
 
@@ -318,7 +321,11 @@
       document.getElementById("formTipeMotor").value = item.TipeMotor || "";
       document.getElementById("formNoPlat").value = item.NoPlat || "";
       document.getElementById("formKilometer").value = item.Kilometer || "";
-      document.getElementById("formTotalBiaya").value = item.TotalBiaya || 0;
+
+      // Ambil angka bersih untuk form edit total biaya
+      const angkaSaja = String(item.TotalBiaya || 0).replace(/[^0-9]/g, "");
+      document.getElementById("formTotalBiaya").value = angkaSaja || 0;
+
       document.getElementById("formRincianPekerjaan").value = item.RincianPekerjaan || "";
       document.getElementById("formCatatan").value = item.Catatan || "";
 
@@ -409,7 +416,8 @@
       const item = rawData.find(d => Number(d.rowId) === Number(rowId));
       if (!item) return;
 
-      const totalRp = Number(item.TotalBiaya || 0).toLocaleString("id-ID");
+      const angkaSaja = String(item.TotalBiaya || 0).replace(/[^0-9]/g, "");
+      const totalRp = Number(angkaSaja || 0).toLocaleString("id-ID");
       const cetakWin = window.open("", "_blank", "width=600,height=700");
       
       cetakWin.document.write(`
