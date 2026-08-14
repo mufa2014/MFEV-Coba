@@ -1,548 +1,454 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MF.EV Service Manager</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- html2canvas untuk mengubah elemen HTML menjadi gambar -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MF.EV Service Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
-<body class="bg-slate-100 min-h-screen text-slate-800 pb-12">
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
-    <!-- HEADER / NAVBAR -->
-    <header class="bg-emerald-700 text-white shadow-md sticky top-0 z-30">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white p-1 rounded-full w-10 h-10 flex items-center justify-center">
-                    <img src="logo-mfev.png" alt="Logo" class="w-8 h-8 rounded-full object-cover" onerror="this.src='https://via.placeholder.com/40'">
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">MF.EV SERVICE MANAGER</h1>
-                    <p class="text-xs text-emerald-200">Bengkel Motor Listrik Pangkalpinang</p>
-                </div>
-            </div>
-            <a href="pengingat.html" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 shadow transition">
-                <i class="fa-solid fa-bell"></i>
-                <span>Pengingat Servis</span>
-            </a>
+  <!-- TOP HEADER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-emerald-600 text-white p-2 rounded-xl">
+          <i class="fa-solid fa-screwdriver-wrench text-xl"></i>
         </div>
-    </header>
+        <div>
+          <h1 class="font-bold text-lg text-slate-900 leading-tight">MF.EV Service Manager</h1>
+          <p class="text-xs text-slate-500">Sistem Riwayat Servis Pelanggan</p>
+        </div>
+      </div>
+      <button onclick="bukaModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-all shadow-sm">
+        <i class="fa-solid fa-plus"></i> Tambah Servis
+      </button>
+    </div>
+  </header>
 
-    <main class="max-w-6xl mx-auto px-4 mt-6">
-        
-        <!-- CARD FORM INPUT / EDIT -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6">
-            <h2 id="formTitle" class="text-base font-bold text-emerald-800 mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-plus-circle"></i> Tambah Data Servis Baru
-            </h2>
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    
+    <!-- CARD TABLE CONTAINER -->
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+      
+      <!-- CARD HEADER & SEARCH BAR -->
+      <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-slate-800 font-bold text-lg">
+          <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
+          <span>Riwayat Servis Pelanggan</span>
+        </div>
+        <div class="relative w-full md:w-80">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
+            class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+        </div>
+      </div>
 
-            <form id="serviceForm" onsubmit="simpanData(event)" class="space-y-4">
-                <input type="hidden" id="editRowId" value="">
+      <!-- TABLE AREA -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-600">
+          <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
+            <tr>
+              <th class="py-3.5 px-4">TGL SERVIS</th>
+              <th class="py-3.5 px-4">PELANGGAN / NO. HP</th>
+              <th class="py-3.5 px-4">MOTOR & PLAT</th>
+              <th class="py-3.5 px-4">RINCIAN PEKERJAAN</th>
+              <th class="py-3.5 px-4">TOTAL BIAYA</th>
+              <th class="py-3.5 px-4">SERVIS NEXT</th>
+              <th class="py-3.5 px-4 text-center">AKSI</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-100">
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400">
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i>
+                <p>Memuat data dari Spreadsheet...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Servis *</label>
-                        <input type="date" id="inputTanggal" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Pelanggan *</label>
-                        <input type="text" id="inputNama" required placeholder="Contoh: Budi" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">No. WhatsApp / HP</label>
-                        <input type="tel" id="inputNoHP" placeholder="Contoh: 08123456789" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                </div>
+    </div>
+  </main>
 
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Merk Motor *</label>
-                        <input type="text" id="inputMerk" required placeholder="Contoh: Gesits, Viar, Uwinfly" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Motor</label>
-                        <input type="text" id="inputTipe" placeholder="Contoh: G1, T3, X6" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">No. Plat Polisi</label>
-                        <input type="text" id="inputNoPlat" placeholder="Contoh: BN 1234 XX" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kilometer (KM)</label>
-                        <input type="number" id="inputKM" placeholder="Contoh: 5200" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                </div>
+  <!-- MODAL FORM (TAMBAH / EDIT) -->
+  <div id="modalForm" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100">
+      
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+        <h3 id="modalTitle" class="font-bold text-lg text-slate-800">Tambah Servis Baru</h3>
+        <button onclick="tutupModal()" class="text-slate-400 hover:text-slate-600 text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Rincian Pekerjaan & Sparepart *</label>
-                        <textarea id="inputRincian" rows="2" required placeholder="Contoh: Ganti Kampas Rem Depan, Perbaikan Controller" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Total Biaya (Rp) *</label>
-                        <input type="number" id="inputTotalBiaya" required placeholder="50000" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                </div>
+      <form id="servisForm" onsubmit="simpanData(event)" class="p-6 space-y-4">
+        <input type="hidden" id="formRowId" value="">
+        <input type="hidden" id="formAction" value="create">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jadwal Servis Berkala Berikutnya</label>
-                        <input type="date" id="inputTanggalBerikutnya" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan / Keterangan Tambahan</label>
-                        <input type="text" id="inputCatatan" placeholder="Opsional" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    </div>
-                </div>
-
-                <!-- TOMBOL FORM -->
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" id="btnBatal" onclick="resetForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition">
-                        Batal
-                    </button>
-                    <button type="submit" id="btnSubmit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2">
-                        <i class="fa-solid fa-save"></i> <span id="btnSubmitText">Simpan Data</span>
-                    </button>
-                </div>
-            </form>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal Servis *</label>
+            <input type="date" id="formTanggal" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal Servis Berikutnya</label>
+            <input type="date" id="formTanggalBerikutnya" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+          </div>
         </div>
 
-        <!-- RIWAYAT SERVIS TABLE -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-history text-emerald-600"></i> Riwayat Servis Pelanggan
-                </h2>
-                <!-- SEARCH BAR -->
-                <div class="relative w-full md:w-64">
-                    <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Cari nama, plat, merk..." class="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
-                            <th class="p-3">TGL SERVIS</th>
-                            <th class="p-3">PELANGGAN / NO. HP</th>
-                            <th class="p-3">MOTOR & PLAT</th>
-                            <th class="p-3">RINCIAN PEKERJAAN</th>
-                            <th class="p-3 text-right">TOTAL BIAYA</th>
-                            <th class="p-3">SERVIS NEXT</th>
-                            <th class="p-3 text-center">AKSI</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody" class="divide-y divide-slate-100">
-                        <tr>
-                            <td colspan="7" class="text-center py-6 text-slate-400">
-                                <i class="fa-solid fa-spinner fa-spin text-emerald-600 text-lg mb-2"></i>
-                                <p>Memuat data dari Google Sheets...</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Pelanggan *</label>
+            <input type="text" id="formNama" required placeholder="Contoh: Fajri" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. WhatsApp / HP</label>
+            <input type="text" id="formNoHP" placeholder="08xxxxxxxxxx" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+          </div>
         </div>
-    </main>
 
-    <script>
-        // URL Web App Google Apps Script
-        const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbwfQZHcjJEPUGgH604OgTdEprdbwg6WEKaSWLBupKcD2htj20PYuy8z2Lczmf_ukJtP/exec";
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Merk Motor</label>
+            <input type="text" id="formMerkMotor" placeholder="Honda / Yamaha" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tipe Motor</label>
+            <input type="text" id="formTipeMotor" placeholder="Vario 150 / NMAX" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Plat</label>
+            <input type="text" id="formNoPlat" placeholder="BN 1234 XX" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm uppercase">
+          </div>
+        </div>
 
-        let daftarData = [];
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kilometer (KM)</label>
+            <input type="text" id="formKilometer" placeholder="11000 Km" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Total Biaya (Rp)</label>
+            <input type="number" id="formTotalBiaya" placeholder="0" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
+          </div>
+        </div>
 
-        // Inisialisasi saat Halaman Dimuat
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("inputTanggal").valueAsDate = new Date();
-            muatData();
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Rincian Pekerjaan</label>
+          <textarea id="formRincianPekerjaan" rows="2" placeholder="Ganti oli, servis CVT, setel rem..." class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Catatan Tambahan</label>
+          <textarea id="formCatatan" rows="2" placeholder="Catatan mekanik / saran penggantian part..." class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button type="button" onclick="tutupModal()" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-sm font-medium">Batal</button>
+          <button type="submit" id="btnSubmit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-all flex items-center gap-2">
+            <span>Simpan</span>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+    // 🔴 URL APPS SCRIPT LENGKAP MILIK ANDA:
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwfQZHcjJEPUGgH604OgTdEprdbwg6WEKaSWLBupKcD2htj20PYuy8z2Lczmf_ukJtP/exec";
+
+    let rawData = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      muatData();
+    });
+
+    // 🟢 AMBIL DATA DARI APPS SCRIPT
+    function muatData() {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="7" class="py-12 text-center text-slate-400">
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i>
+            <p>Memuat data dari Spreadsheet...</p>
+          </td>
+        </tr>`;
+
+      fetch(`${SCRIPT_URL}?t=${new Date().getTime()}`)
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            rawData = data;
+            renderTable(rawData);
+          } else {
+            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500">Gagal memuat data: ${data.pesan || 'Error tidak diketahui'}</td></tr>`;
+          }
+        })
+        .catch(err => {
+          tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500">Koneksi terputus / gagal memuat data.</td></tr>`;
         });
+    }
 
-        // 1. FUNGSI AMBIL DATA DARI GOOGLE SHEETS (DILENGKAPI FILTER BARIS KOSONG)
-        async function muatData() {
-            const tableBody = document.getElementById("tableBody");
-            try {
-                const response = await fetch(URL_GOOGLE_SHEETS);
-                const result = await response.json();
+    // 🟢 RENDER TABEL
+    function renderTable(data) {
+      const tbody = document.getElementById("tableBody");
+      if (data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Belum ada riwayat servis.</td></tr>`;
+        return;
+      }
 
-                let rawData = [];
-                if (Array.isArray(result)) {
-                    rawData = result;
-                } else if (result && result.data && Array.isArray(result.data)) {
-                    rawData = result.data;
-                }
+      let html = "";
+      data.forEach(item => {
+        const totalRp = Number(item.TotalBiaya || 0).toLocaleString("id-ID");
+        const tglDisplay = formatTanggalDisplay(item.Tanggal);
+        const tglNextDisplay = item.TanggalBerikutnya ? formatTanggalDisplay(item.TanggalBerikutnya) : "-";
 
-                // FILTER OTOMATIS: Abaikan data jika Namanya kosong atau tidak ada
-                daftarData = rawData.filter(item => {
-                    const namaVal = item.Nama ? String(item.Nama).trim() : "";
-                    return namaVal !== "" && namaVal !== "-";
-                });
+        html += `
+          <tr class="hover:bg-slate-50/80 transition-colors">
+            <td class="py-4 px-4 whitespace-nowrap font-medium text-slate-700">${tglDisplay}</td>
+            <td class="py-4 px-4">
+              <div class="font-bold text-slate-900">${item.Nama || '-'}</div>
+              <div class="text-xs text-slate-400">${item.NoHP || '-'}</div>
+            </td>
+            <td class="py-4 px-4">
+              <div class="font-medium text-slate-800">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
+              <div class="text-xs text-slate-400">Plat: ${item.NoPlat || '-'} | KM: ${item.Kilometer || '-'}</div>
+            </td>
+            <td class="py-4 px-4 max-w-xs truncate text-slate-600">${item.RincianPekerjaan || '-'}</td>
+            <td class="py-4 px-4 font-bold text-emerald-600 whitespace-nowrap">Rp ${totalRp}</td>
+            <td class="py-4 px-4 text-xs text-slate-500 whitespace-nowrap">${tglNextDisplay}</td>
+            <td class="py-4 px-4 text-center whitespace-nowrap">
+              <div class="flex items-center justify-center gap-1">
+                <button onclick="cetakStruk(${item.rowId})" title="Cetak Nota" class="p-2 text-slate-500 hover:text-emerald-600 hover:bg-slate-100 rounded-lg transition-all">
+                  <i class="fa-solid fa-print"></i>
+                </button>
+                <button onclick="editRow(${item.rowId})" title="Edit Data" class="p-2 text-slate-500 hover:text-amber-600 hover:bg-slate-100 rounded-lg transition-all">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="hapusRow(${item.rowId})" title="Hapus Data" class="p-2 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+      tbody.innerHTML = html;
+    }
 
-                tampilkanData(daftarData);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Terjadi kesalahan koneksi ke Google Sheets.</td></tr>`;
-            }
-        }
+    // 🔍 FILTER/SEARCH
+    function filterTable() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = rawData.filter(d => 
+        (d.Nama && d.Nama.toLowerCase().includes(q)) ||
+        (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
+        (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q)) ||
+        (d.RincianPekerjaan && d.RincianPekerjaan.toLowerCase().includes(q))
+      );
+      renderTable(filtered);
+    }
 
-        // 2. TAMPILKAN DATA KE TABEL
-        function tampilkanData(data) {
-            const tableBody = document.getElementById("tableBody");
-            if (!data || data.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Belum ada riwayat servis.</td></tr>`;
-                return;
-            }
+    // 🗓️ CONVERT TANGGAL UNTUK INPUT DATE (YYYY-MM-DD) TANPA BERKURANG 1 HARI
+    function formatTanggalUntukInput(str) {
+      if (!str) return "";
+      if (str.includes("T")) str = str.split("T")[0];
+      
+      // Jika format DD/MM/YYYY
+      if (str.includes("/")) {
+        const p = str.split("/");
+        if (p.length === 3) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      }
+      // Jika format YYYY-MM-DD
+      if (str.includes("-")) {
+        const p = str.split("-");
+        if (p[0].length === 4) return str; 
+        if (p[2].length === 4) return `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      }
+      return str;
+    }
 
-            // Urutkan data terbaru di atas
-            const sortedData = [...data].reverse();
+    // 🗓️ FORMAT TANGGAL TAMPILAN TABEL (DD-MM-YYYY)
+    function formatTanggalDisplay(str) {
+      if (!str) return "-";
+      const iso = formatTanggalUntukInput(str);
+      const p = iso.split("-");
+      if (p.length === 3) return `${p[2]}-${p[1]}-${p[0]}`;
+      return str;
+    }
 
-            tableBody.innerHTML = sortedData.map(item => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-3 font-medium text-slate-700 whitespace-nowrap">${ubahFormatTanggal(item.Tanggal)}</td>
-                    <td class="p-3">
-                        <div class="font-bold text-slate-800">${item.Nama || '-'}</div>
-                        <div class="text-slate-400 text-[11px]">${item.NoHP || '-'}</div>
-                    </td>
-                    <td class="p-3">
-                        <div class="font-medium text-slate-700">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
-                        <div class="text-slate-400 text-[11px]">Plat: ${item.NoPlat || '-'} | KM: ${item.Kilometer || '-'}</div>
-                    </td>
-                    <td class="p-3 max-w-xs truncate" title="${item.RincianPekerjaan || ''}">
-                        ${item.RincianPekerjaan || '-'}
-                    </td>
-                    <td class="p-3 text-right font-bold text-emerald-700 whitespace-nowrap">
-                        ${formatRupiah(item.TotalBiaya)}
-                    </td>
-                    <td class="p-3 text-amber-700 whitespace-nowrap">
-                        ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : '-'}
-                    </td>
-                    <td class="p-3 text-center whitespace-nowrap">
-                        <div class="inline-flex rounded-md shadow-sm" role="group">
-                            <button onclick="cetakStruk('${item.rowId}')" title="Cetak Struk" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-l-lg border border-slate-300 text-xs">
-                                <i class="fa-solid fa-print"></i>
-                            </button>
-                            <button onclick="editData('${item.rowId}')" title="Edit Data" class="bg-slate-100 hover:bg-amber-100 text-amber-700 px-2.5 py-1.5 border-t border-b border-slate-300 text-xs">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button onclick="hapusData('${item.rowId}')" title="Hapus Data" class="bg-slate-100 hover:bg-red-100 text-red-600 px-2.5 py-1.5 rounded-r-lg border border-slate-300 text-xs">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
+    // ➕ OPEN MODAL TAMBAH
+    function bukaModalTambah() {
+      document.getElementById("servisForm").reset();
+      document.getElementById("modalTitle").innerText = "Tambah Servis Baru";
+      document.getElementById("formRowId").value = "";
+      document.getElementById("formAction").value = "create";
+      
+      // Default tanggal hari ini
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("formTanggal").value = today;
+      
+      document.getElementById("modalForm").classList.remove("hidden");
+    }
 
-        // 3. FUNGSI SIMPAN & UPDATE DATA
-        async function simpanData(event) {
-            event.preventDefault();
-            const btnSubmit = document.getElementById("btnSubmit");
-            const btnSubmitText = document.getElementById("btnSubmitText");
-            
-            btnSubmit.disabled = true;
-            btnSubmitText.innerText = "Menyimpan...";
+    // ✏️ OPEN MODAL EDIT
+    function editRow(rowId) {
+      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
+      if (!item) return;
 
-            const rowId = document.getElementById("editRowId").value;
-            const payload = {
-                action: rowId ? "update" : "create",
-                rowId: rowId || null,
-                Tanggal: document.getElementById("inputTanggal").value,
-                Nama: document.getElementById("inputNama").value,
-                NoHP: document.getElementById("inputNoHP").value,
-                MerkMotor: document.getElementById("inputMerk").value,
-                TipeMotor: document.getElementById("inputTipe").value,
-                NoPlat: document.getElementById("inputNoPlat").value,
-                Kilometer: document.getElementById("inputKM").value,
-                RincianPekerjaan: document.getElementById("inputRincian").value,
-                TotalBiaya: document.getElementById("inputTotalBiaya").value,
-                TanggalBerikutnya: document.getElementById("inputTanggalBerikutnya").value,
-                Catatan: document.getElementById("inputCatatan").value
-            };
+      document.getElementById("modalTitle").innerText = "Edit Servis Pelanggan";
+      document.getElementById("formRowId").value = item.rowId;
+      document.getElementById("formAction").value = "update";
 
-            try {
-                const response = await fetch(URL_GOOGLE_SHEETS, {
-                    method: "POST",
-                    body: JSON.stringify(payload)
-                });
-                
-                alert(rowId ? "✅ Data berhasil diperbarui!" : "✅ Data berhasil disimpan!");
-                resetForm();
-                muatData();
-            } catch (err) {
-                console.error(err);
-                alert("❌ Terjadi kesalahan koneksi.");
-            } finally {
-                btnSubmit.disabled = false;
-                btnSubmitText.innerText = rowId ? "Update Data" : "Simpan Data";
-            }
-        }
+      // Set value presisi tanpa pergeseran tanggal
+      document.getElementById("formTanggal").value = formatTanggalUntukInput(item.Tanggal);
+      document.getElementById("formTanggalBerikutnya").value = formatTanggalUntukInput(item.TanggalBerikutnya);
+      
+      document.getElementById("formNama").value = item.Nama || "";
+      document.getElementById("formNoHP").value = item.NoHP || "";
+      document.getElementById("formMerkMotor").value = item.MerkMotor || "";
+      document.getElementById("formTipeMotor").value = item.TipeMotor || "";
+      document.getElementById("formNoPlat").value = item.NoPlat || "";
+      document.getElementById("formKilometer").value = item.Kilometer || "";
+      document.getElementById("formTotalBiaya").value = item.TotalBiaya || 0;
+      document.getElementById("formRincianPekerjaan").value = item.RincianPekerjaan || "";
+      document.getElementById("formCatatan").value = item.Catatan || "";
 
-        // 4. FUNGSI EDIT DATA
-        function editData(rowId) {
-            const item = daftarData.find(d => String(d.rowId) === String(rowId));
-            if (!item) return;
+      document.getElementById("modalForm").classList.remove("hidden");
+    }
 
-            document.getElementById("editRowId").value = item.rowId;
-            document.getElementById("inputTanggal").value = item.Tanggal ? item.Tanggal.substring(0, 10) : "";
-            document.getElementById("inputNama").value = item.Nama || "";
-            document.getElementById("inputNoHP").value = item.NoHP || "";
-            document.getElementById("inputMerk").value = item.MerkMotor || "";
-            document.getElementById("inputTipe").value = item.TipeMotor || "";
-            document.getElementById("inputNoPlat").value = item.NoPlat || "";
-            document.getElementById("inputKM").value = item.Kilometer || "";
-            document.getElementById("inputRincian").value = item.RincianPekerjaan || "";
-            document.getElementById("inputTotalBiaya").value = item.TotalBiaya || "";
-            document.getElementById("inputTanggalBerikutnya").value = item.TanggalBerikutnya ? item.TanggalBerikutnya.substring(0, 10) : "";
-            document.getElementById("inputCatatan").value = item.Catatan || "";
+    function tutupModal() {
+      document.getElementById("modalForm").classList.add("hidden");
+    }
 
-            // Ubah Tampilan Form
-            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-600"></i> Edit Data Servis Pelanggan`;
-            document.getElementById("btnSubmitText").innerText = "Update Data";
-            document.getElementById("btnSubmit").className = "bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2";
-            document.getElementById("btnBatal").classList.remove("hidden");
+    // 💾 SIMPAN DATA (CREATE / UPDATE)
+    function simpanData(e) {
+      e.preventDefault();
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+      const btnSubmit = document.getElementById("btnSubmit");
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
 
-        // 5. RESET FORM
-        function resetForm() {
-            document.getElementById("serviceForm").reset();
-            document.getElementById("editRowId").value = "";
-            document.getElementById("inputTanggal").valueAsDate = new Date();
+      const action = document.getElementById("formAction").value;
+      const rowId = document.getElementById("formRowId").value;
 
-            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-plus-circle"></i> Tambah Data Servis Baru`;
-            document.getElementById("btnSubmitText").innerText = "Simpan Data";
-            document.getElementById("btnSubmit").className = "bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2";
-            document.getElementById("btnBatal").classList.add("hidden");
-        }
+      const payload = {
+        action: action,
+        rowId: rowId,
+        Tanggal: document.getElementById("formTanggal").value,
+        Nama: document.getElementById("formNama").value,
+        NoHP: document.getElementById("formNoHP").value,
+        MerkMotor: document.getElementById("formMerkMotor").value,
+        TipeMotor: document.getElementById("formTipeMotor").value,
+        NoPlat: document.getElementById("formNoPlat").value,
+        Kilometer: document.getElementById("formKilometer").value,
+        RincianPekerjaan: document.getElementById("formRincianPekerjaan").value,
+        TotalBiaya: document.getElementById("formTotalBiaya").value,
+        Catatan: document.getElementById("formCatatan").value,
+        TanggalBerikutnya: document.getElementById("formTanggalBerikutnya").value
+      };
 
-        // 6. FUNGSI HAPUS DATA (MENGIRIM PERINTAH DELETE ROW)
-        async function hapusData(rowId) {
-            if (!confirm("Apakah Anda yakin ingin menghapus data servis ini secara permanen?")) return;
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        alert(action === "update" ? "Data berhasil diperbarui!" : "Data berhasil disimpan!");
+        tutupModal();
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<span>Simpan</span>`;
+        muatData(); // Refresh tabel
+      })
+      .catch(err => {
+        alert("Gagal menyimpan data: " + err.message);
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<span>Simpan</span>`;
+      });
+    }
 
-            try {
-                const response = await fetch(URL_GOOGLE_SHEETS, {
-                    method: "POST",
-                    body: JSON.stringify({ action: "delete", rowId: rowId })
-                });
-                
-                alert("🗑️ Data berhasil dihapus!");
-                muatData();
-            } catch (err) {
-                console.error(err);
-                alert("Terjadi kesalahan saat menghapus data.");
-            }
-        }
+    // 🗑️ HAPUS ROW
+    function hapusRow(rowId) {
+      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
+      if (!item) return;
 
-        // 7. FUNGSI CETAK STRUK
-        function cetakStruk(rowId) {
-            const item = daftarData.find(d => String(d.rowId) === String(rowId));
-            if (!item) return;
+      if (!confirm(`Hapus data servis untuk ${item.Nama} (${item.NoPlat || 'Tanpa Plat'})?`)) return;
 
-            const htmlStruk = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Struk Servis - ${item.Nama}</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
-                <style>
-                    * { box-sizing: border-box; }
-                    
-                    @page {
-                        size: 80mm auto;
-                        margin: 0;
-                    }
+      const payload = {
+        action: "hapus",
+        rowId: rowId,
+        nama: item.Nama,
+        tanggal: item.Tanggal,
+        plat: item.NoPlat
+      };
 
-                    body {
-                        font-family: 'Courier New', Courier, monospace;
-                        width: 280px;
-                        margin: 0 auto;
-                        padding: 10px;
-                        font-size: 11px;
-                        color: #000;
-                        background-color: #f3f4f6;
-                    }
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        alert("Data berhasil dihapus dari Google Sheets!");
+        muatData();
+      })
+      .catch(err => alert("Gagal menghapus: " + err.message));
+    }
 
-                    .action-buttons {
-                        display: flex;
-                        gap: 5px;
-                        margin-bottom: 12px;
-                        justify-content: center;
-                    }
+    // 🖨️ CETAK NOTA / STRUK
+    function cetakStruk(rowId) {
+      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
+      if (!item) return;
 
-                    .btn {
-                        padding: 6px 10px;
-                        font-family: sans-serif;
-                        font-size: 11px;
-                        font-weight: bold;
-                        border: none;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        color: white;
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 3px;
-                    }
-                    .btn-print { background-color: #2563eb; }
-                    .btn-wa { background-color: #16a34a; }
-                    .btn-close { background-color: #4b5563; }
-                    .btn:hover { opacity: 0.9; }
-
-                    #strukContent {
-                        background: white;
-                        padding: 15px;
-                        border-radius: 6px;
-                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-                        width: 280px;
-                        margin: 0 auto;
-                    }
-
-                    .text-center { text-align: center; }
-                    .logo { width: 55px; height: 55px; border-radius: 50%; margin: 0 auto 5px auto; display: block; object-fit: cover; }
-                    .border-bottom { border-bottom: 1px dashed #000; margin: 8px 0; }
-                    .bold { font-weight: bold; }
-                    .flex-between { display: flex; justify-content: space-between; }
-                    .rincian { white-space: pre-wrap; margin: 5px 0; }
-
-                    @media print {
-                        html, body {
-                            background: white !important;
-                            width: 280px !important;
-                            margin: 0 auto !important;
-                            padding: 5px !important;
-                        }
-                        .action-buttons { display: none !important; }
-                        #strukContent {
-                            box-shadow: none !important;
-                            padding: 0 !important;
-                            width: 100% !important;
-                            border-radius: 0 !important;
-                        }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="action-buttons">
-                    <button onclick="window.print()" class="btn btn-print">🖨️ Print</button>
-                    <button onclick="kirimGambarWA('${item.NoHP}')" class="btn btn-wa">📲 Kirim WA</button>
-                    <button onclick="window.close()" class="btn btn-close">❌ Tutup</button>
-                </div>
-
-                <div id="strukContent">
-                    <div class="text-center">
-                        <img src="logo-mfev.png" class="logo" alt="Logo MF.EV" onerror="this.src='https://via.placeholder.com/55'">
-                        <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
-                        <div>BENGKEL MOTOR LISTRIK</div>
-                        <div style="font-size: 9px;">Pangkalpinang, Bangka Belitung</div>
-                    </div>
-                    
-                    <div class="border-bottom"></div>
-                    
-                    <div>Tgl     : ${ubahFormatTanggal(item.Tanggal)}</div>
-                    <div>Nama    : ${item.Nama}</div>
-                    <div>No HP   : ${item.NoHP || '-'}</div>
-                    <div>Motor   : ${item.MerkMotor} ${item.TipeMotor || ''}</div>
-                    <div>Plat    : ${item.NoPlat || '-'}</div>
-                    <div>KM      : ${item.Kilometer || '-'}</div>
-                    
-                    <div class="border-bottom"></div>
-                    
-                    <div class="bold">RINCIAN PEKERJAAN & SPAREPART:</div>
-                    <div class="rincian">${item.RincianPekerjaan || '-'}</div>
-                    
-                    <div class="border-bottom"></div>
-                    
-                    <div class="flex-between bold" style="font-size: 12px;">
-                        <span>TOTAL BIAYA:</span>
-                        <span>${formatRupiah(item.TotalBiaya)}</span>
-                    </div>
-                    ${item.Catatan && item.Catatan !== '-' ? `<div style="margin-top: 4px;">Catatan: ${item.Catatan}</div>` : ''}
-                    
-                    <div class="border-bottom"></div>
-                    
-                    <div class="text-center">
-                        <div>Jadwal Servis Berkala Berikutnya:</div>
-                        <div class="bold" style="font-size: 12px; margin-top: 2px;">
-                            📅 ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : 'Sesuai Pemakaian'}
-                        </div>
-                    </div>
-
-                    <div class="border-bottom"></div>
-                    
-                    <div class="text-center" style="margin-top: 10px;">
-                        Terima Kasih Atas Kepercayaan Anda 🙏
-                    </div>
-                </div>
-
-                <script>
-                    async function kirimGambarWA(noHP) {
-                        const element = document.getElementById('strukContent');
-                        try {
-                            const canvas = await html2canvas(element, { scale: 2 });
-                            
-                            canvas.toBlob(async (blob) => {
-                                try {
-                                    const data = [new ClipboardItem({ 'image/png': blob })];
-                                    await navigator.clipboard.write(data);
-                                    
-                                    let phone = String(noHP).replace(/\\D/g, '');
-                                    if (phone.startsWith('0')) {
-                                        phone = '62' + phone.slice(1);
-                                    }
-
-                                    alert("✅ GAMBAR STRUK BERHASIL DISALIN!\\n\\nWhatsApp akan terbuka. Silakan tekan Ctrl+V (Paste) di kolom chat untuk mengirim struk dalam bentuk GAMBAR.");
-                                    
-                                    const waUrl = phone ? \`https://wa.me/\${phone}\` : 'https://wa.me/';
-                                    window.open(waUrl, '_blank');
-                                } catch (err) {
-                                    console.error(err);
-                                    alert("⚠️ Browser menolak penyalinan gambar otomatis. Silakan screenshot manual atau gunakan browser chrome/edge terbaru.");
-                                }
-                            });
-                        } catch (e) {
-                            alert("Gagal mengubah struk menjadi gambar.");
-                        }
-                    }
-                <\/script>
-            </body>
-            </html>
-            `;
-
-            const win = window.open('', '_blank', 'width=380,height=650');
-            win.document.write(htmlStruk);
-            win.document.close();
-        }
-
-        // FUNGSI HELPER / PENDUKUNG
-        function filterData() {
-            const query = document.getElementById("searchBox").value.toLowerCase();
-            const filtered = daftarData.filter(d => 
-                (d.Nama && d.Nama.toLowerCase().includes(query)) ||
-                (d.NoPlat && d.NoPlat.toLowerCase().includes(query)) ||
-                (d.MerkMotor && d.MerkMotor.toLowerCase().includes(query))
-            );
-            tampilkanData(filtered);
-        }
-
-        function ubahFormatTanggal(strTanggal) {
-            if (!strTanggal) return "-";
-            const d = new Date(strTanggal);
-            if (isNaN(d)) return strTanggal;
-            const tgl = String(d.getDate()).padStart(2, '0');
-            const bln = String(d.getMonth() + 1).padStart(2, '0');
-            const thn = d.getFullYear();
-            return `${tgl}-${bln}-${thn}`;
-        }
-
-        function formatRupiah(nominal) {
-            const num = parseFloat(nominal) || 0;
-            return "Rp " + num.toLocaleString("id-ID");
-        }
-    </script>
+      const totalRp = Number(item.TotalBiaya || 0).toLocaleString("id-ID");
+      const cetakWin = window.open("", "_blank", "width=600,height=700");
+      
+      cetakWin.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Nota Servis - ${item.Nama}</title>
+          <style>
+            body { font-family: monospace; font-size: 13px; padding: 20px; line-height: 1.4; }
+            .header { text-align: center; font-weight: bold; margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
+            .row { display: flex; justify-space-between; margin-bottom: 4px; }
+            .line { border-bottom: 1px dashed #000; margin: 10px 0; }
+            .total { font-weight: bold; font-size: 15px; text-align: right; }
+          </style>
+        </head>
+        <body onload="window.print()">
+          <div class="header">
+            MF.EV SERVICE CENTER<br>
+            Nota Servis Pelanggan
+          </div>
+          <div>Tanggal  : ${formatTanggalDisplay(item.Tanggal)}</div>
+          <div>Nama     : ${item.Nama} (${item.NoHP || '-'})</div>
+          <div>Motor    : ${item.MerkMotor} ${item.TipeMotor}</div>
+          <div>No. Plat : ${item.NoPlat} | KM: ${item.Kilometer}</div>
+          <div class="line"></div>
+          <div><b>Pekerjaan / Part:</b></div>
+          <div>${item.RincianPekerjaan || '-'}</div>
+          <div class="line"></div>
+          <div class="total">TOTAL: Rp ${totalRp}</div>
+          <div class="line"></div>
+          <div style="text-align: center; font-size: 11px;">
+            Next Servis: ${item.TanggalBerikutnya ? formatTanggalDisplay(item.TanggalBerikutnya) : '-'}<br>
+            Terima kasih atas kunjungan Anda!
+          </div>
+        </body>
+        </html>
+      `);
+      cetakWin.document.close();
+    }
+  </script>
 </body>
 </html>
