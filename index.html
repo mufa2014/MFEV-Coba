@@ -433,7 +433,6 @@
       .catch(err => alert("Gagal menghapus: " + err.message));
     }
 
-    // 🖨️ FUNGSI CETAK NOTA DAN AMBIL GAMBAR STRUK (AMAN BEBAS ERROR CRASH)
     function cetakStruk(rowId) {
       const item = rawData.find(d => Number(d.rowId) === Number(rowId));
       if (!item) return;
@@ -536,7 +535,7 @@
             <div class="text-center">
               <img src="logo-mfev.png" class="logo-bw" alt="Logo MF.EV" onerror="this.style.display='none'">
               <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
-              <div style="font-size: 10px;">Bangka Belitung - HP: 087896318932</div>
+              <div style="font-size: 10px;">Pangkalpinang, Bangka Belitung</div>
             </div>
 
             <div class="divider"></div>
