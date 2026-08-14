@@ -16,9 +16,8 @@
     <!-- HEADER / LOGO -->
     <div class="bg-green-800 text-white p-4 rounded-lg shadow-md mb-4 flex items-center justify-between">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center font-bold text-green-800 text-lg shadow">
-                MF
-            </div>
+            <!-- LOGO BENGKEL -->
+            <img src="logo-mfev.png" alt="MF.EV Logo" class="w-12 h-12 rounded-full bg-white p-0.5 object-cover shadow border-2 border-white">
             <div>
                 <h1 class="text-xl font-bold leading-tight">MF.EV Service</h1>
                 <p class="text-xs text-green-200">Manajemen Bengkel & Riwayat Servis</p>
@@ -459,35 +458,81 @@ function cetakStruk(rowId) {
     const item = daftarData.find(d => String(d.rowId) === String(rowId));
     if (!item) return;
 
-    const isiStruk = `
-========================================
-           MF.EV SERVICE
-   BENGKEL MOTOR LISTRIK PANGKALPINANG
-========================================
-Tanggal  : ${ubahFormatTanggal(item.Tanggal)}
-Pelanggan: ${item.Nama} (${item.NoHP || '-'})
-Motor    : ${item.MerkMotor} ${item.TipeMotor}
-No. Plat : ${item.NoPlat || '-'}
-KM       : ${item.Kilometer || '-'}
-----------------------------------------
-RINCIAN PEKERJAAN & SPAREPART:
-${item.RincianPekerjaan || '-'}
+    const htmlStruk = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Struk Servis - ${item.Nama}</title>
+        <style>
+            body {
+                font-family: 'Courier New', Courier, monospace;
+                width: 280px;
+                margin: 0 auto;
+                padding: 10px;
+                font-size: 11px;
+                color: #000;
+            }
+            .text-center { text-align: center; }
+            .logo { width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 5px auto; display: block; }
+            .border-bottom { border-bottom: 1px dashed #000; margin: 8px 0; }
+            .bold { font-weight: bold; }
+            .flex-between { display: flex; justify-content: space-between; }
+            .rincian { white-space: pre-wrap; margin: 5px 0; }
+        </style>
+    </head>
+    <body>
+        <div class="text-center">
+            <img src="logo-mfev.png" class="logo" alt="Logo MF.EV">
+            <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
+            <div>BENGKEL MOTOR LISTRIK</div>
+            <div style="font-size: 9px;">Pangkalpinang, Bangka Belitung</div>
+        </div>
+        
+        <div class="border-bottom"></div>
+        
+        <div>Tgl     : ${ubahFormatTanggal(item.Tanggal)}</div>
+        <div>Nama    : ${item.Nama}</div>
+        <div>No HP   : ${item.NoHP || '-'}</div>
+        <div>Motor   : ${item.MerkMotor} ${item.TipeMotor}</div>
+        <div>Plat    : ${item.NoPlat || '-'}</div>
+        <div>KM      : ${item.Kilometer || '-'}</div>
+        
+        <div class="border-bottom"></div>
+        
+        <div class="bold">RINCIAN PEKERJAAN & SPAREPART:</div>
+        <div class="rincian">${item.RincianPekerjaan || '-'}</div>
+        
+        <div class="border-bottom"></div>
+        
+        <div class="flex-between bold" style="font-size: 12px;">
+            <span>TOTAL BIAYA:</span>
+            <span>${formatRupiah(item.TotalBiaya)}</span>
+        </div>
+        ${item.Catatan && item.Catatan !== '-' ? `<div style="margin-top: 4px;">Catatan: ${item.Catatan}</div>` : ''}
+        
+        <div class="border-bottom"></div>
+        
+        <div class="text-center">
+            <div>Jadwal Servis Berkala Berikutnya:</div>
+            <div class="bold" style="font-size: 12px; margin-top: 2px;">
+                📅 ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : 'Sesuai Pemakaian'}
+            </div>
+        </div>
 
-TOTAL BIAYA: ${formatRupiah(item.TotalBiaya)}
-Catatan    : ${item.Catatan || '-'}
-----------------------------------------
-Jadwal Servis Berkala Berikutnya:
-📅 ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : 'Sesuai Pemakaian'}
-========================================
- Terima Kasih Atas Kepercayaan Anda 🙏
-========================================
+        <div class="border-bottom"></div>
+        
+        <div class="text-center" style="margin-top: 10px;">
+            Terima Kasih Atas Kepercayaan Anda 🙏
+        </div>
+    </body>
+    </html>
     `;
 
-    const win = window.open('', '_blank', 'width=400,height=600');
-    win.document.write(`<pre style="font-family: monospace; font-size: 12px; padding: 15px;">${isiStruk}</pre>`);
+    const win = window.open('', '_blank', 'width=380,height=600');
+    win.document.write(htmlStruk);
     win.document.close();
     win.focus();
-    setTimeout(() => { win.print(); }, 500);
+    setTimeout(() => { win.print(); }, 600);
 }
 </script>
 </body>
