@@ -4,609 +4,549 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MF.EV Service Manager</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .badge-lewat { background-color: #fee2e2; color: #dc2626; }
-        .badge-segera { background-color: #fef3c7; color: #d97706; }
-        .badge-aman { background-color: #dcfce7; color: #16a34a; }
-    </style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2canvas untuk mengubah elemen HTML menjadi gambar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
-<body class="bg-gray-100 max-w-xl mx-auto p-3 text-gray-800" onload="initApp()">
+<body class="bg-slate-100 min-h-screen text-slate-800 pb-12">
 
-    <!-- HEADER / LOGO -->
-    <div class="bg-green-800 text-white p-4 rounded-lg shadow-md mb-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <!-- LOGO BENGKEL -->
-            <img src="logo-mfev.png" alt="MF.EV Logo" class="w-12 h-12 rounded-full bg-white p-0.5 object-cover shadow border-2 border-white">
-            <div>
-                <h1 class="text-xl font-bold leading-tight">MF.EV Service</h1>
-                <p class="text-xs text-green-200">Manajemen Bengkel & Riwayat Servis</p>
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-emerald-700 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white p-1 rounded-full w-10 h-10 flex items-center justify-center">
+                    <img src="logo-mfev.png" alt="Logo" class="w-8 h-8 rounded-full object-cover">
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">MF.EV SERVICE MANAGER</h1>
+                    <p class="text-xs text-emerald-200">Bengkel Motor Listrik Pangkalpinang</p>
+                </div>
             </div>
+            <a href="pengingat.html" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 shadow transition">
+                <i class="fa-solid fa-bell"></i>
+                <span>Pengingat Servis</span>
+            </a>
         </div>
-        <a href="pengingat.html" class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-semibold px-3 py-1.5 rounded text-xs shadow transition">
-            🔔 Pengingat
-        </a>
-    </div>
+    </header>
 
-    <!-- STATUS KONEKSI / INFO -->
-    <div class="flex justify-between items-center bg-white p-3 rounded-lg shadow mb-4 text-xs">
-        <span id="statusKoneksi" class="font-medium text-gray-600">⏳ Menghubungkan ke Sheets...</span>
-        <button onclick="tarikDataDariSheets()" id="btnMuat" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded transition">
-            🔄 Muat Ulang
-        </button>
-    </div>
-
-    <!-- FORM INPUT / EDIT DATA -->
-    <div class="bg-white p-4 rounded-lg shadow mb-5">
-        <h2 id="judulForm" class="text-base font-bold text-gray-800 border-b pb-2 mb-3">➕ Tambah Transaksi Servis</h2>
+    <main class="max-w-6xl mx-auto px-4 mt-6">
         
-        <form id="formServis" onsubmit="simpanData(event)" class="space-y-3 text-xs">
-            <input type="hidden" id="editRowId" value="">
+        <!-- CARD FORM INPUT / EDIT -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6">
+            <h2 id="formTitle" class="text-base font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-plus-circle"></i> Tambah Data Servis Baru
+            </h2>
 
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block font-semibold mb-1">Tanggal Servis</label>
-                    <input type="date" id="inputTanggal" required class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">Nama Pelanggan</label>
-                    <input type="text" id="inputNama" required placeholder="Contoh: Fajri" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
-                </div>
-            </div>
+            <form id="serviceForm" onsubmit="simpanData(event)" class="space-y-4">
+                <input type="hidden" id="editRowId" value="">
 
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block font-semibold mb-1">No HP / WhatsApp</label>
-                    <input type="tel" id="inputNoHP" placeholder="087781741595" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tanggal Servis *</label>
+                        <input type="date" id="inputTanggal" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Pelanggan *</label>
+                        <input type="text" id="inputNama" required placeholder="Contoh: Budi" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">No. WhatsApp / HP</label>
+                        <input type="tel" id="inputNoHP" placeholder="Contoh: 08123456789" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
                 </div>
-                <div>
-                    <label class="block font-semibold mb-1">Merk Motor EV</label>
-                    <input type="text" id="inputMerk" required placeholder="Polytron / Uwinfly" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
-                </div>
-            </div>
 
-            <div class="grid grid-cols-3 gap-2">
-                <div>
-                    <label class="block font-semibold mb-1">Tipe Motor</label>
-                    <input type="text" id="inputTipe" placeholder="Fox R / Fox S" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Merk Motor *</label>
+                        <input type="text" id="inputMerk" required placeholder="Contoh: Gesits, Viar, Uwinfly" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Tipe Motor</label>
+                        <input type="text" id="inputTipe" placeholder="Contoh: G1, T3, X6" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">No. Plat Polisi</label>
+                        <input type="text" id="inputNoPlat" placeholder="Contoh: BN 1234 XX" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm uppercase focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kilometer (KM)</label>
+                        <input type="number" id="inputKM" placeholder="Contoh: 5200" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
                 </div>
-                <div>
-                    <label class="block font-semibold mb-1">No Plat</label>
-                    <input type="text" id="inputNoPlat" placeholder="BN-2602-AH" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Rincian Pekerjaan & Sparepart *</label>
+                        <textarea id="inputRincian" rows="2" required placeholder="Contoh: Ganti Kampas Rem Depan, Perbaikan Controller" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Total Biaya (Rp) *</label>
+                        <input type="number" id="inputTotalBiaya" required placeholder="50000" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
                 </div>
-                <div>
-                    <label class="block font-semibold mb-1">Kilometer</label>
-                    <input type="text" id="inputKilometer" placeholder="11000 Km" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Jadwal Servis Berkala Berikutnya</label>
+                        <input type="date" id="inputTanggalBerikutnya" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Catatan / Keterangan Tambahan</label>
+                        <input type="text" id="inputCatatan" placeholder="Opsional" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
                 </div>
-            </div>
 
-            <div>
-                <label class="block font-semibold mb-1">Rincian Pekerjaan & Sparepart</label>
-                <textarea id="inputRincian" rows="2" placeholder="Ganti Kampas Rem Depan: Rp 35.000" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none"></textarea>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block font-semibold mb-1">Total Biaya (Rp)</label>
-                    <input type="text" id="inputTotalBiaya" placeholder="35000" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
+                <!-- TOMBOL FORM -->
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" id="btnBatal" onclick="resetForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg text-xs font-semibold transition">
+                        Batal
+                    </button>
+                    <button type="submit" id="btnSubmit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2">
+                        <i class="fa-solid fa-save"></i> <span id="btnSubmitText">Simpan Data</span>
+                    </button>
                 </div>
-                <div>
-                    <label class="block font-semibold mb-1">Tanggal Servis Berikutnya</label>
-                    <input type="date" id="inputTanggalBerikutnya" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
-                </div>
-            </div>
-
-            <div>
-                <label class="block font-semibold mb-1">Catatan Tambahan</label>
-                <input type="text" id="inputCatatan" placeholder="Sparepart Bawa Sendiri / Unit Baru" class="w-full p-2 border rounded focus:ring-1 focus:ring-green-600 outline-none">
-            </div>
-
-            <div class="flex gap-2 pt-2">
-                <button type="submit" id="btnSimpan" class="flex-1 bg-green-700 hover:bg-green-800 text-white py-2 rounded font-bold shadow text-sm transition">
-                    💾 Simpan Data
-                </button>
-                <button type="button" id="btnBatal" onclick="resetForm()" class="hidden bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded font-semibold text-sm transition">
-                    Batal
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- PANEL FILTER & SORTING -->
-    <div class="bg-white p-3 rounded-lg shadow mb-4 text-xs">
-        <div class="flex items-center gap-2 mb-2">
-            <span class="font-bold text-gray-700">📌 Urutkan Berdasarkan:</span>
+            </form>
         </div>
-        <div class="flex flex-wrap gap-1.5">
-            <button onclick="setUrutan('tanggal')" id="sortTanggal" class="px-2.5 py-1 rounded bg-green-800 text-white font-medium">Tanggal ⬇</button>
-            <button onclick="setUrutan('nama')" id="sortNama" class="px-2.5 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300">Nama A-Z</button>
-            <button onclick="setUrutan('merk')" id="sortMerk" class="px-2.5 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300">Merk</button>
-            <button onclick="setUrutan('biaya')" id="sortBiaya" class="px-2.5 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300">Biaya ⬇</button>
-        </div>
-        <div class="mt-2 pt-2 border-t">
-            <input type="text" id="inputCari" oninput="filterData()" placeholder="🔍 Cari Nama, No Plat, atau Motor..." class="w-full p-1.5 border rounded outline-none focus:ring-1 focus:ring-blue-500">
-        </div>
-    </div>
 
-    <!-- TABEL / DAFTAR RIWAYAT SERVIS -->
-    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
-        <div class="bg-gray-50 px-4 py-2 border-b flex justify-between items-center">
-            <h3 class="font-bold text-gray-700 text-xs">📋 Riwayat Transaksi</h3>
-            <span id="jumlahData" class="text-xs text-gray-500 font-medium">0 transaksi</span>
-        </div>
-        <div id="wadahRiwayat" class="divide-y divide-gray-200">
-            <!-- Data dimasukkan via JavaScript -->
-        </div>
-    </div>
-
-<script>
-const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbwfQZHcjJEPUGgH604OgTdEprdbwg6WEKaSWLBupKcD2htj20PYuy8z2Lczmf_ukJtP/exec";
-
-let daftarData = [];
-let modeUrut = 'tanggal';
-let arahAsc = false;
-
-function initApp() {
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('inputTanggal').value = today;
-    tarikDataDariSheets();
-}
-
-function formatTanggalKeISO(t) {
-    if (!t) return '';
-    let s = String(t).replace(/T.*/,'').trim();
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
-        const [d,m,y] = s.split('/');
-        return `${y}-${m}-${d}`;
-    }
-    return s;
-}
-
-function ubahFormatTanggal(t) {
-    if (!t) return '';
-    let s = String(t).replace(/T.*/,'').trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
-        const [y,m,d] = s.split('-');
-        return `${d}-${m}-${y}`;
-    }
-    return s;
-}
-
-function formatRupiah(angka) {
-    if (!angka) return 'Rp 0';
-    let val = String(angka).replace(/\D/g, '');
-    return 'Rp ' + Number(val).toLocaleString('id-ID');
-}
-
-function tarikDataDariSheets() {
-    const statusEl = document.getElementById('statusKoneksi');
-    const btnMuat = document.getElementById('btnMuat');
-    
-    statusEl.textContent = '⏳ Mengambil data...';
-    btnMuat.disabled = true;
-
-    const scriptLama = document.getElementById('jsonpScript');
-    if (scriptLama) scriptLama.remove();
-
-    window.prosesDataSheets = function(res) {
-        btnMuat.disabled = false;
-        let listRaw = [];
-        if (Array.isArray(res)) listRaw = res;
-        else if (res && res.data && Array.isArray(res.data)) listRaw = res.data;
-
-        daftarData = listRaw.map((item, idx) => ({
-            rowId: Number(item.rowId || idx + 2),
-            Tanggal: formatTanggalKeISO(item.Tanggal || ''),
-            Nama: item.Nama || '',
-            NoHP: String(item.NoHP || ''),
-            MerkMotor: item.MerkMotor || '',
-            TipeMotor: item.TipeMotor || '',
-            NoPlat: item.NoPlat || '',
-            Kilometer: item.Kilometer || '',
-            RincianPekerjaan: item.RincianPekerjaan || '',
-            TotalBiaya: item.TotalBiaya || '',
-            Catatan: item.Catatan || '',
-            TanggalBerikutnya: formatTanggalKeISO(item.TanggalBerikutnya || ''),
-            SudahDihubungi: String(item.SudahDihubungi).toUpperCase() === 'TRUE' || item.SudahDihubungi === true
-        }));
-
-        statusEl.textContent = `✅ Terhubung (${daftarData.length} data)`;
-        tampilkanRiwayat(daftarData);
-    };
-
-    const script = document.createElement('script');
-    script.id = 'jsonpScript';
-    script.src = `${URL_GOOGLE_SHEETS}?callback=prosesDataSheets&t=${Date.now()}`;
-    script.onerror = function() {
-        btnMuat.disabled = false;
-        statusEl.textContent = '❌ Gagal terhubung ke Sheets';
-    };
-    document.body.appendChild(script);
-}
-
-function setUrutan(kriteria) {
-    if (modeUrut === kriteria) {
-        arahAsc = !arahAsc;
-    } else {
-        modeUrut = kriteria;
-        arahAsc = (kriteria === 'nama' || kriteria === 'merk');
-    }
-
-    ['Tanggal', 'Nama', 'Merk', 'Biaya'].forEach(k => {
-        const btn = document.getElementById('sort' + k);
-        if (k.toLowerCase() === kriteria) {
-            btn.className = "px-2.5 py-1 rounded bg-green-800 text-white font-medium";
-            btn.textContent = `${k} ${arahAsc ? '⬆' : '⬇'}`;
-        } else {
-            btn.className = "px-2.5 py-1 rounded bg-gray-200 text-gray-700 hover:bg-gray-300";
-            btn.textContent = k;
-        }
-    });
-
-    tampilkanRiwayat(daftarData);
-}
-
-function filterData() {
-    tampilkanRiwayat(daftarData);
-}
-
-function tampilkanRiwayat(dataList) {
-    const wadah = document.getElementById('wadahRiwayat');
-    const inputCari = document.getElementById('inputCari').value.toLowerCase();
-    
-    let hasil = dataList.filter(item => {
-        return item.Nama.toLowerCase().includes(inputCari) ||
-               item.NoPlat.toLowerCase().includes(inputCari) ||
-               item.MerkMotor.toLowerCase().includes(inputCari) ||
-               item.TipeMotor.toLowerCase().includes(inputCari);
-    });
-
-    hasil.sort((a, b) => {
-        let valA, valB;
-        if (modeUrut === 'tanggal') {
-            valA = new Date(a.Tanggal || '1970-01-01');
-            valB = new Date(b.Tanggal || '1970-01-01');
-        } else if (modeUrut === 'nama') {
-            valA = a.Nama.toLowerCase();
-            valB = b.Nama.toLowerCase();
-        } else if (modeUrut === 'merk') {
-            valA = a.MerkMotor.toLowerCase();
-            valB = b.MerkMotor.toLowerCase();
-        } else if (modeUrut === 'biaya') {
-            valA = Number(String(a.TotalBiaya).replace(/\D/g, '')) || 0;
-            valB = Number(String(b.TotalBiaya).replace(/\D/g, '')) || 0;
-        }
-
-        if (valA < valB) return arahAsc ? -1 : 1;
-        if (valA > valB) return arahAsc ? 1 : -1;
-        return 0;
-    });
-
-    document.getElementById('jumlahData').textContent = `${hasil.length} transaksi`;
-
-    if (hasil.length === 0) {
-        wadah.innerHTML = `<div class="p-4 text-center text-gray-500 italic text-xs">Belum ada riwayat data servis.</div>`;
-        return;
-    }
-
-    wadah.innerHTML = hasil.map(item => `
-        <div class="p-3 hover:bg-gray-50 transition text-xs flex flex-col gap-2">
-            <div class="flex justify-between items-start">
-                <div>
-                    <span class="font-bold text-gray-800 text-sm">${item.Nama}</span>
-                    <span class="text-gray-500 text-xs ml-1">(${item.NoHP || '-'})</span>
-                    <div class="text-gray-600 font-medium">${item.MerkMotor} ${item.TipeMotor} — <span class="bg-gray-100 px-1.5 py-0.5 rounded border">${item.NoPlat || '-'}</span></div>
-                </div>
-                <div class="text-right">
-                    <div class="font-bold text-green-700 text-sm">${formatRupiah(item.TotalBiaya)}</div>
-                    <div class="text-gray-400 text-xs">${ubahFormatTanggal(item.Tanggal)}</div>
+        <!-- RIWAYAT SERVIS TABLE -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+                <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-history text-emerald-600"></i> Riwayat Servis Pelanggan
+                </h2>
+                <!-- SEARCH BAR -->
+                <div class="relative w-full md:w-64">
+                    <input type="text" id="searchBox" onkeyup="filterData()" placeholder="Cari nama, plat, merk..." class="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                 </div>
             </div>
 
-            <div class="bg-gray-50 p-2 rounded border text-gray-700">
-                <div class="font-semibold text-gray-800">🛠 Pekerjaan:</div>
-                <div>${item.RincianPekerjaan || '-'}</div>
-                ${item.Catatan && item.Catatan !== '-' ? `<div class="mt-1 text-gray-500 italic">📌 ${item.Catatan}</div>` : ''}
-            </div>
-
-            <div class="flex justify-between items-center pt-1 border-t border-gray-100">
-                <div class="text-xs text-gray-500">
-                    KM: <span class="font-semibold">${item.Kilometer || '-'}</span> 
-                    ${item.TanggalBerikutnya ? `| Next: <span class="font-semibold text-blue-600">${ubahFormatTanggal(item.TanggalBerikutnya)}</span>` : ''}
-                </div>
-                <div class="flex gap-1.5">
-                    <button onclick="cetakStruk('${item.rowId}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded font-medium shadow-sm transition">Struk</button>
-                    <button onclick="editData('${item.rowId}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded font-medium shadow-sm transition">Edit</button>
-                    <button onclick="hapusData('${item.rowId}')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded font-medium shadow-sm transition">Hapus</button>
-                </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                            <th class="p-3">TGL SERVIS</th>
+                            <th class="p-3">PELANGGAN / NO. HP</th>
+                            <th class="p-3">MOTOR & PLAT</th>
+                            <th class="p-3">RINCIAN PEKERJAAN</th>
+                            <th class="p-3 text-right">TOTAL BIAYA</th>
+                            <th class="p-3">SERVIS NEXT</th>
+                            <th class="p-3 text-center">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-slate-100">
+                        <tr>
+                            <td colspan="7" class="text-center py-6 text-slate-400">
+                                <i class="fa-solid fa-spinner fa-spin text-emerald-600 text-lg mb-2"></i>
+                                <p>Memuat data dari Google Sheets...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-    `).join('');
-}
+    </main>
 
-async function simpanData(e) {
-    e.preventDefault();
-    const rowId = document.getElementById('editRowId').value;
-    const isEdit = Boolean(rowId);
+    <script>
+        // URL Web App Google Apps Script
+        const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbwfQZHcjJEPUGgH604OgTdEprdbwg6WEKaSWLBupKcD2htj20PYuy8z2Lczmf_ukJtP/exec";
 
-    const btnSimpan = document.getElementById('btnSimpan');
-    btnSimpan.disabled = true;
-    btnSimpan.textContent = '⏳ Menyimpan...';
+        let daftarData = [];
 
-    const payload = new URLSearchParams({
-        action: isEdit ? 'update' : 'insert',
-        rowId: rowId,
-        Tanggal: ubahFormatTanggal(document.getElementById('inputTanggal').value),
-        Nama: document.getElementById('inputNama').value,
-        NoHP: document.getElementById('inputNoHP').value,
-        MerkMotor: document.getElementById('inputMerk').value,
-        TipeMotor: document.getElementById('inputTipe').value,
-        NoPlat: document.getElementById('inputNoPlat').value,
-        Kilometer: document.getElementById('inputKilometer').value,
-        RincianPekerjaan: document.getElementById('inputRincian').value,
-        TotalBiaya: formatRupiah(document.getElementById('inputTotalBiaya').value),
-        Catatan: document.getElementById('inputCatatan').value,
-        TanggalBerikutnya: ubahFormatTanggal(document.getElementById('inputTanggalBerikutnya').value)
-    });
-
-    try {
-        await fetch(URL_GOOGLE_SHEETS, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: payload.toString()
+        // Inisialisasi saat Halaman Dimuat
+        document.addEventListener("DOMContentLoaded", () => {
+            // Set Tanggal Hari ini di Form Input
+            document.getElementById("inputTanggal").valueAsDate = new Date();
+            muatData();
         });
 
-        alert(isEdit ? "Data berhasil diperbarui!" : "Data baru berhasil disimpan!");
-        resetForm();
-        setTimeout(() => tarikDataDariSheets(), 1200);
-    } catch (err) {
-        console.error(err);
-        alert("Gagal menyimpan data!");
-    } finally {
-        btnSimpan.disabled = false;
-        btnSimpan.textContent = '💾 Simpan Data';
-    }
-}
+        // 1. FUNGSI AMBIL DATA DARI GOOGLE SHEETS
+        async function muatData() {
+            const tableBody = document.getElementById("tableBody");
+            try {
+                const response = await fetch(URL_GOOGLE_SHEETS);
+                const result = await response.json();
 
-function editData(rowId) {
-    const item = daftarData.find(d => String(d.rowId) === String(rowId));
-    if (!item) return;
-
-    document.getElementById('editRowId').value = item.rowId;
-    document.getElementById('inputTanggal').value = item.Tanggal;
-    document.getElementById('inputNama').value = item.Nama;
-    document.getElementById('inputNoHP').value = item.NoHP;
-    document.getElementById('inputMerk').value = item.MerkMotor;
-    document.getElementById('inputTipe').value = item.TipeMotor;
-    document.getElementById('inputNoPlat').value = item.NoPlat;
-    document.getElementById('inputKilometer').value = item.Kilometer;
-    document.getElementById('inputRincian').value = item.RincianPekerjaan;
-    document.getElementById('inputTotalBiaya').value = String(item.TotalBiaya).replace(/\D/g, '');
-    document.getElementById('inputCatatan').value = item.Catatan;
-    document.getElementById('inputTanggalBerikutnya').value = item.TanggalBerikutnya;
-
-    document.getElementById('judulForm').textContent = '✏️ Edit Transaksi Servis';
-    document.getElementById('btnSimpan').textContent = '💾 Perbarui Data';
-    document.getElementById('btnBatal').classList.remove('hidden');
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function resetForm() {
-    document.getElementById('formServis').reset();
-    document.getElementById('editRowId').value = '';
-    document.getElementById('judulForm').textContent = '➕ Tambah Transaksi Servis';
-    document.getElementById('btnSimpan').textContent = '💾 Simpan Data';
-    document.getElementById('btnBatal').classList.add('hidden');
-    
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('inputTanggal').value = today;
-}
-
-async function hapusData(rowId) {
-    const item = daftarData.find(d => String(d.rowId) === String(rowId));
-    if (!item) {
-        alert("Data tidak ditemukan!");
-        return;
-    }
-
-    if (!confirm(`Apakah Anda yakin ingin menghapus data servis "${item.Nama}" (${item.MerkMotor}) secara permanen dari Spreadsheet?`)) {
-        return;
-    }
-
-    const statusEl = document.getElementById('statusKoneksi');
-    statusEl.textContent = '⏳ Menghapus dari Spreadsheet...';
-
-    const payload = new URLSearchParams({
-        action: 'hapus',
-        rowId: item.rowId,
-        nama: item.Nama,
-        tanggal: ubahFormatTanggal(item.Tanggal),
-        plat: item.NoPlat
-    });
-
-    try {
-        await fetch(URL_GOOGLE_SHEETS, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: payload.toString()
-        });
-
-        daftarData = daftarData.filter(d => String(d.rowId) !== String(rowId));
-        tampilkanRiwayat(daftarData);
-
-        statusEl.textContent = '✅ Berhasil dihapus permanen!';
-        setTimeout(() => tarikDataDariSheets(), 1500);
-
-    } catch (err) {
-        console.error("Gagal menghapus:", err);
-        alert("Gagal menghapus data dari Google Sheets!");
-    }
-}
-
-function cetakStruk(rowId) {
-    const item = daftarData.find(d => String(d.rowId) === String(rowId));
-    if (!item) return;
-
-    const htmlStruk = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Struk Servis - ${item.Nama}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <!-- html2canvas untuk mengubah HTML struk menjadi GAMBAR -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
-        <style>
-            * { box-sizing: border-box; }
-            body {
-                font-family: 'Courier New', Courier, monospace;
-                width: 320px;
-                margin: 0 auto;
-                padding: 10px;
-                font-size: 11px;
-                color: #000;
-                background-color: #f3f4f6;
-            }
-            .action-buttons {
-                display: flex;
-                gap: 5px;
-                margin-bottom: 12px;
-                justify-content: center;
-            }
-            .btn {
-                padding: 6px 10px;
-                font-family: sans-serif;
-                font-size: 11px;
-                font-weight: bold;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-                color: white;
-                display: inline-flex;
-                align-items: center;
-                gap: 3px;
-            }
-            .btn-print { background-color: #2563eb; }
-            .btn-wa { background-color: #16a34a; }
-            .btn-close { background-color: #4b5563; }
-            .btn:hover { opacity: 0.9; }
-
-            #strukContent {
-                background: white;
-                padding: 15px;
-                border-radius: 6px;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            }
-
-            .text-center { text-align: center; }
-            .logo { width: 55px; height: 55px; border-radius: 50%; margin: 0 auto 5px auto; display: block; object-fit: cover; }
-            .border-bottom { border-bottom: 1px dashed #000; margin: 8px 0; }
-            .bold { font-weight: bold; }
-            .flex-between { display: flex; justify-content: space-between; }
-            .rincian { white-space: pre-wrap; margin: 5px 0; }
-
-            @media print {
-                body { background: white; padding: 0; width: 100%; }
-                .action-buttons { display: none !important; }
-                #strukContent { box-shadow: none; padding: 0; }
-            }
-        </style>
-    </head>
-    <body>
-        <!-- TOMBOL AKSI -->
-        <div class="action-buttons">
-            <button onclick="window.print()" class="btn btn-print">🖨️ Print</button>
-            <button onclick="kirimGambarWA('${item.NoHP}')" class="btn btn-wa">📲 Kirim WA</button>
-            <button onclick="window.close()" class="btn btn-close">❌ Tutup</button>
-        </div>
-
-        <!-- STRUK AREA -->
-        <div id="strukContent">
-            <div class="text-center">
-                <img src="logo-mfev.png" class="logo" alt="Logo MF.EV">
-                <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
-                <div>BENGKEL MOTOR LISTRIK</div>
-                <div style="font-size: 9px;">Pangkalpinang, Bangka Belitung</div>
-            </div>
-            
-            <div class="border-bottom"></div>
-            
-            <div>Tgl     : ${ubahFormatTanggal(item.Tanggal)}</div>
-            <div>Nama    : ${item.Nama}</div>
-            <div>No HP   : ${item.NoHP || '-'}</div>
-            <div>Motor   : ${item.MerkMotor} ${item.TipeMotor}</div>
-            <div>Plat    : ${item.NoPlat || '-'}</div>
-            <div>KM      : ${item.Kilometer || '-'}</div>
-            
-            <div class="border-bottom"></div>
-            
-            <div class="bold">RINCIAN PEKERJAAN & SPAREPART:</div>
-            <div class="rincian">${item.RincianPekerjaan || '-'}</div>
-            
-            <div class="border-bottom"></div>
-            
-            <div class="flex-between bold" style="font-size: 12px;">
-                <span>TOTAL BIAYA:</span>
-                <span>${formatRupiah(item.TotalBiaya)}</span>
-            </div>
-            ${item.Catatan && item.Catatan !== '-' ? `<div style="margin-top: 4px;">Catatan: ${item.Catatan}</div>` : ''}
-            
-            <div class="border-bottom"></div>
-            
-            <div class="text-center">
-                <div>Jadwal Servis Berkala Berikutnya:</div>
-                <div class="bold" style="font-size: 12px; margin-top: 2px;">
-                    📅 ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : 'Sesuai Pemakaian'}
-                </div>
-            </div>
-
-            <div class="border-bottom"></div>
-            
-            <div class="text-center" style="margin-top: 10px;">
-                Terima Kasih Atas Kepercayaan Anda 🙏
-            </div>
-        </div>
-
-        <script>
-            async function kirimGambarWA(noHP) {
-                const element = document.getElementById('strukContent');
-                try {
-                    const canvas = await html2canvas(element, { scale: 2 });
-                    
-                    canvas.toBlob(async (blob) => {
-                        try {
-                            const data = [new ClipboardItem({ 'image/png': blob })];
-                            await navigator.clipboard.write(data);
-                            
-                            let phone = String(noHP).replace(/\\D/g, '');
-                            if (phone.startsWith('0')) {
-                                phone = '62' + phone.slice(1);
-                            }
-
-                            alert("✅ GAMBAR STRUK BERHASIL DISALIN!\\n\\nWhatsApp akan terbuka. Silakan tekan Ctrl+V (Paste) di kolom chat untuk mengirim struk dalam bentuk GAMBAR.");
-                            
-                            const waUrl = phone ? \`https://wa.me/\${phone}\` : 'https://wa.me/';
-                            window.open(waUrl, '_blank');
-                        } catch (err) {
-                            console.error(err);
-                            alert("⚠️ Browser menolak penyalinan gambar otomatis. Silakan screenshot manual atau gunakan browser chrome/edge terbaru.");
-                        }
-                    });
-                } catch (e) {
-                    alert("Gagal mengubah struk menjadi gambar.");
+                if (result.status === "success") {
+                    daftarData = result.data || [];
+                    tampilkanData(daftarData);
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Gagal memuat data: ${result.message}</td></tr>`;
                 }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Terjadi kesalahan koneksi ke Google Sheets.</td></tr>`;
             }
-        <\/script>
-    </body>
-    </html>
-    `;
+        }
 
-    const win = window.open('', '_blank', 'width=380,height=650');
-    win.document.write(htmlStruk);
-    win.document.close();
-}
-</script>
+        // 2. TAMPILKAN DATA KE TABEL
+        function tampilkanData(data) {
+            const tableBody = document.getElementById("tableBody");
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Belum ada riwayat servis.</td></tr>`;
+                return;
+            }
+
+            // Urutkan data terbaru di atas
+            const sortedData = [...data].reverse();
+
+            tableBody.innerHTML = sortedData.map(item => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 font-medium text-slate-700 whitespace-nowrap">${ubahFormatTanggal(item.Tanggal)}</td>
+                    <td class="p-3">
+                        <div class="font-bold text-slate-800">${item.Nama}</div>
+                        <div class="text-slate-400 text-[11px]">${item.NoHP || '-'}</div>
+                    </td>
+                    <td class="p-3">
+                        <div class="font-medium text-slate-700">${item.MerkMotor} ${item.TipeMotor || ''}</div>
+                        <div class="text-slate-400 text-[11px]">Plat: ${item.NoPlat || '-'} | KM: ${item.Kilometer || '-'}</div>
+                    </td>
+                    <td class="p-3 max-w-xs truncate" title="${item.RincianPekerjaan}">
+                        ${item.RincianPekerjaan}
+                    </td>
+                    <td class="p-3 text-right font-bold text-emerald-700 whitespace-nowrap">
+                        ${formatRupiah(item.TotalBiaya)}
+                    </td>
+                    <td class="p-3 text-amber-700 whitespace-nowrap">
+                        ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : '-'}
+                    </td>
+                    <td class="p-3 text-center whitespace-nowrap">
+                        <div class="inline-flex rounded-md shadow-sm" role="group">
+                            <button onclick="cetakStruk('${item.rowId}')" title="Cetak Struk" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-l-lg border border-slate-300 text-xs">
+                                <i class="fa-solid fa-print"></i>
+                            </button>
+                            <button onclick="editData('${item.rowId}')" title="Edit Data" class="bg-slate-100 hover:bg-amber-100 text-amber-700 px-2.5 py-1.5 border-t border-b border-slate-300 text-xs">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button onclick="hapusData('${item.rowId}')" title="Hapus Data" class="bg-slate-100 hover:bg-red-100 text-red-600 px-2.5 py-1.5 rounded-r-lg border border-slate-300 text-xs">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 3. FUNGSI SIMPAN & UPDATE DATA
+        async function simpanData(event) {
+            event.preventDefault();
+            const btnSubmit = document.getElementById("btnSubmit");
+            const btnSubmitText = document.getElementById("btnSubmitText");
+            
+            btnSubmit.disabled = true;
+            btnSubmitText.innerText = "Menyimpan...";
+
+            const rowId = document.getElementById("editRowId").value;
+            const payload = {
+                action: rowId ? "update" : "create",
+                rowId: rowId || null,
+                Tanggal: document.getElementById("inputTanggal").value,
+                Nama: document.getElementById("inputNama").value,
+                NoHP: document.getElementById("inputNoHP").value,
+                MerkMotor: document.getElementById("inputMerk").value,
+                TipeMotor: document.getElementById("inputTipe").value,
+                NoPlat: document.getElementById("inputNoPlat").value,
+                Kilometer: document.getElementById("inputKM").value,
+                RincianPekerjaan: document.getElementById("inputRincian").value,
+                TotalBiaya: document.getElementById("inputTotalBiaya").value,
+                TanggalBerikutnya: document.getElementById("inputTanggalBerikutnya").value,
+                Catatan: document.getElementById("inputCatatan").value
+            };
+
+            try {
+                const response = await fetch(URL_GOOGLE_SHEETS, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    alert(rowId ? "✅ Data berhasil diperbarui!" : "✅ Data berhasil disimpan!");
+                    resetForm();
+                    muatData();
+                } else {
+                    alert("❌ Gagal menyimpan: " + result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("❌ Terjadi kesalahan koneksi.");
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmitText.innerText = rowId ? "Update Data" : "Simpan Data";
+            }
+        }
+
+        // 4. PREPARE EDIT DATA
+        function editData(rowId) {
+            const item = daftarData.find(d => String(d.rowId) === String(rowId));
+            if (!item) return;
+
+            document.getElementById("editRowId").value = item.rowId;
+            document.getElementById("inputTanggal").value = item.Tanggal ? item.Tanggal.substring(0, 10) : "";
+            document.getElementById("inputNama").value = item.Nama || "";
+            document.getElementById("inputNoHP").value = item.NoHP || "";
+            document.getElementById("inputMerk").value = item.MerkMotor || "";
+            document.getElementById("inputTipe").value = item.TipeMotor || "";
+            document.getElementById("inputNoPlat").value = item.NoPlat || "";
+            document.getElementById("inputKM").value = item.Kilometer || "";
+            document.getElementById("inputRincian").value = item.RincianPekerjaan || "";
+            document.getElementById("inputTotalBiaya").value = item.TotalBiaya || "";
+            document.getElementById("inputTanggalBerikutnya").value = item.TanggalBerikutnya ? item.TanggalBerikutnya.substring(0, 10) : "";
+            document.getElementById("inputCatatan").value = item.Catatan || "";
+
+            // Ubah Tampilan Form
+            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-pen-to-square text-amber-600"></i> Edit Data Servis Pelanggan`;
+            document.getElementById("btnSubmitText").innerText = "Update Data";
+            document.getElementById("btnSubmit").className = "bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2";
+            document.getElementById("btnBatal").classList.remove("hidden");
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 5. RESET FORM
+        function resetForm() {
+            document.getElementById("serviceForm").reset();
+            document.getElementById("editRowId").value = "";
+            document.getElementById("inputTanggal").valueAsDate = new Date();
+
+            document.getElementById("formTitle").innerHTML = `<i class="fa-solid fa-plus-circle"></i> Tambah Data Servis Baru`;
+            document.getElementById("btnSubmitText").innerText = "Simpan Data";
+            document.getElementById("btnSubmit").className = "bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg text-xs font-semibold shadow transition flex items-center gap-2";
+            document.getElementById("btnBatal").classList.add("hidden");
+        }
+
+        // 6. HAPUS DATA
+        async function hapusData(rowId) {
+            if (!confirm("Apakah Anda yakin ingin menghapus data servis ini?")) return;
+
+            try {
+                const response = await fetch(URL_GOOGLE_SHEETS, {
+                    method: "POST",
+                    body: JSON.stringify({ action: "delete", rowId: rowId })
+                });
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    alert("🗑️ Data berhasil dihapus!");
+                    muatData();
+                } else {
+                    alert("Gagal menghapus: " + result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Terjadi kesalahan sistem.");
+            }
+        }
+
+        // 7. FUNGSI CETAK STRUK PERBAIKAN (TETAP SAMA LEBAR DENGAN STRUK THERMAL SAAT PRINT)
+        function cetakStruk(rowId) {
+            const item = daftarData.find(d => String(d.rowId) === String(rowId));
+            if (!item) return;
+
+            const htmlStruk = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Struk Servis - ${item.Nama}</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
+                <style>
+                    * { box-sizing: border-box; }
+                    
+                    @page {
+                        size: 80mm auto;
+                        margin: 0;
+                    }
+
+                    body {
+                        font-family: 'Courier New', Courier, monospace;
+                        width: 280px;
+                        margin: 0 auto;
+                        padding: 10px;
+                        font-size: 11px;
+                        color: #000;
+                        background-color: #f3f4f6;
+                    }
+
+                    .action-buttons {
+                        display: flex;
+                        gap: 5px;
+                        margin-bottom: 12px;
+                        justify-content: center;
+                    }
+
+                    .btn {
+                        padding: 6px 10px;
+                        font-family: sans-serif;
+                        font-size: 11px;
+                        font-weight: bold;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        color: white;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 3px;
+                    }
+                    .btn-print { background-color: #2563eb; }
+                    .btn-wa { background-color: #16a34a; }
+                    .btn-close { background-color: #4b5563; }
+                    .btn:hover { opacity: 0.9; }
+
+                    #strukContent {
+                        background: white;
+                        padding: 15px;
+                        border-radius: 6px;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                        width: 280px;
+                        margin: 0 auto;
+                    }
+
+                    .text-center { text-align: center; }
+                    .logo { width: 55px; height: 55px; border-radius: 50%; margin: 0 auto 5px auto; display: block; object-fit: cover; }
+                    .border-bottom { border-bottom: 1px dashed #000; margin: 8px 0; }
+                    .bold { font-weight: bold; }
+                    .flex-between { display: flex; justify-content: space-between; }
+                    .rincian { white-space: pre-wrap; margin: 5px 0; }
+
+                    /* PERBAIKAN UTAMA: CETAK PRINT BERUKURAN STRUK LEBAR 280PX */
+                    @media print {
+                        html, body {
+                            background: white !important;
+                            width: 280px !important;
+                            margin: 0 auto !important;
+                            padding: 5px !important;
+                        }
+                        .action-buttons { display: none !important; }
+                        #strukContent {
+                            box-shadow: none !important;
+                            padding: 0 !important;
+                            width: 100% !important;
+                            border-radius: 0 !important;
+                        }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="action-buttons">
+                    <button onclick="window.print()" class="btn btn-print">🖨️ Print</button>
+                    <button onclick="kirimGambarWA('${item.NoHP}')" class="btn btn-wa">📲 Kirim WA</button>
+                    <button onclick="window.close()" class="btn btn-close">❌ Tutup</button>
+                </div>
+
+                <div id="strukContent">
+                    <div class="text-center">
+                        <img src="logo-mfev.png" class="logo" alt="Logo MF.EV">
+                        <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
+                        <div>BENGKEL MOTOR LISTRIK</div>
+                        <div style="font-size: 9px;">Pangkalpinang, Bangka Belitung</div>
+                    </div>
+                    
+                    <div class="border-bottom"></div>
+                    
+                    <div>Tgl     : ${ubahFormatTanggal(item.Tanggal)}</div>
+                    <div>Nama    : ${item.Nama}</div>
+                    <div>No HP   : ${item.NoHP || '-'}</div>
+                    <div>Motor   : ${item.MerkMotor} ${item.TipeMotor || ''}</div>
+                    <div>Plat    : ${item.NoPlat || '-'}</div>
+                    <div>KM      : ${item.Kilometer || '-'}</div>
+                    
+                    <div class="border-bottom"></div>
+                    
+                    <div class="bold">RINCIAN PEKERJAAN & SPAREPART:</div>
+                    <div class="rincian">${item.RincianPekerjaan || '-'}</div>
+                    
+                    <div class="border-bottom"></div>
+                    
+                    <div class="flex-between bold" style="font-size: 12px;">
+                        <span>TOTAL BIAYA:</span>
+                        <span>${formatRupiah(item.TotalBiaya)}</span>
+                    </div>
+                    ${item.Catatan && item.Catatan !== '-' ? `<div style="margin-top: 4px;">Catatan: ${item.Catatan}</div>` : ''}
+                    
+                    <div class="border-bottom"></div>
+                    
+                    <div class="text-center">
+                        <div>Jadwal Servis Berkala Berikutnya:</div>
+                        <div class="bold" style="font-size: 12px; margin-top: 2px;">
+                            📅 ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : 'Sesuai Pemakaian'}
+                        </div>
+                    </div>
+
+                    <div class="border-bottom"></div>
+                    
+                    <div class="text-center" style="margin-top: 10px;">
+                        Terima Kasih Atas Kepercayaan Anda 🙏
+                    </div>
+                </div>
+
+                <script>
+                    async function kirimGambarWA(noHP) {
+                        const element = document.getElementById('strukContent');
+                        try {
+                            const canvas = await html2canvas(element, { scale: 2 });
+                            
+                            canvas.toBlob(async (blob) => {
+                                try {
+                                    const data = [new ClipboardItem({ 'image/png': blob })];
+                                    await navigator.clipboard.write(data);
+                                    
+                                    let phone = String(noHP).replace(/\\D/g, '');
+                                    if (phone.startsWith('0')) {
+                                        phone = '62' + phone.slice(1);
+                                    }
+
+                                    alert("✅ GAMBAR STRUK BERHASIL DISALIN!\\n\\nWhatsApp akan terbuka. Silakan tekan Ctrl+V (Paste) di kolom chat untuk mengirim struk dalam bentuk GAMBAR.");
+                                    
+                                    const waUrl = phone ? \`https://wa.me/\${phone}\` : 'https://wa.me/';
+                                    window.open(waUrl, '_blank');
+                                } catch (err) {
+                                    console.error(err);
+                                    alert("⚠️ Browser menolak penyalinan gambar otomatis. Silakan screenshot manual atau gunakan browser chrome/edge terbaru.");
+                                }
+                            });
+                        } catch (e) {
+                            alert("Gagal mengubah struk menjadi gambar.");
+                        }
+                    }
+                <\/script>
+            </body>
+            </html>
+            `;
+
+            const win = window.open('', '_blank', 'width=380,height=650');
+            win.document.write(htmlStruk);
+            win.document.close();
+        }
+
+        // FUNGSI HELPER / PENDUKUNG
+        function filterData() {
+            const query = document.getElementById("searchBox").value.toLowerCase();
+            const filtered = daftarData.filter(d => 
+                (d.Nama && d.Nama.toLowerCase().includes(query)) ||
+                (d.NoPlat && d.NoPlat.toLowerCase().includes(query)) ||
+                (d.MerkMotor && d.MerkMotor.toLowerCase().includes(query))
+            );
+            tampilkanData(filtered);
+        }
+
+        function ubahFormatTanggal(strTanggal) {
+            if (!strTanggal) return "-";
+            const d = new Date(strTanggal);
+            if (isNaN(d)) return strTanggal;
+            const tgl = String(d.getDate()).padStart(2, '0');
+            const bln = String(d.getMonth() + 1).padStart(2, '0');
+            const thn = d.getFullYear();
+            return `${tgl}-${bln}-${thn}`;
+        }
+
+        function formatRupiah(nominal) {
+            const num = parseFloat(nominal) || 0;
+            return "Rp " + num.toLocaleString("id-ID");
+        }
+    </script>
 </body>
 </html>
