@@ -6,7 +6,6 @@
   <title>MF.EV Service Manager</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Pustaka untuk mengubah HTML Struk menjadi Gambar PNG -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -97,7 +96,6 @@
   <!-- MODAL FORM (TAMBAH / EDIT) -->
   <div id="modalForm" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100">
-      
       <div class="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
         <h3 id="modalTitle" class="font-bold text-lg text-slate-800">Tambah Servis Baru</h3>
         <button onclick="tutupModal()" class="text-slate-400 hover:text-slate-600 text-lg p-1">
@@ -197,13 +195,9 @@
           </td>
         </tr>`;
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
-
-      fetch(`${SCRIPT_URL}?t=${new Date().getTime()}`, { signal: controller.signal })
+      fetch(`${SCRIPT_URL}?t=${new Date().getTime()}`)
         .then(res => res.json())
         .then(data => {
-          clearTimeout(timeoutId);
           if (Array.isArray(data)) {
             rawData = data;
             urutkanDanRender();
@@ -212,12 +206,11 @@
           }
         })
         .catch(err => {
-          clearTimeout(timeoutId);
           tbody.innerHTML = `
             <tr>
               <td colspan="7" class="py-8 text-center text-slate-500">
                 <i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl mb-2"></i>
-                <p class="font-semibold text-slate-700">Gagal mengambil data atau koneksi lambat.</p>
+                <p class="font-semibold text-slate-700">Gagal mengambil data atau koneksi terputus.</p>
                 <button onclick="muatData()" class="mt-3 px-4 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-semibold">Coba Lagi</button>
               </td>
             </tr>`;
@@ -440,17 +433,20 @@
       .catch(err => alert("Gagal menghapus: " + err.message));
     }
 
-    // 🖨️ CETAK NOTA DENGAN UKURAN KERTAS THERMAL & FITUR CONVERT TO IMAGE (SHARE STRUK)
+    // 🖨️ FUNGSI CETAK NOTA DAN AMBIL GAMBAR STRUK (AMAN BEBAS ERROR CRASH)
     function cetakStruk(rowId) {
       const item = rawData.find(d => Number(d.rowId) === Number(rowId));
       if (!item) return;
 
       const angkaSaja = String(item.TotalBiaya || 0).replace(/[^0-9]/g, "");
       const totalRp = Number(angkaSaja || 0).toLocaleString("id-ID");
+      const rincianFormatted = item.RincianPekerjaan ? item.RincianPekerjaan.replace(/\n/g, '<br>') : '-';
 
       const cetakWin = window.open("", "_blank", "width=450,height=700");
       
-      const htmlStruk = `
+      const doc = cetakWin.document;
+      doc.open();
+      doc.write(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -459,10 +455,7 @@
           <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
           <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
           <style>
-            @page { 
-              margin: 0;
-              size: 80mm auto; /* KUNCI UKURAN KERTAS PRINTER THERMAL (80mm) */
-            }
+            @page { margin: 0; size: 80mm auto; }
             body { 
               font-family: 'Courier New', Courier, monospace; 
               font-size: 12px; 
@@ -474,7 +467,6 @@
               flex-direction: column;
               align-items: center;
             }
-            /* WAPPER NOTA AGAR PAS KICK PRINTER & PAS DICONVERT DADI GAMBAR */
             .receipt-card {
               width: 290px;
               background-color: #ffffff;
@@ -500,7 +492,6 @@
             .total-box { font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 6px; }
             .footer { font-size: 10px; text-align: center; margin-top: 12px; }
 
-            /* TOMBOL AKSI DIBUAT TERPISAH DARI NOTA */
             .action-buttons {
               width: 290px;
               margin-top: 15px;
@@ -521,16 +512,11 @@
               border-radius: 8px;
               border: none;
               cursor: pointer;
-              text-decoration: none;
-              box-sizing: border-box;
-              transition: opacity 0.2s;
             }
-            .btn:hover { opacity: 0.9; }
             .btn-print { background-color: #059669; color: #fff; }
             .btn-share { background-color: #25D366; color: #fff; }
             .btn-close { background-color: #94a3b8; color: #fff; }
 
-            /* PENGATURAN CETAK PRINTER (HANYA MENCETAK NOTA DENGAN LEBAR THERMAL) */
             @media print {
               body { background-color: #fff; padding: 0; }
               .receipt-card { 
@@ -546,7 +532,6 @@
         </head>
         <body>
 
-          <!-- AREA UTAMA NOTA STRUK -->
           <div class="receipt-card" id="areaStruk">
             <div class="text-center">
               <img src="logo-mfev.png" class="logo-bw" alt="Logo MF.EV" onerror="this.style.display='none'">
@@ -569,13 +554,10 @@
 
             <div class="bold">RINCIAN PEKERJAAN / PART:</div>
             <div class="item-list">
-              ${item.RincianPekerjaan ? item.RincianPekerjaan.replace(/\n/g, '<br>') : '-'}
+              ${rincianFormatted}
             </div>
 
-            ${item.Catatan ? `
-              <div class="divider"></div>
-              <div><b>Catatan:</b> ${item.Catatan}</div>
-            ` : ''}
+            ${item.Catatan ? `<div class="divider"></div><div><b>Catatan:</b> ${item.Catatan}</div>` : ''}
 
             <div class="double-divider"></div>
 
@@ -593,7 +575,6 @@
             </div>
           </div>
 
-          <!-- TOMBOL AKSI DILUAR CARD NOTA -->
           <div class="action-buttons">
             <button onclick="window.print()" class="btn btn-print">
               <i class="fa-solid fa-print"></i> Cetak / Print Struk
@@ -608,55 +589,50 @@
 
           <script>
             function shareStrukGambar() {
-              const btn = document.getElementById("btnShareGambar");
-              btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Memproses Gambar...`;
+              var btn = document.getElementById("btnShareGambar");
+              btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses Gambar...';
               btn.disabled = true;
 
-              const element = document.getElementById("areaStruk");
+              var element = document.getElementById("areaStruk");
 
-              // Ubah HTML struk menjadi Gambar PNG
-              html2canvas(element, {
-                scale: 2, // Kualitas HD
-                backgroundColor: "#ffffff"
-              }).then(canvas => {
-                canvas.toBlob(blob => {
-                  const file = new File([blob], "Struk-Servis-${item.Nama}.png", { type: "image/png" });
-                  
-                  // Cek apakah browser HP mendukung fitur direct Share Gambar
+              html2canvas(element, { scale: 2, backgroundColor: "#ffffff" })
+              .then(function(canvas) {
+                canvas.toBlob(function(blob) {
+                  var namaFile = "Struk-Servis-${item.Nama.replace(/[^a-zA-Z0-9]/g, '_')}.png";
+                  var file = new File([blob], namaFile, { type: "image/png" });
+
                   if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     navigator.share({
                       files: [file],
                       title: 'Struk Servis MF.EV',
                       text: 'Berikut nota servis dari MF.EV Service.'
-                    }).catch(() => {})
-                    .finally(() => {
-                      btn.innerHTML = `<i class="fa-solid fa-image"></i> Bagikan Gambar Struk`;
+                    }).catch(function(){})
+                    .finally(function(){
+                      btn.innerHTML = '<i class="fa-solid fa-image"></i> Bagikan Gambar Struk';
                       btn.disabled = false;
                     });
                   } else {
-                    // Jika di Komputer / Browser Tanpa Web Share, Gambar Otomatis Terdownload
-                    const a = document.createElement("a");
+                    var a = document.createElement("a");
                     a.href = URL.createObjectURL(blob);
-                    a.download = "Struk-Servis-${item.Nama}.png";
+                    a.download = namaFile;
                     a.click();
-                    alert("Gambar struk berhasil diunduh! Silakan kirimkan file gambar tersebut via WhatsApp.");
-                    btn.innerHTML = `<i class="fa-solid fa-image"></i> Bagikan Gambar Struk`;
+                    alert("Gambar struk berhasil diunduh! Silakan kirimkan file gambar tersebut.");
+                    btn.innerHTML = '<i class="fa-solid fa-image"></i> Bagikan Gambar Struk';
                     btn.disabled = false;
                   }
                 }, "image/png");
-              }).catch(err => {
+              })
+              .catch(function(err) {
                 alert("Gagal membuat gambar: " + err);
-                btn.innerHTML = `<i class="fa-solid fa-image"></i> Bagikan Gambar Struk`;
+                btn.innerHTML = '<i class="fa-solid fa-image"></i> Bagikan Gambar Struk';
                 btn.disabled = false;
               });
             }
           <\/script>
         </body>
         </html>
-      `;
-
-      cetakWin.document.write(htmlStruk);
-      cetakWin.document.close();
+      `);
+      doc.close();
     }
   </script>
 </body>
