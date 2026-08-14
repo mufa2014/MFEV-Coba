@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MF.EV Service Manager</title>
+  <title>Pengingat Servis - MF.EV</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
@@ -14,77 +13,86 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
-  <!-- TOP HEADER WEB UTAMA -->
+  <!-- TOP HEADER -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full">
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <img src="logo-mfev.png" alt="Logo MF.EV" class="h-10 w-auto object-contain rounded-xl shadow-sm" onerror="this.style.display='none'">
+        <a href="index.html" class="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all text-slate-600">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
         <div>
           <h1 class="font-bold text-base sm:text-lg text-slate-900 leading-tight flex items-center gap-2">
-            MF.EV <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">SERVICE</span>
+            MF.EV <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">PENGINGAT</span>
           </h1>
-          <p class="text-xs text-slate-500 hidden sm:block">Sistem Manajemen Riwayat Servis</p>
+          <p class="text-xs text-slate-500 hidden sm:block">Pengingat Jadwal Servis Berkala</p>
         </div>
       </div>
       
       <div class="flex items-center gap-2">
-        <a href="pengingat.html" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
-          <i class="fa-solid fa-bell"></i> <span class="hidden sm:inline">Pengingat</span>
-        </a>
-        <button onclick="bukaModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
-          <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Tambah Servis</span>
+        <button onclick="muatData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
+          <i class="fa-solid fa-rotate"></i> <span class="hidden sm:inline">Muat Ulang</span>
         </button>
       </div>
     </div>
   </header>
 
   <!-- MAIN CONTAINER -->
-  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4">
+    
+    <!-- KETERANGAN WARNA BADGE -->
+    <div class="flex flex-wrap items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 text-xs font-medium text-slate-600">
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+        <span>Merah = Sudah Lewat</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+        <span>Kuning = ≤7 Hari Lagi</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+        <span>Hijau = Masih Aman</span>
+      </div>
+      <div class="flex items-center gap-2 ml-auto border-l pl-4 border-slate-200">
+        <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+        <span>Centang Biru = Sudah Dihubungi WA</span>
+      </div>
+    </div>
+
+    <!-- TABLE CONTAINER -->
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden w-full">
       <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center gap-2 text-slate-800 font-bold text-base sm:text-lg">
-          <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
-          <span>Riwayat Servis Pelanggan</span>
+          <i class="fa-solid fa-bell text-amber-500"></i>
+          <span>Daftar Pengingat Servis</span>
         </div>
         
-        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
-          <button onclick="muatData()" title="Muat Ulang Data" class="p-2 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-600 transition-all">
-            <i class="fa-solid fa-rotate"></i>
-          </button>
-
-          <button onclick="toggleSort()" id="btnSort" title="Ubah Urutan Tanggal" 
-            class="px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center justify-center gap-2 transition-all w-full sm:w-auto">
-            <i class="fa-solid fa-arrow-down-wide-short text-emerald-600" id="sortIcon"></i>
-            <span id="sortLabel">Terbaru Pertama</span>
-          </button>
-
-          <div class="relative w-full sm:w-72">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
-              class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
-          </div>
+        <div class="relative w-full sm:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
+            class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 bg-slate-50/50">
         </div>
       </div>
 
       <!-- TABLE AREA -->
       <div class="overflow-x-auto w-full">
-        <table class="w-full text-left text-sm text-slate-600 min-w-[750px]">
+        <table class="w-full text-left text-sm text-slate-600 min-w-[800px]">
           <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
             <tr>
-              <th class="py-3.5 px-4">TGL SERVIS</th>
-              <th class="py-3.5 px-4">PELANGGAN / NO. HP</th>
+              <th class="py-3.5 px-4">STATUS</th>
+              <th class="py-3.5 px-4">PELANGGAN / HP</th>
               <th class="py-3.5 px-4">MOTOR & PLAT</th>
-              <th class="py-3.5 px-4">RINCIAN PEKERJAAN</th>
-              <th class="py-3.5 px-4">TOTAL BIAYA</th>
-              <th class="py-3.5 px-4">SERVIS NEXT</th>
-              <th class="py-3.5 px-4 text-center">AKSI</th>
+              <th class="py-3.5 px-4">SERVIS TERAKHIR</th>
+              <th class="py-3.5 px-4">JADWAL NEXT</th>
+              <th class="py-3.5 px-4">SISA WAKTU</th>
+              <th class="py-3.5 px-4 text-center">INGATKAN</th>
             </tr>
           </thead>
           <tbody id="tableBody" class="divide-y divide-slate-100">
             <tr>
               <td colspan="7" class="py-12 text-center text-slate-400">
-                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i>
-                <p>Memuat data dari Spreadsheet...</p>
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-amber-500"></i>
+                <p>Memuat jadwal pengingat...</p>
               </td>
             </tr>
           </tbody>
@@ -93,110 +101,24 @@
     </div>
   </main>
 
-  <!-- MODAL FORM (TAMBAH / EDIT) -->
-  <div id="modalForm" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100">
-      <div class="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
-        <h3 id="modalTitle" class="font-bold text-lg text-slate-800">Tambah Servis Baru</h3>
-        <button onclick="tutupModal()" class="text-slate-400 hover:text-slate-600 text-lg p-1">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-
-      <form id="servisForm" onsubmit="simpanData(event)" class="p-6 space-y-4">
-        <input type="hidden" id="formRowId" value="">
-        <input type="hidden" id="formAction" value="create">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal Servis *</label>
-            <input type="date" id="formTanggal" required class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal Servis Berikutnya</label>
-            <input type="date" id="formTanggalBerikutnya" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Pelanggan *</label>
-            <input type="text" id="formNama" required placeholder="Contoh: Fajri" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. WhatsApp / HP</label>
-            <input type="text" id="formNoHP" placeholder="08xxxxxxxxxx" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Merk Motor</label>
-            <input type="text" id="formMerkMotor" placeholder="Uwinfly / Polytron" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tipe Motor</label>
-            <input type="text" id="formTipeMotor" placeholder="D66i-01 / Fox X" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">No. Plat</label>
-            <input type="text" id="formNoPlat" placeholder="BN 1234 XX" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm uppercase">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Kilometer (KM)</label>
-            <input type="text" id="formKilometer" placeholder="100 Km" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Total Biaya (Rp)</label>
-            <input type="number" id="formTotalBiaya" placeholder="0" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Rincian Pekerjaan</label>
-          <textarea id="formRincianPekerjaan" rows="2" placeholder="Ganti kampas rem, servis kelistrikan..." class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"></textarea>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Catatan Tambahan</label>
-          <textarea id="formCatatan" rows="2" placeholder="Catatan servis / saran garansi..." class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm"></textarea>
-        </div>
-
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-          <button type="button" onclick="tutupModal()" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 text-sm font-medium">Batal</button>
-          <button type="submit" id="btnSubmit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-all flex items-center gap-2">
-            <span>Simpan</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqMV2lQsLeG2C70787Qw4zarJWv1023AxZj2XLuo_tUOMSVkash0ZeiXSs14BwqpI4/exec";
-
     let rawData = [];
-    let isNewestFirst = true;
 
     document.addEventListener("DOMContentLoaded", () => {
       muatData();
     });
 
-    // FUNGSI UNTUK MEMPERBAIKI NOMOR HP JIKA ANGKA 0 TERHAPUS
     function formatNoHP(val) {
-      if (!val) return "-";
-      let hp = String(val).trim();
-      // Hilangkan karakter non-digit kecuali tanda +
-      hp = hp.replace(/[^0-9]/g, "");
-      if (!hp) return "-";
-      
-      // Jika diawali '8', tambahkan '0' di depannya (misal: 81929001991 -> 081929001991)
-      if (hp.startsWith("8")) {
-        hp = "0" + hp;
-      }
+      if (!val) return "";
+      let hp = String(val).trim().replace(/[^0-9]/g, "");
+      if (hp.startsWith("8")) hp = "0" + hp;
+      return hp;
+    }
+
+    function formatWA(val) {
+      let hp = formatNoHP(val);
+      if (hp.startsWith("0")) hp = "62" + hp.substring(1);
       return hp;
     }
 
@@ -205,7 +127,7 @@
       tbody.innerHTML = `
         <tr>
           <td colspan="7" class="py-12 text-center text-slate-400">
-            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i>
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-amber-500"></i>
             <p>Memuat data dari Spreadsheet...</p>
           </td>
         </tr>`;
@@ -214,118 +136,163 @@
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
-            rawData = data;
-            urutkanDanRender();
+            // Filter hanya data yang memiliki Tanggal Servis Berikutnya
+            rawData = data.filter(d => d.TanggalBerikutnya && d.TanggalBerikutnya.trim() !== "");
+            renderTable(rawData);
           } else {
-            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Gagal memuat data dari spreadsheet.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Gagal memuat data.</td></tr>`;
           }
         })
         .catch(err => {
-          tbody.innerHTML = `
-            <tr>
-              <td colspan="7" class="py-8 text-center text-slate-500">
-                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-2xl mb-2"></i>
-                <p class="font-semibold text-slate-700">Gagal mengambil data atau koneksi terputus.</p>
-                <button onclick="muatData()" class="mt-3 px-4 py-1.5 bg-emerald-600 text-white rounded-xl text-xs font-semibold">Coba Lagi</button>
-              </td>
-            </tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">Gagal terhubung ke koneksi internet/spreadsheet.</td></tr>`;
         });
-    }
-
-    function urutkanDanRender() {
-      let dataProses = [...rawData];
-      
-      dataProses.sort((a, b) => {
-        const dateA = new Date(formatTanggalUntukInput(a.Tanggal));
-        const dateB = new Date(formatTanggalUntukInput(b.Tanggal));
-        
-        if (dateA.getTime() === dateB.getTime()) {
-          return isNewestFirst ? b.rowId - a.rowId : a.rowId - b.rowId;
-        }
-        return isNewestFirst ? dateB - dateA : dateA - dateB;
-      });
-
-      const q = document.getElementById("searchInput").value.toLowerCase();
-      if (q) {
-        dataProses = dataProses.filter(d => 
-          (d.Nama && d.Nama.toLowerCase().includes(q)) ||
-          (d.NoHP && d.NoHP.toString().toLowerCase().includes(q)) ||
-          (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
-          (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q)) ||
-          (d.RincianPekerjaan && d.RincianPekerjaan.toLowerCase().includes(q))
-        );
-      }
-
-      renderTable(dataProses);
-    }
-
-    function toggleSort() {
-      isNewestFirst = !isNewestFirst;
-      const btnIcon = document.getElementById("sortIcon");
-      const btnLabel = document.getElementById("sortLabel");
-
-      if (isNewestFirst) {
-        btnIcon.className = "fa-solid fa-arrow-down-wide-short text-emerald-600";
-        btnLabel.innerText = "Terbaru Pertama";
-      } else {
-        btnIcon.className = "fa-solid fa-arrow-up-wide-short text-emerald-600";
-        btnLabel.innerText = "Terlama Pertama";
-      }
-
-      urutkanDanRender();
     }
 
     function renderTable(data) {
       const tbody = document.getElementById("tableBody");
       if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Data tidak ditemukan.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada jadwal pengingat servis.</td></tr>`;
         return;
       }
 
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
       let html = "";
       data.forEach(item => {
-        const angkaSaja = String(item.TotalBiaya || 0).replace(/[^0-9]/g, "");
-        const totalRp = Number(angkaSaja || 0).toLocaleString("id-ID");
-
-        const tglDisplay = formatTanggalDisplay(item.Tanggal);
-        const tglNextDisplay = item.TanggalBerikutnya ? formatTanggalDisplay(item.TanggalBerikutnya) : "-";
         const hpFormatted = formatNoHP(item.NoHP);
+        const waNumber = formatWA(item.NoHP);
+
+        // Hitung Selisih Hari
+        const tglNext = new Date(formatTanggalUntukInput(item.TanggalBerikutnya));
+        tglNext.setHours(0,0,0,0);
+
+        const diffTime = tglNext - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let statusBadge = "";
+        let sisaWaktuText = "";
+
+        if (diffDays < 0) {
+          statusBadge = `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-triangle-exclamation"></i> Terlewat</span>`;
+          sisaWaktuText = `<span class="text-red-600 font-semibold">Lewat ${Math.abs(diffDays)} hari</span>`;
+        } else if (diffDays <= 7) {
+          statusBadge = `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-clock"></i> Segera</span>`;
+          sisaWaktuText = `<span class="text-amber-600 font-semibold">${diffDays === 0 ? 'Hari ini' : diffDays + ' hari lagi'}</span>`;
+        } else {
+          statusBadge = `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-circle-check"></i> Aman</span>`;
+          sisaWaktuText = `<span class="text-slate-600">${diffDays} hari lagi</span>`;
+        }
+
+        // KONTROL NOTIFIKASI SUDAH DIHUBUNGI (KOLOM L / SudahDihubungi)
+        const isDihubungi = item.SudahDihubungi === true || String(item.SudahDihubungi).toUpperCase() === "TRUE";
+
+        let notifStatus = "";
+        let btnWAClass = "bg-emerald-600 hover:bg-emerald-700 text-white";
+        let btnWAText = "Kirim WA";
+
+        if (isDihubungi) {
+          notifStatus = `
+            <div class="mt-1 flex items-center gap-1 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md w-max border border-blue-100">
+              <i class="fa-solid fa-circle-check"></i> Sudah Dihubungi
+            </div>`;
+          btnWAClass = "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300";
+          btnWAText = "Kirim Ulang WA";
+        }
+
+        // Pesan Default WhatsApp
+        const pesanWA = encodeURIComponent(
+          `Halo Kak ${item.Nama},\n\n` +
+          `Kami dari *MF.EV Service* ingin menginfokan bahwa jadwal servis berkala untuk motor listrik Kakak (${item.MerkMotor} ${item.TipeMotor || ''} - ${item.NoPlat || ''}) adalah pada tanggal *${formatTanggalDisplay(item.TanggalBerikutnya)}*.\n\n` +
+          `Yuk lakukan servis berkala agar kondisi kendaraan tetap prima! Silakan balas pesan ini untuk booking jadwal ya Kak. Terima kasih! 🙏`
+        );
 
         html += `
           <tr class="hover:bg-slate-50/80 transition-colors">
-            <td class="py-4 px-4 whitespace-nowrap font-medium text-slate-700">${tglDisplay}</td>
+            <td class="py-4 px-4 whitespace-nowrap">
+              ${statusBadge}
+              ${notifStatus}
+            </td>
             <td class="py-4 px-4">
               <div class="font-bold text-slate-900">${item.Nama || '-'}</div>
-              <div class="text-xs text-slate-500 font-mono">${hpFormatted}</div>
+              <div class="text-xs text-slate-500 font-mono">${hpFormatted || '-'}</div>
             </td>
             <td class="py-4 px-4">
               <div class="font-medium text-slate-800">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
-              <div class="text-xs text-slate-400">Plat: ${item.NoPlat || '-'} | KM: ${item.Kilometer || '-'}</div>
+              <div class="text-xs text-slate-400">Plat: ${item.NoPlat || '-'}</div>
             </td>
-            <td class="py-4 px-4 max-w-xs truncate text-slate-600">${item.RincianPekerjaan || '-'}</td>
-            <td class="py-4 px-4 font-bold text-emerald-600 whitespace-nowrap">Rp ${totalRp}</td>
-            <td class="py-4 px-4 text-xs text-slate-500 whitespace-nowrap">${tglNextDisplay}</td>
+            <td class="py-4 px-4 text-xs text-slate-500 whitespace-nowrap">${formatTanggalDisplay(item.Tanggal)}</td>
+            <td class="py-4 px-4 font-bold text-slate-800 whitespace-nowrap">${formatTanggalDisplay(item.TanggalBerikutnya)}</td>
+            <td class="py-4 px-4 text-xs whitespace-nowrap">${sisaWaktuText}</td>
             <td class="py-4 px-4 text-center whitespace-nowrap">
               <div class="flex items-center justify-center gap-1">
-                <button onclick="cetakStruk(${item.rowId})" title="Cetak Nota" class="p-2 text-slate-500 hover:text-emerald-600 hover:bg-slate-100 rounded-lg transition-all">
-                  <i class="fa-solid fa-print"></i>
+                <button onclick="kirimWA(${item.rowId}, '${waNumber}', '${pesanWA}')" 
+                  class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${btnWAClass}">
+                  <i class="fa-brands fa-whatsapp text-sm"></i> ${btnWAText}
                 </button>
-                <button onclick="editRow(${item.rowId})" title="Edit Data" class="p-2 text-slate-500 hover:text-amber-600 hover:bg-slate-100 rounded-lg transition-all">
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-                <button onclick="hapusRow(${item.rowId})" title="Hapus Data" class="p-2 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-all">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
+                ${isDihubungi ? `
+                  <button onclick="resetStatusDihubungi(${item.rowId})" title="Tandai Belum Dihubungi" class="p-1.5 text-slate-400 hover:text-red-500 rounded-lg">
+                    <i class="fa-solid fa-rotate-left text-xs"></i>
+                  </button>
+                ` : ''}
               </div>
             </td>
           </tr>
         `;
       });
+
       tbody.innerHTML = html;
     }
 
+    function kirimWA(rowId, waNumber, pesan) {
+      if (!waNumber) {
+        alert("Nomor HP / WA tidak valid!");
+        return;
+      }
+
+      // 1. Buka Tab WhatsApp
+      window.open(`https://wa.me/${waNumber}?text=${pesan}`, '_blank');
+
+      // 2. Simpan status Sudah Dihubungi = TRUE ke Google Sheets
+      updateStatusDihubungi(rowId, true);
+    }
+
+    function resetStatusDihubungi(rowId) {
+      if (confirm("Ubah status menjadi Belum Dihubungi?")) {
+        updateStatusDihubungi(rowId, false);
+      }
+    }
+
+    function updateStatusDihubungi(rowId, isDihubungi) {
+      // Update lokal untuk performa instan
+      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
+      if (item) {
+        item.SudahDihubungi = isDihubungi;
+        renderTable(rawData);
+      }
+
+      // Kirim pembaruan ke Google Sheets
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "updateDihubungi",
+          rowId: rowId,
+          SudahDihubungi: isDihubungi
+        })
+      }).catch(err => console.error("Gagal memperbarui status ke Sheets:", err));
+    }
+
     function filterTable() {
-      urutkanDanRender();
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = rawData.filter(d => 
+        (d.Nama && d.Nama.toLowerCase().includes(q)) ||
+        (d.NoHP && d.NoHP.toString().toLowerCase().includes(q)) ||
+        (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
+        (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q))
+      );
+      renderTable(filtered);
     }
 
     function formatTanggalUntukInput(str) {
@@ -349,311 +316,6 @@
       const p = iso.split("-");
       if (p.length === 3) return `${p[2]}-${p[1]}-${p[0]}`;
       return str;
-    }
-
-    function bukaModalTambah() {
-      document.getElementById("servisForm").reset();
-      document.getElementById("modalTitle").innerText = "Tambah Servis Baru";
-      document.getElementById("formRowId").value = "";
-      document.getElementById("formAction").value = "create";
-      document.getElementById("formTanggal").value = new Date().toISOString().split("T")[0];
-      document.getElementById("modalForm").classList.remove("hidden");
-    }
-
-    function editRow(rowId) {
-      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
-      if (!item) return;
-
-      document.getElementById("modalTitle").innerText = "Edit Servis Pelanggan";
-      document.getElementById("formRowId").value = item.rowId;
-      document.getElementById("formAction").value = "update";
-      document.getElementById("formTanggal").value = formatTanggalUntukInput(item.Tanggal);
-      document.getElementById("formTanggalBerikutnya").value = formatTanggalUntukInput(item.TanggalBerikutnya);
-      document.getElementById("formNama").value = item.Nama || "";
-      document.getElementById("formNoHP").value = formatNoHP(item.NoHP);
-      document.getElementById("formMerkMotor").value = item.MerkMotor || "";
-      document.getElementById("formTipeMotor").value = item.TipeMotor || "";
-      document.getElementById("formNoPlat").value = item.NoPlat || "";
-      document.getElementById("formKilometer").value = item.Kilometer || "";
-
-      const angkaSaja = String(item.TotalBiaya || 0).replace(/[^0-9]/g, "");
-      document.getElementById("formTotalBiaya").value = angkaSaja || 0;
-      document.getElementById("formRincianPekerjaan").value = item.RincianPekerjaan || "";
-      document.getElementById("formCatatan").value = item.Catatan || "";
-
-      document.getElementById("modalForm").classList.remove("hidden");
-    }
-
-    function tutupModal() {
-      document.getElementById("modalForm").classList.add("hidden");
-    }
-
-    function simpanData(e) {
-      e.preventDefault();
-      const btnSubmit = document.getElementById("btnSubmit");
-      btnSubmit.disabled = true;
-      btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
-
-      const inputHP = document.getElementById("formNoHP").value;
-      // Diberi petik tunggal ' di depan agar Google Sheets mengenalnya sebagai teks murni
-      const hpFormatted = inputHP ? "'" + formatNoHP(inputHP) : "";
-
-      const action = document.getElementById("formAction").value;
-      const payload = {
-        action: action,
-        rowId: document.getElementById("formRowId").value,
-        Tanggal: document.getElementById("formTanggal").value,
-        Nama: document.getElementById("formNama").value,
-        NoHP: hpFormatted,
-        MerkMotor: document.getElementById("formMerkMotor").value,
-        TipeMotor: document.getElementById("formTipeMotor").value,
-        NoPlat: document.getElementById("formNoPlat").value,
-        Kilometer: document.getElementById("formKilometer").value,
-        RincianPekerjaan: document.getElementById("formRincianPekerjaan").value,
-        TotalBiaya: document.getElementById("formTotalBiaya").value,
-        Catatan: document.getElementById("formCatatan").value,
-        TanggalBerikutnya: document.getElementById("formTanggalBerikutnya").value
-      };
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(() => {
-        alert(action === "update" ? "Data berhasil diperbarui!" : "Data berhasil disimpan!");
-        tutupModal();
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = `<span>Simpan</span>`;
-        muatData();
-      })
-      .catch(err => {
-        alert("Gagal menyimpan data: " + err.message);
-        btnSubmit.disabled = false;
-        btnSubmit.innerHTML = `<span>Simpan</span>`;
-      });
-    }
-
-    function hapusRow(rowId) {
-      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
-      if (!item) return;
-
-      if (!confirm(`Hapus data servis untuk ${item.Nama} (${item.NoPlat || 'Tanpa Plat'})?`)) return;
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "hapus", rowId: rowId })
-      })
-      .then(() => {
-        alert("Data berhasil dihapus!");
-        muatData();
-      })
-      .catch(err => alert("Gagal menghapus: " + err.message));
-    }
-
-    function cetakStruk(rowId) {
-      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
-      if (!item) return;
-
-      const angkaSaja = String(item.TotalBiaya || 0).replace(/[^0-9]/g, "");
-      const totalRp = Number(angkaSaja || 0).toLocaleString("id-ID");
-      const rincianFormatted = item.RincianPekerjaan ? item.RincianPekerjaan.replace(/\n/g, '<br>') : '-';
-      const hpFormatted = formatNoHP(item.NoHP);
-
-      const cetakWin = window.open("", "_blank", "width=450,height=700");
-      
-      const doc = cetakWin.document;
-      doc.open();
-      doc.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Struk Servis - ${item.Nama}</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
-          <style>
-            @page { margin: 0; size: 80mm auto; }
-            body { 
-              font-family: 'Courier New', Courier, monospace; 
-              font-size: 12px; 
-              color: #000;
-              margin: 0 auto; 
-              padding: 10px;
-              background-color: #f1f5f9;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-            }
-            .receipt-card {
-              width: 290px;
-              background-color: #ffffff;
-              padding: 15px;
-              border: 1px solid #e2e8f0;
-              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-              box-sizing: border-box;
-            }
-            .text-center { text-align: center; }
-            .bold { font-weight: bold; }
-            .logo-bw {
-              max-height: 48px;
-              width: auto;
-              margin: 0 auto 5px auto;
-              display: block;
-              filter: grayscale(100%) contrast(200%);
-            }
-            .divider { border-top: 1px dashed #000; margin: 8px 0; }
-            .double-divider { border-top: 2px double #000; margin: 8px 0; }
-            .info-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
-            .info-table td { padding: 2px 0; vertical-align: top; }
-            .item-list { margin: 6px 0; line-height: 1.4; word-break: break-word; }
-            .total-box { font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; margin-top: 6px; }
-            .footer { font-size: 10px; text-align: center; margin-top: 12px; }
-
-            .action-buttons {
-              width: 290px;
-              margin-top: 15px;
-              display: flex;
-              flex-direction: column;
-              gap: 8px;
-            }
-            .btn {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              gap: 8px;
-              width: 100%;
-              padding: 10px 0;
-              font-family: sans-serif;
-              font-size: 13px;
-              font-weight: 600;
-              border-radius: 8px;
-              border: none;
-              cursor: pointer;
-            }
-            .btn-print { background-color: #059669; color: #fff; }
-            .btn-share { background-color: #25D366; color: #fff; }
-            .btn-close { background-color: #94a3b8; color: #fff; }
-
-            @media print {
-              body { background-color: #fff; padding: 0; }
-              .receipt-card { 
-                width: 100% !important; 
-                max-width: 80mm !important; 
-                border: none !important; 
-                box-shadow: none !important; 
-                padding: 5px !important;
-              }
-              .action-buttons { display: none !important; }
-            }
-          </style>
-        </head>
-        <body>
-
-          <div class="receipt-card" id="areaStruk">
-            <div class="text-center">
-              <img src="logo-mfev.png" class="logo-bw" alt="Logo MF.EV" onerror="this.style.display='none'">
-              <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
-              <div style="font-size: 10px;">Pangkalpinang, Bangka Belitung</div>
-            </div>
-
-            <div class="divider"></div>
-
-            <table class="info-table">
-              <tr><td>Tanggal</td><td>: ${formatTanggalDisplay(item.Tanggal)}</td></tr>
-              <tr><td>Pelanggan</td><td>: <b>${item.Nama}</b></td></tr>
-              <tr><td>No. HP</td><td>: ${hpFormatted}</td></tr>
-              <tr><td>Unit</td><td>: ${item.MerkMotor} ${item.TipeMotor || ''}</td></tr>
-              <tr><td>No. Plat</td><td>: ${item.NoPlat || '-'}</td></tr>
-              <tr><td>Odometer</td><td>: ${item.Kilometer || '-'}</td></tr>
-            </table>
-
-            <div class="divider"></div>
-
-            <div class="bold">RINCIAN PEKERJAAN / PART:</div>
-            <div class="item-list">
-              ${rincianFormatted}
-            </div>
-
-            ${item.Catatan ? `<div class="divider"></div><div><b>Catatan:</b> ${item.Catatan}</div>` : ''}
-
-            <div class="double-divider"></div>
-
-            <div class="total-box">
-              <span>TOTAL BIAYA</span>
-              <span>Rp ${totalRp}</span>
-            </div>
-
-            <div class="double-divider"></div>
-
-            <div class="footer">
-              ${item.TanggalBerikutnya ? `<b>Jadwal Servis Next: ${formatTanggalDisplay(item.TanggalBerikutnya)}</b><br>` : ''}
-              Simpan struk ini sebagai bukti servis.<br>
-              -- Terima Kasih --
-            </div>
-          </div>
-
-          <div class="action-buttons">
-            <button onclick="window.print()" class="btn btn-print">
-              <i class="fa-solid fa-print"></i> Cetak / Print Struk
-            </button>
-            <button id="btnShareGambar" onclick="shareStrukGambar()" class="btn btn-share">
-              <i class="fa-solid fa-image"></i> Bagikan Gambar Struk
-            </button>
-            <button onclick="window.close()" class="btn btn-close">
-              <i class="fa-solid fa-xmark"></i> Tutup
-            </button>
-          </div>
-
-          <script>
-            function shareStrukGambar() {
-              var btn = document.getElementById("btnShareGambar");
-              btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memproses Gambar...';
-              btn.disabled = true;
-
-              var element = document.getElementById("areaStruk");
-
-              html2canvas(element, { scale: 2, backgroundColor: "#ffffff" })
-              .then(function(canvas) {
-                canvas.toBlob(function(blob) {
-                  var namaFile = "Struk-Servis-${item.Nama.replace(/[^a-zA-Z0-9]/g, '_')}.png";
-                  var file = new File([blob], namaFile, { type: "image/png" });
-
-                  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    navigator.share({
-                      files: [file],
-                      title: 'Struk Servis MF.EV',
-                      text: 'Berikut nota servis dari MF.EV Service.'
-                    }).catch(function(){})
-                    .finally(function(){
-                      btn.innerHTML = '<i class="fa-solid fa-image"></i> Bagikan Gambar Struk';
-                      btn.disabled = false;
-                    });
-                  } else {
-                    var a = document.createElement("a");
-                    a.href = URL.createObjectURL(blob);
-                    a.download = namaFile;
-                    a.click();
-                    alert("Gambar struk berhasil diunduh! Silakan kirimkan file gambar tersebut.");
-                    btn.innerHTML = '<i class="fa-solid fa-image"></i> Bagikan Gambar Struk';
-                    btn.disabled = false;
-                  }
-                }, "image/png");
-              })
-              .catch(function(err) {
-                alert("Gagal membuat gambar: " + err);
-                btn.innerHTML = '<i class="fa-solid fa-image"></i> Bagikan Gambar Struk';
-                btn.disabled = false;
-              });
-            }
-          <\/script>
-        </body>
-        </html>
-      `);
-      doc.close();
     }
   </script>
 </body>
