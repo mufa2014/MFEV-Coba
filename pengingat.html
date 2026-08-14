@@ -200,7 +200,10 @@
         html += '<tr class="hover:bg-slate-50/80 transition-colors">' +
             '<td class="py-4 px-4 whitespace-nowrap">' + statusBadge + notifStatus + '</td>' +
             '<td class="py-4 px-4">' +
-              '<div class="font-bold text-slate-900">' + (item.Nama || '-') + '</div>' +
+              '<div class="font-bold text-slate-900 flex items-center gap-2">' + 
+                (item.Nama || '-') + 
+                (hpFormatted ? '<button onclick="simpanKontakVCF(\'' + (item.Nama || 'Pelanggan MFEV') + '\', \'' + hpFormatted + '\')" title="Simpan ke Kontak HP" class="text-slate-400 hover:text-emerald-600 text-xs p-1"><i class="fa-solid fa-user-plus"></i></button>' : '') +
+              '</div>' +
               '<div class="text-xs text-slate-500 font-mono">' + (hpFormatted || '-') + '</div>' +
             '</td>' +
             '<td class="py-4 px-4">' +
@@ -222,6 +225,31 @@
       });
 
       tbody.innerHTML = html;
+    }
+
+    // FUNGSI UNTUK MERENDAH & MEMBUAT FILE VCF (SIMPAN KONTAK AUTOMATIS)
+    function simpanKontakVCF(nama, noHP) {
+      if (!noHP) {
+        alert("Nomor HP tidak ada!");
+        return;
+      }
+      
+      const formatHP = noHP.startsWith("0") ? "+62" + noHP.substring(1) : noHP;
+      const vcard = "BEGIN:VCARD\n" +
+                    "VERSION:3.0\n" +
+                    "FN:" + nama + " (MF.EV)\n" +
+                    "TEL;TYPE=CELL:" + formatHP + "\n" +
+                    "END:VCARD";
+
+      const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nama.replace(/[^a-zA-Z0-9]/g, "_") + "_MFEV.vcf";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     function kirimWA(rowId, waNumber, pesanEncoded) {
