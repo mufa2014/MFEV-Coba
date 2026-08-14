@@ -185,6 +185,21 @@
       muatData();
     });
 
+    // FUNGSI UNTUK MEMPERBAIKI NOMOR HP JIKA ANGKA 0 TERHAPUS
+    function formatNoHP(val) {
+      if (!val) return "-";
+      let hp = String(val).trim();
+      // Hilangkan karakter non-digit kecuali tanda +
+      hp = hp.replace(/[^0-9]/g, "");
+      if (!hp) return "-";
+      
+      // Jika diawali '8', tambahkan '0' di depannya (misal: 81929001991 -> 081929001991)
+      if (hp.startsWith("8")) {
+        hp = "0" + hp;
+      }
+      return hp;
+    }
+
     function muatData() {
       const tbody = document.getElementById("tableBody");
       tbody.innerHTML = `
@@ -234,6 +249,7 @@
       if (q) {
         dataProses = dataProses.filter(d => 
           (d.Nama && d.Nama.toLowerCase().includes(q)) ||
+          (d.NoHP && d.NoHP.toString().toLowerCase().includes(q)) ||
           (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
           (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q)) ||
           (d.RincianPekerjaan && d.RincianPekerjaan.toLowerCase().includes(q))
@@ -273,13 +289,14 @@
 
         const tglDisplay = formatTanggalDisplay(item.Tanggal);
         const tglNextDisplay = item.TanggalBerikutnya ? formatTanggalDisplay(item.TanggalBerikutnya) : "-";
+        const hpFormatted = formatNoHP(item.NoHP);
 
         html += `
           <tr class="hover:bg-slate-50/80 transition-colors">
             <td class="py-4 px-4 whitespace-nowrap font-medium text-slate-700">${tglDisplay}</td>
             <td class="py-4 px-4">
               <div class="font-bold text-slate-900">${item.Nama || '-'}</div>
-              <div class="text-xs text-slate-400">${item.NoHP || '-'}</div>
+              <div class="text-xs text-slate-500 font-mono">${hpFormatted}</div>
             </td>
             <td class="py-4 px-4">
               <div class="font-medium text-slate-800">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
@@ -353,7 +370,7 @@
       document.getElementById("formTanggal").value = formatTanggalUntukInput(item.Tanggal);
       document.getElementById("formTanggalBerikutnya").value = formatTanggalUntukInput(item.TanggalBerikutnya);
       document.getElementById("formNama").value = item.Nama || "";
-      document.getElementById("formNoHP").value = item.NoHP || "";
+      document.getElementById("formNoHP").value = formatNoHP(item.NoHP);
       document.getElementById("formMerkMotor").value = item.MerkMotor || "";
       document.getElementById("formTipeMotor").value = item.TipeMotor || "";
       document.getElementById("formNoPlat").value = item.NoPlat || "";
@@ -377,13 +394,17 @@
       btnSubmit.disabled = true;
       btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...`;
 
+      const inputHP = document.getElementById("formNoHP").value;
+      // Diberi petik tunggal ' di depan agar Google Sheets mengenalnya sebagai teks murni
+      const hpFormatted = inputHP ? "'" + formatNoHP(inputHP) : "";
+
       const action = document.getElementById("formAction").value;
       const payload = {
         action: action,
         rowId: document.getElementById("formRowId").value,
         Tanggal: document.getElementById("formTanggal").value,
         Nama: document.getElementById("formNama").value,
-        NoHP: document.getElementById("formNoHP").value,
+        NoHP: hpFormatted,
         MerkMotor: document.getElementById("formMerkMotor").value,
         TipeMotor: document.getElementById("formTipeMotor").value,
         NoPlat: document.getElementById("formNoPlat").value,
@@ -440,6 +461,7 @@
       const angkaSaja = String(item.TotalBiaya || 0).replace(/[^0-9]/g, "");
       const totalRp = Number(angkaSaja || 0).toLocaleString("id-ID");
       const rincianFormatted = item.RincianPekerjaan ? item.RincianPekerjaan.replace(/\n/g, '<br>') : '-';
+      const hpFormatted = formatNoHP(item.NoHP);
 
       const cetakWin = window.open("", "_blank", "width=450,height=700");
       
@@ -543,7 +565,7 @@
             <table class="info-table">
               <tr><td>Tanggal</td><td>: ${formatTanggalDisplay(item.Tanggal)}</td></tr>
               <tr><td>Pelanggan</td><td>: <b>${item.Nama}</b></td></tr>
-              <tr><td>No. HP</td><td>: ${item.NoHP || '-'}</td></tr>
+              <tr><td>No. HP</td><td>: ${hpFormatted}</td></tr>
               <tr><td>Unit</td><td>: ${item.MerkMotor} ${item.TipeMotor || ''}</td></tr>
               <tr><td>No. Plat</td><td>: ${item.NoPlat || '-'}</td></tr>
               <tr><td>Odometer</td><td>: ${item.Kilometer || '-'}</td></tr>
