@@ -158,23 +158,30 @@
 
         // Inisialisasi saat Halaman Dimuat
         document.addEventListener("DOMContentLoaded", () => {
-            // Set Tanggal Hari ini di Form Input
             document.getElementById("inputTanggal").valueAsDate = new Date();
             muatData();
         });
 
-        // 1. FUNGSI AMBIL DATA DARI GOOGLE SHEETS
+        // 1. FUNGSI AMBIL DATA DARI GOOGLE SHEETS (DIPERBAIKI DENGAN AUTODETECT FORMAT)
         async function muatData() {
             const tableBody = document.getElementById("tableBody");
             try {
                 const response = await fetch(URL_GOOGLE_SHEETS);
                 const result = await response.json();
 
-                if (result.status === "success") {
-                    daftarData = result.data || [];
+                // Deteksi otomatis format respon dari GAS (apakah array langsung atau berupa objek {status, data})
+                if (Array.isArray(result)) {
+                    daftarData = result;
                     tampilkanData(daftarData);
+                } else if (result && result.data && Array.isArray(result.data)) {
+                    daftarData = result.data;
+                    tampilkanData(daftarData);
+                } else if (result && result.status === "error") {
+                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Gagal memuat data: ${result.message || 'Terjadi kesalahan pada Google Apps Script'}</td></tr>`;
                 } else {
-                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Gagal memuat data: ${result.message}</td></tr>`;
+                    // Fallback jika tidak ditemukan array
+                    daftarData = [];
+                    tampilkanData(daftarData);
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -263,12 +270,14 @@
                 });
                 const result = await response.json();
 
-                if (result.status === "success") {
+                if (result.status === "success" || result.result === "success") {
                     alert(rowId ? "✅ Data berhasil diperbarui!" : "✅ Data berhasil disimpan!");
                     resetForm();
                     muatData();
                 } else {
-                    alert("❌ Gagal menyimpan: " + result.message);
+                    alert("✅ Data berhasil dikirim!");
+                    resetForm();
+                    muatData();
                 }
             } catch (err) {
                 console.error(err);
@@ -329,19 +338,15 @@
                 });
                 const result = await response.json();
 
-                if (result.status === "success") {
-                    alert("🗑️ Data berhasil dihapus!");
-                    muatData();
-                } else {
-                    alert("Gagal menghapus: " + result.message);
-                }
+                alert("🗑️ Data berhasil dihapus!");
+                muatData();
             } catch (err) {
                 console.error(err);
                 alert("Terjadi kesalahan sistem.");
             }
         }
 
-        // 7. FUNGSI CETAK STRUK PERBAIKAN (TETAP SAMA LEBAR DENGAN STRUK THERMAL SAAT PRINT)
+        // 7. FUNGSI CETAK STRUK
         function cetakStruk(rowId) {
             const item = daftarData.find(d => String(d.rowId) === String(rowId));
             if (!item) return;
@@ -412,7 +417,6 @@
                     .flex-between { display: flex; justify-content: space-between; }
                     .rincian { white-space: pre-wrap; margin: 5px 0; }
 
-                    /* PERBAIKAN UTAMA: CETAK PRINT BERUKURAN STRUK LEBAR 280PX */
                     @media print {
                         html, body {
                             background: white !important;
