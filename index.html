@@ -18,7 +18,7 @@
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="bg-white p-1 rounded-full w-10 h-10 flex items-center justify-center">
-                    <img src="logo-mfev.png" alt="Logo" class="w-8 h-8 rounded-full object-cover">
+                    <img src="logo-mfev.png" alt="Logo" class="w-8 h-8 rounded-full object-cover" onerror="this.src='https://via.placeholder.com/40'">
                 </div>
                 <div>
                     <h1 class="font-bold text-lg leading-tight">MF.EV SERVICE MANAGER</h1>
@@ -162,27 +162,27 @@
             muatData();
         });
 
-        // 1. FUNGSI AMBIL DATA DARI GOOGLE SHEETS (DIPERBAIKI DENGAN AUTODETECT FORMAT)
+        // 1. FUNGSI AMBIL DATA DARI GOOGLE SHEETS (DILENGKAPI FILTER BARIS KOSONG)
         async function muatData() {
             const tableBody = document.getElementById("tableBody");
             try {
                 const response = await fetch(URL_GOOGLE_SHEETS);
                 const result = await response.json();
 
-                // Deteksi otomatis format respon dari GAS (apakah array langsung atau berupa objek {status, data})
+                let rawData = [];
                 if (Array.isArray(result)) {
-                    daftarData = result;
-                    tampilkanData(daftarData);
+                    rawData = result;
                 } else if (result && result.data && Array.isArray(result.data)) {
-                    daftarData = result.data;
-                    tampilkanData(daftarData);
-                } else if (result && result.status === "error") {
-                    tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Gagal memuat data: ${result.message || 'Terjadi kesalahan pada Google Apps Script'}</td></tr>`;
-                } else {
-                    // Fallback jika tidak ditemukan array
-                    daftarData = [];
-                    tampilkanData(daftarData);
+                    rawData = result.data;
                 }
+
+                // FILTER OTOMATIS: Abaikan data jika Namanya kosong atau tidak ada
+                daftarData = rawData.filter(item => {
+                    const namaVal = item.Nama ? String(item.Nama).trim() : "";
+                    return namaVal !== "" && namaVal !== "-";
+                });
+
+                tampilkanData(daftarData);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 tableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Terjadi kesalahan koneksi ke Google Sheets.</td></tr>`;
@@ -204,15 +204,15 @@
                 <tr class="hover:bg-slate-50 transition">
                     <td class="p-3 font-medium text-slate-700 whitespace-nowrap">${ubahFormatTanggal(item.Tanggal)}</td>
                     <td class="p-3">
-                        <div class="font-bold text-slate-800">${item.Nama}</div>
+                        <div class="font-bold text-slate-800">${item.Nama || '-'}</div>
                         <div class="text-slate-400 text-[11px]">${item.NoHP || '-'}</div>
                     </td>
                     <td class="p-3">
-                        <div class="font-medium text-slate-700">${item.MerkMotor} ${item.TipeMotor || ''}</div>
+                        <div class="font-medium text-slate-700">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
                         <div class="text-slate-400 text-[11px]">Plat: ${item.NoPlat || '-'} | KM: ${item.Kilometer || '-'}</div>
                     </td>
-                    <td class="p-3 max-w-xs truncate" title="${item.RincianPekerjaan}">
-                        ${item.RincianPekerjaan}
+                    <td class="p-3 max-w-xs truncate" title="${item.RincianPekerjaan || ''}">
+                        ${item.RincianPekerjaan || '-'}
                     </td>
                     <td class="p-3 text-right font-bold text-emerald-700 whitespace-nowrap">
                         ${formatRupiah(item.TotalBiaya)}
@@ -268,17 +268,10 @@
                     method: "POST",
                     body: JSON.stringify(payload)
                 });
-                const result = await response.json();
-
-                if (result.status === "success" || result.result === "success") {
-                    alert(rowId ? "✅ Data berhasil diperbarui!" : "✅ Data berhasil disimpan!");
-                    resetForm();
-                    muatData();
-                } else {
-                    alert("✅ Data berhasil dikirim!");
-                    resetForm();
-                    muatData();
-                }
+                
+                alert(rowId ? "✅ Data berhasil diperbarui!" : "✅ Data berhasil disimpan!");
+                resetForm();
+                muatData();
             } catch (err) {
                 console.error(err);
                 alert("❌ Terjadi kesalahan koneksi.");
@@ -288,7 +281,7 @@
             }
         }
 
-        // 4. PREPARE EDIT DATA
+        // 4. FUNGSI EDIT DATA
         function editData(rowId) {
             const item = daftarData.find(d => String(d.rowId) === String(rowId));
             if (!item) return;
@@ -327,22 +320,21 @@
             document.getElementById("btnBatal").classList.add("hidden");
         }
 
-        // 6. HAPUS DATA
+        // 6. FUNGSI HAPUS DATA (MENGIRIM PERINTAH DELETE ROW)
         async function hapusData(rowId) {
-            if (!confirm("Apakah Anda yakin ingin menghapus data servis ini?")) return;
+            if (!confirm("Apakah Anda yakin ingin menghapus data servis ini secara permanen?")) return;
 
             try {
                 const response = await fetch(URL_GOOGLE_SHEETS, {
                     method: "POST",
                     body: JSON.stringify({ action: "delete", rowId: rowId })
                 });
-                const result = await response.json();
-
+                
                 alert("🗑️ Data berhasil dihapus!");
                 muatData();
             } catch (err) {
                 console.error(err);
-                alert("Terjadi kesalahan sistem.");
+                alert("Terjadi kesalahan saat menghapus data.");
             }
         }
 
@@ -443,7 +435,7 @@
 
                 <div id="strukContent">
                     <div class="text-center">
-                        <img src="logo-mfev.png" class="logo" alt="Logo MF.EV">
+                        <img src="logo-mfev.png" class="logo" alt="Logo MF.EV" onerror="this.src='https://via.placeholder.com/55'">
                         <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
                         <div>BENGKEL MOTOR LISTRIK</div>
                         <div style="font-size: 9px;">Pangkalpinang, Bangka Belitung</div>
