@@ -140,14 +140,13 @@
     </div>
 
 <script>
-const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbwBM1LwGMmGqaKvb6M8muJrsA0CjANmibC4BeQgTPEgxUtyvppdxiNf2f6c6J6h1TUS/exec";
+const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbwfQZHcjJEPUGgH604OgTdEprdbwg6WEKaSWLBupKcD2htj20PYuy8z2Lczmf_ukJtP/exec";
 
 let daftarData = [];
 let modeUrut = 'tanggal';
 let arahAsc = false;
 
 function initApp() {
-    // Set default tanggal hari ini
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('inputTanggal').value = today;
     tarikDataDariSheets();
@@ -186,7 +185,6 @@ function tarikDataDariSheets() {
     statusEl.textContent = '⏳ Mengambil data...';
     btnMuat.disabled = true;
 
-    // Bersihkan script JSONP lama jika ada
     const scriptLama = document.getElementById('jsonpScript');
     if (scriptLama) scriptLama.remove();
 
@@ -234,7 +232,6 @@ function setUrutan(kriteria) {
         arahAsc = (kriteria === 'nama' || kriteria === 'merk');
     }
 
-    // Update style tombol
     ['Tanggal', 'Nama', 'Merk', 'Biaya'].forEach(k => {
         const btn = document.getElementById('sort' + k);
         if (k.toLowerCase() === kriteria) {
@@ -257,7 +254,6 @@ function tampilkanRiwayat(dataList) {
     const wadah = document.getElementById('wadahRiwayat');
     const inputCari = document.getElementById('inputCari').value.toLowerCase();
     
-    // 1. Filter Pencarian
     let hasil = dataList.filter(item => {
         return item.Nama.toLowerCase().includes(inputCari) ||
                item.NoPlat.toLowerCase().includes(inputCari) ||
@@ -265,7 +261,6 @@ function tampilkanRiwayat(dataList) {
                item.TipeMotor.toLowerCase().includes(inputCari);
     });
 
-    // 2. Sorting Data
     hasil.sort((a, b) => {
         let valA, valB;
         if (modeUrut === 'tanggal') {
@@ -439,13 +434,10 @@ async function hapusData(rowId) {
             body: payload.toString()
         });
 
-        // Hapus langsung dari daftar lokal
         daftarData = daftarData.filter(d => String(d.rowId) !== String(rowId));
         tampilkanRiwayat(daftarData);
 
         statusEl.textContent = '✅ Berhasil dihapus permanen!';
-        
-        // Tarik ulang otomatis setelah 1.5 detik untuk sinkronisasi ulang nomor baris
         setTimeout(() => tarikDataDariSheets(), 1500);
 
     } catch (err) {
@@ -463,76 +455,157 @@ function cetakStruk(rowId) {
     <html>
     <head>
         <title>Struk Servis - ${item.Nama}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- html2canvas untuk mengubah HTML struk menjadi GAMBAR -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script>
         <style>
+            * { box-sizing: border-box; }
             body {
                 font-family: 'Courier New', Courier, monospace;
-                width: 280px;
+                width: 320px;
                 margin: 0 auto;
                 padding: 10px;
                 font-size: 11px;
                 color: #000;
+                background-color: #f3f4f6;
             }
+            .action-buttons {
+                display: flex;
+                gap: 5px;
+                margin-bottom: 12px;
+                justify-content: center;
+            }
+            .btn {
+                padding: 6px 10px;
+                font-family: sans-serif;
+                font-size: 11px;
+                font-weight: bold;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                color: white;
+                display: inline-flex;
+                align-items: center;
+                gap: 3px;
+            }
+            .btn-print { background-color: #2563eb; }
+            .btn-wa { background-color: #16a34a; }
+            .btn-close { background-color: #4b5563; }
+            .btn:hover { opacity: 0.9; }
+
+            #strukContent {
+                background: white;
+                padding: 15px;
+                border-radius: 6px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
             .text-center { text-align: center; }
-            .logo { width: 50px; height: 50px; border-radius: 50%; margin: 0 auto 5px auto; display: block; }
+            .logo { width: 55px; height: 55px; border-radius: 50%; margin: 0 auto 5px auto; display: block; object-fit: cover; }
             .border-bottom { border-bottom: 1px dashed #000; margin: 8px 0; }
             .bold { font-weight: bold; }
             .flex-between { display: flex; justify-content: space-between; }
             .rincian { white-space: pre-wrap; margin: 5px 0; }
+
+            @media print {
+                body { background: white; padding: 0; width: 100%; }
+                .action-buttons { display: none !important; }
+                #strukContent { box-shadow: none; padding: 0; }
+            }
         </style>
     </head>
     <body>
-        <div class="text-center">
-            <img src="logo-mfev.png" class="logo" alt="Logo MF.EV">
-            <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
-            <div>BENGKEL MOTOR LISTRIK</div>
-            <div style="font-size: 9px;">Pangkalpinang, Bangka Belitung</div>
+        <!-- TOMBOL AKSI -->
+        <div class="action-buttons">
+            <button onclick="window.print()" class="btn btn-print">🖨️ Print</button>
+            <button onclick="kirimGambarWA('${item.NoHP}')" class="btn btn-wa">📲 Kirim WA</button>
+            <button onclick="window.close()" class="btn btn-close">❌ Tutup</button>
         </div>
-        
-        <div class="border-bottom"></div>
-        
-        <div>Tgl     : ${ubahFormatTanggal(item.Tanggal)}</div>
-        <div>Nama    : ${item.Nama}</div>
-        <div>No HP   : ${item.NoHP || '-'}</div>
-        <div>Motor   : ${item.MerkMotor} ${item.TipeMotor}</div>
-        <div>Plat    : ${item.NoPlat || '-'}</div>
-        <div>KM      : ${item.Kilometer || '-'}</div>
-        
-        <div class="border-bottom"></div>
-        
-        <div class="bold">RINCIAN PEKERJAAN & SPAREPART:</div>
-        <div class="rincian">${item.RincianPekerjaan || '-'}</div>
-        
-        <div class="border-bottom"></div>
-        
-        <div class="flex-between bold" style="font-size: 12px;">
-            <span>TOTAL BIAYA:</span>
-            <span>${formatRupiah(item.TotalBiaya)}</span>
-        </div>
-        ${item.Catatan && item.Catatan !== '-' ? `<div style="margin-top: 4px;">Catatan: ${item.Catatan}</div>` : ''}
-        
-        <div class="border-bottom"></div>
-        
-        <div class="text-center">
-            <div>Jadwal Servis Berkala Berikutnya:</div>
-            <div class="bold" style="font-size: 12px; margin-top: 2px;">
-                📅 ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : 'Sesuai Pemakaian'}
+
+        <!-- STRUK AREA -->
+        <div id="strukContent">
+            <div class="text-center">
+                <img src="logo-mfev.png" class="logo" alt="Logo MF.EV">
+                <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
+                <div>BENGKEL MOTOR LISTRIK</div>
+                <div style="font-size: 9px;">Pangkalpinang, Bangka Belitung</div>
+            </div>
+            
+            <div class="border-bottom"></div>
+            
+            <div>Tgl     : ${ubahFormatTanggal(item.Tanggal)}</div>
+            <div>Nama    : ${item.Nama}</div>
+            <div>No HP   : ${item.NoHP || '-'}</div>
+            <div>Motor   : ${item.MerkMotor} ${item.TipeMotor}</div>
+            <div>Plat    : ${item.NoPlat || '-'}</div>
+            <div>KM      : ${item.Kilometer || '-'}</div>
+            
+            <div class="border-bottom"></div>
+            
+            <div class="bold">RINCIAN PEKERJAAN & SPAREPART:</div>
+            <div class="rincian">${item.RincianPekerjaan || '-'}</div>
+            
+            <div class="border-bottom"></div>
+            
+            <div class="flex-between bold" style="font-size: 12px;">
+                <span>TOTAL BIAYA:</span>
+                <span>${formatRupiah(item.TotalBiaya)}</span>
+            </div>
+            ${item.Catatan && item.Catatan !== '-' ? `<div style="margin-top: 4px;">Catatan: ${item.Catatan}</div>` : ''}
+            
+            <div class="border-bottom"></div>
+            
+            <div class="text-center">
+                <div>Jadwal Servis Berkala Berikutnya:</div>
+                <div class="bold" style="font-size: 12px; margin-top: 2px;">
+                    📅 ${item.TanggalBerikutnya ? ubahFormatTanggal(item.TanggalBerikutnya) : 'Sesuai Pemakaian'}
+                </div>
+            </div>
+
+            <div class="border-bottom"></div>
+            
+            <div class="text-center" style="margin-top: 10px;">
+                Terima Kasih Atas Kepercayaan Anda 🙏
             </div>
         </div>
 
-        <div class="border-bottom"></div>
-        
-        <div class="text-center" style="margin-top: 10px;">
-            Terima Kasih Atas Kepercayaan Anda 🙏
-        </div>
+        <script>
+            async function kirimGambarWA(noHP) {
+                const element = document.getElementById('strukContent');
+                try {
+                    const canvas = await html2canvas(element, { scale: 2 });
+                    
+                    canvas.toBlob(async (blob) => {
+                        try {
+                            const data = [new ClipboardItem({ 'image/png': blob })];
+                            await navigator.clipboard.write(data);
+                            
+                            let phone = String(noHP).replace(/\\D/g, '');
+                            if (phone.startsWith('0')) {
+                                phone = '62' + phone.slice(1);
+                            }
+
+                            alert("✅ GAMBAR STRUK BERHASIL DISALIN!\\n\\nWhatsApp akan terbuka. Silakan tekan Ctrl+V (Paste) di kolom chat untuk mengirim struk dalam bentuk GAMBAR.");
+                            
+                            const waUrl = phone ? \`https://wa.me/\${phone}\` : 'https://wa.me/';
+                            window.open(waUrl, '_blank');
+                        } catch (err) {
+                            console.error(err);
+                            alert("⚠️ Browser menolak penyalinan gambar otomatis. Silakan screenshot manual atau gunakan browser chrome/edge terbaru.");
+                        }
+                    });
+                } catch (e) {
+                    alert("Gagal mengubah struk menjadi gambar.");
+                }
+            }
+        <\/script>
     </body>
     </html>
     `;
 
-    const win = window.open('', '_blank', 'width=380,height=600');
+    const win = window.open('', '_blank', 'width=380,height=650');
     win.document.write(htmlStruk);
     win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); }, 600);
 }
 </script>
 </body>
