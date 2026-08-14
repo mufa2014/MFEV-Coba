@@ -14,43 +14,47 @@
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
   <!-- TOP HEADER WEB UTAMA -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- LOGO HEADER WEB UTAMA -->
-        <div class="bg-emerald-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center w-11 h-11">
-          <i class="fa-solid fa-bolt-lightning text-xl text-yellow-300"></i>
-        </div>
+        <!-- LOGO HEADER DARI GITHUB -->
+        <img src="logo-mfev.png" alt="Logo MF.EV" class="h-10 w-auto object-contain rounded-xl shadow-sm">
         <div>
-          <h1 class="font-bold text-lg text-slate-900 leading-tight flex items-center gap-2">
+          <h1 class="font-bold text-base sm:text-lg text-slate-900 leading-tight flex items-center gap-2">
             MF.EV <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">SERVICE</span>
           </h1>
-          <p class="text-xs text-slate-500">Sistem Manajemen Riwayat Servis</p>
+          <p class="text-xs text-slate-500 hidden sm:block">Sistem Manajemen Riwayat Servis</p>
         </div>
       </div>
-      <button onclick="bukaModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-medium text-sm flex items-center gap-2 transition-all shadow-sm">
-        <i class="fa-solid fa-plus"></i> Tambah Servis
-      </button>
+      
+      <div class="flex items-center gap-2">
+        <a href="pengingat.html" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
+          <i class="fa-solid fa-bell"></i> <span class="hidden sm:inline">Pengingat</span>
+        </a>
+        <button onclick="bukaModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
+          <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Tambah Servis</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+  <!-- MAIN CONTAINER (FULL RESPONSIVE) -->
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
     
     <!-- CARD TABLE CONTAINER -->
-    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden w-full">
       
       <!-- CARD HEADER, SEARCH BAR & TOMBOL SORTIR -->
-      <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex items-center gap-2 text-slate-800 font-bold text-lg">
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-slate-800 font-bold text-base sm:text-lg">
           <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
           <span>Riwayat Servis Pelanggan</span>
         </div>
         
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full md:w-auto">
           <!-- TOMBOL SORTIR TANGGAL -->
           <button onclick="toggleSort()" id="btnSort" title="Ubah Urutan Tanggal" 
-            class="px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center gap-2 transition-all">
+            class="px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center justify-center gap-2 transition-all w-full sm:w-auto">
             <i class="fa-solid fa-arrow-down-wide-short text-emerald-600" id="sortIcon"></i>
             <span id="sortLabel">Terbaru Pertama</span>
           </button>
@@ -65,8 +69,8 @@
       </div>
 
       <!-- TABLE AREA -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm text-slate-600">
+      <div class="overflow-x-auto w-full">
+        <table class="w-full text-left text-sm text-slate-600 min-w-[750px]">
           <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
             <tr>
               <th class="py-3.5 px-4">TGL SERVIS</th>
@@ -180,13 +184,12 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqMV2lQsLeG2C70787Qw4zarJWv1023AxZj2XLuo_tUOMSVkash0ZeiXSs14BwqpI4/exec";
 
     let rawData = [];
-    let isNewestFirst = true; // State sortir: default terbaru di atas
+    let isNewestFirst = true;
 
     document.addEventListener("DOMContentLoaded", () => {
       muatData();
     });
 
-    // 🟢 AMBIL DATA DARI APPS SCRIPT
     function muatData() {
       const tbody = document.getElementById("tableBody");
       tbody.innerHTML = `
@@ -212,11 +215,9 @@
         });
     }
 
-    // 🔄 FUNGSI SORTIR & RENDER
     function urutkanDanRender() {
       let dataProses = [...rawData];
       
-      // Mengurutkan berdasarkan tanggal / ID
       dataProses.sort((a, b) => {
         const dateA = new Date(formatTanggalUntukInput(a.Tanggal));
         const dateB = new Date(formatTanggalUntukInput(b.Tanggal));
@@ -227,7 +228,6 @@
         return isNewestFirst ? dateB - dateA : dateA - dateB;
       });
 
-      // Filter jika ada kata pencarian
       const q = document.getElementById("searchInput").value.toLowerCase();
       if (q) {
         dataProses = dataProses.filter(d => 
@@ -241,7 +241,6 @@
       renderTable(dataProses);
     }
 
-    // 🔘 TOGGLE TOMBOL SORTIR
     function toggleSort() {
       isNewestFirst = !isNewestFirst;
       const btnIcon = document.getElementById("sortIcon");
@@ -258,7 +257,6 @@
       urutkanDanRender();
     }
 
-    // 🟢 RENDER TABEL
     function renderTable(data) {
       const tbody = document.getElementById("tableBody");
       if (data.length === 0) {
@@ -311,7 +309,6 @@
       urutkanDanRender();
     }
 
-    // 🗓️ FORMAT TANGGAL
     function formatTanggalUntukInput(str) {
       if (!str) return "";
       if (str.includes("T")) str = str.split("T")[0];
@@ -434,7 +431,7 @@
       .catch(err => alert("Gagal menghapus: " + err.message));
     }
 
-    // 🖨️ CETAK NOTA / STRUK DENGAN DESAIN BARU
+    // 🖨️ CETAK NOTA / STRUK DENGAN LOGO HITAM PUTIH
     function cetakStruk(rowId) {
       const item = rawData.find(d => Number(d.rowId) === Number(rowId));
       if (!item) return;
@@ -459,9 +456,14 @@
               padding: 15px 10px;
             }
             .text-center { text-align: center; }
-            .text-right { text-align: right; }
             .bold { font-weight: bold; }
-            .logo { font-size: 20px; font-weight: 900; letter-spacing: 1px; margin-bottom: 2px; }
+            .logo-bw {
+              max-height: 50px;
+              width: auto;
+              margin: 0 auto 5px auto;
+              display: block;
+              filter: grayscale(100%) contrast(200%); /* EFEK HITAM PUTIH HIGH CONTRAST UNTUK PRINTER THERMAL */
+            }
             .divider { border-top: 1px dashed #000; margin: 8px 0; }
             .double-divider { border-top: 2px double #000; margin: 8px 0; }
             .info-table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
@@ -473,10 +475,10 @@
         </head>
         <body onload="window.print()">
           
-          <!-- LOGO & HEADER STRUK -->
+          <!-- LOGO HITAM PUTIH & HEADER STRUK -->
           <div class="text-center">
-            <div class="logo">⚡ MF.EV ⚡</div>
-            <div class="bold">ELECTRIC VEHICLE SERVICE</div>
+            <img src="logo-mfev.png" class="logo-bw" alt="Logo MF.EV">
+            <div class="bold" style="font-size: 14px;">MF.EV SERVICE</div>
             <div style="font-size: 10px;">Bangka Belitung - HP: 087896318932</div>
           </div>
 
