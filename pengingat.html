@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pengingat Servis Berkala - MF.EV</title>
+  <title>Pengingat Servis - MF.EV</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -17,58 +17,69 @@
   <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full">
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- LOGO HEADER DARI GITHUB -->
-        <img src="logo-mfev.png" alt="Logo MF.EV" class="h-10 w-auto object-contain rounded-xl shadow-sm">
+        <a href="index.html" class="p-2 border border-slate-200 rounded-xl hover:bg-slate-50 transition-all text-slate-600">
+          <i class="fa-solid fa-arrow-left"></i>
+        </a>
         <div>
           <h1 class="font-bold text-base sm:text-lg text-slate-900 leading-tight flex items-center gap-2">
             MF.EV <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-semibold">PENGINGAT</span>
           </h1>
-          <p class="text-xs text-slate-500 hidden sm:block">Jadwal Servis Berkala Pelanggan</p>
+          <p class="text-xs text-slate-500 hidden sm:block">Pengingat Jadwal Servis Berkala</p>
         </div>
       </div>
-      <a href="index.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all">
-        <i class="fa-solid fa-arrow-left"></i> Kembali
-      </a>
+      
+      <div class="flex items-center gap-2">
+        <button onclick="muatData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
+          <i class="fa-solid fa-rotate"></i> <span class="hidden sm:inline">Muat Ulang</span>
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER (FULL RESPONSIVE) -->
-  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+  <!-- MAIN CONTAINER -->
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4">
     
-    <!-- LEGEND & BAR -->
-    <div class="bg-white border border-slate-200 rounded-2xl p-4 mb-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div class="flex flex-wrap items-center gap-4 text-xs font-medium">
-        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span> Merah = Sudah Lewat</span>
-        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> Kuning = &le;7 Hari Lagi</span>
-        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Hijau = Masih Aman</span>
+    <!-- KETERANGAN WARNA BADGE -->
+    <div class="flex flex-wrap items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 text-xs font-medium text-slate-600">
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+        <span>Merah = Sudah Lewat</span>
       </div>
-
-      <div class="flex items-center gap-3">
-        <button onclick="muatData()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all">
-          <i class="fa-solid fa-rotate"></i> Muat Ulang
-        </button>
-        <span id="statusText" class="text-xs text-slate-400">Menghubungkan...</span>
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+        <span>Kuning = ≤7 Hari Lagi</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+        <span>Hijau = Masih Aman</span>
+      </div>
+      <div class="flex items-center gap-2 ml-auto border-l pl-4 border-slate-200">
+        <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+        <span>Centang Biru = Sudah Dihubungi WA</span>
       </div>
     </div>
 
-    <!-- TABLE CARD -->
+    <!-- TABLE CONTAINER -->
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden w-full">
-      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h2 class="font-bold text-slate-800 text-base sm:text-lg flex items-center gap-2">
-          <i class="fa-solid fa-bell text-amber-500"></i> Daftar Pengingat Servis
-        </h2>
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-slate-800 font-bold text-base sm:text-lg">
+          <i class="fa-solid fa-bell text-amber-500"></i>
+          <span>Daftar Pengingat Servis</span>
+        </div>
+        
         <div class="relative w-full sm:w-72">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
           <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
-            class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+            class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 bg-slate-50/50">
         </div>
       </div>
 
+      <!-- TABLE AREA -->
       <div class="overflow-x-auto w-full">
-        <table class="w-full text-left text-sm text-slate-600 min-w-[750px]">
+        <table class="w-full text-left text-sm text-slate-600 min-w-[800px]">
           <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
             <tr>
-              <th class="py-3.5 px-4 text-center">STATUS</th>
+              <th class="py-3.5 px-4">STATUS</th>
               <th class="py-3.5 px-4">PELANGGAN / HP</th>
               <th class="py-3.5 px-4">MOTOR & PLAT</th>
               <th class="py-3.5 px-4">SERVIS TERAKHIR</th>
@@ -80,38 +91,44 @@
           <tbody id="tableBody" class="divide-y divide-slate-100">
             <tr>
               <td colspan="7" class="py-12 text-center text-slate-400">
-                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i>
-                <p>Memuat data pengingat...</p>
+                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-amber-500"></i>
+                <p>Memuat jadwal pengingat...</p>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-
   </main>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqMV2lQsLeG2C70787Qw4zarJWv1023AxZj2XLuo_tUOMSVkash0ZeiXSs14BwqpI4/exec";
-
     let rawData = [];
 
     document.addEventListener("DOMContentLoaded", () => {
       muatData();
     });
 
+    function formatNoHP(val) {
+      if (!val) return "";
+      let hp = String(val).trim().replace(/[^0-9]/g, "");
+      if (hp.startsWith("8")) hp = "0" + hp;
+      return hp;
+    }
+
+    function formatWA(val) {
+      let hp = formatNoHP(val);
+      if (hp.startsWith("0")) hp = "62" + hp.substring(1);
+      return hp;
+    }
+
     function muatData() {
       const tbody = document.getElementById("tableBody");
-      const statusText = document.getElementById("statusText");
-      
-      statusText.innerText = "Memuat data...";
-      statusText.className = "text-xs text-amber-600";
-
       tbody.innerHTML = `
         <tr>
           <td colspan="7" class="py-12 text-center text-slate-400">
-            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i>
-            <p>Memuat jadwal dari Spreadsheet...</p>
+            <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-amber-500"></i>
+            <p>Memuat data dari Spreadsheet...</p>
           </td>
         </tr>`;
 
@@ -119,107 +136,163 @@
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
-            rawData = data.filter(item => item.TanggalBerikutnya && item.TanggalBerikutnya.trim() !== "" && item.TanggalBerikutnya !== "-");
-            
-            statusText.innerText = "Terhubung ke Sheets";
-            statusText.className = "text-xs text-emerald-600 font-medium";
-
-            filterTable();
+            // Filter hanya data yang memiliki Tanggal Servis Berikutnya
+            rawData = data.filter(d => d.TanggalBerikutnya && d.TanggalBerikutnya.trim() !== "");
+            renderTable(rawData);
           } else {
-            statusText.innerText = "Gagal memuat data";
-            statusText.className = "text-xs text-red-500";
-            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500">Data gagal dimuat.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Gagal memuat data.</td></tr>`;
           }
         })
         .catch(err => {
-          statusText.innerText = "Gagal terhubung ke Sheets";
-          statusText.className = "text-xs text-red-500 font-bold";
-          tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-red-500">Koneksi terputus / gagal memuat data.</td></tr>`;
+          tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-500">Gagal terhubung ke koneksi internet/spreadsheet.</td></tr>`;
         });
-    }
-
-    function filterTable() {
-      const q = document.getElementById("searchInput").value.toLowerCase();
-      let filtered = rawData.filter(d => 
-        (d.Nama && d.Nama.toLowerCase().includes(q)) ||
-        (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
-        (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q))
-      );
-
-      const hariIni = new Date();
-      hariIni.setHours(0,0,0,0);
-
-      filtered.forEach(item => {
-        const tglNext = new Date(formatTanggalUntukInput(item.TanggalBerikutnya));
-        tglNext.setHours(0,0,0,0);
-        const diffTime = tglNext - hariIni;
-        item.diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      });
-
-      filtered.sort((a, b) => a.diffDays - b.diffDays);
-
-      renderTable(filtered);
     }
 
     function renderTable(data) {
       const tbody = document.getElementById("tableBody");
       if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada data jadwal pengingat servis.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada jadwal pengingat servis.</td></tr>`;
         return;
       }
 
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
       let html = "";
       data.forEach(item => {
-        let statusBadge = "";
-        let sisaText = "";
+        const hpFormatted = formatNoHP(item.NoHP);
+        const waNumber = formatWA(item.NoHP);
 
-        if (item.diffDays < 0) {
-          statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Terlewat</span>`;
-          sisaText = `<span class="text-red-600 font-bold">Lewat ${Math.abs(item.diffDays)} hari</span>`;
-        } else if (item.diffDays <= 7) {
-          statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700"><i class="fa-solid fa-clock mr-1"></i> Segera</span>`;
-          sisaText = item.diffDays === 0 ? `<span class="text-amber-600 font-bold">Hari Ini!</span>` : `<span class="text-amber-600 font-bold">${item.diffDays} hari lagi</span>`;
+        // Hitung Selisih Hari
+        const tglNext = new Date(formatTanggalUntukInput(item.TanggalBerikutnya));
+        tglNext.setHours(0,0,0,0);
+
+        const diffTime = tglNext - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let statusBadge = "";
+        let sisaWaktuText = "";
+
+        if (diffDays < 0) {
+          statusBadge = `<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-triangle-exclamation"></i> Terlewat</span>`;
+          sisaWaktuText = `<span class="text-red-600 font-semibold">Lewat ${Math.abs(diffDays)} hari</span>`;
+        } else if (diffDays <= 7) {
+          statusBadge = `<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-clock"></i> Segera</span>`;
+          sisaWaktuText = `<span class="text-amber-600 font-semibold">${diffDays === 0 ? 'Hari ini' : diffDays + ' hari lagi'}</span>`;
         } else {
-          statusBadge = `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700"><i class="fa-solid fa-circle-check mr-1"></i> Aman</span>`;
-          sisaText = `<span class="text-slate-600">${item.diffDays} hari lagi</span>`;
+          statusBadge = `<span class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 w-max"><i class="fa-solid fa-circle-check"></i> Aman</span>`;
+          sisaWaktuText = `<span class="text-slate-600">${diffDays} hari lagi</span>`;
         }
 
-        let noWa = (item.NoHP || "").replace(/[^0-9]/g, "");
-        if (noWa.startsWith("0")) noWa = "62" + noWa.slice(1);
+        // KONTROL NOTIFIKASI SUDAH DIHUBUNGI (KOLOM L / SudahDihubungi)
+        const isDihubungi = item.SudahDihubungi === true || String(item.SudahDihubungi).toUpperCase() === "TRUE";
 
+        let notifStatus = "";
+        let btnWAClass = "bg-emerald-600 hover:bg-emerald-700 text-white";
+        let btnWAText = "Kirim WA";
+
+        if (isDihubungi) {
+          notifStatus = `
+            <div class="mt-1 flex items-center gap-1 text-[11px] font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md w-max border border-blue-100">
+              <i class="fa-solid fa-circle-check"></i> Sudah Dihubungi
+            </div>`;
+          btnWAClass = "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-300";
+          btnWAText = "Kirim Ulang WA";
+        }
+
+        // Pesan Default WhatsApp
         const pesanWA = encodeURIComponent(
-          `Halo Kak *${item.Nama}*,\n\nSalam dari *MF.EV Service* ⚡\n` +
-          `Pengingat untuk jadwal servis berkala motor *${item.MerkMotor} ${item.TipeMotor || ''}* (${item.NoPlat || '-'}).\n\n` +
-          `📅 Tanggal Servis Next: *${formatTanggalDisplay(item.TanggalBerikutnya)}*\n\n` +
-          `Yuk lakukan perawatan rutin agar motor listrik Anda tetap dalam kondisi prima. Terima kasih! 🙏`
+          `Halo Kak ${item.Nama},\n\n` +
+          `Kami dari *MF.EV Service* ingin menginfokan bahwa jadwal servis berkala untuk motor listrik Kakak (${item.MerkMotor} ${item.TipeMotor || ''} - ${item.NoPlat || ''}) adalah pada tanggal *${formatTanggalDisplay(item.TanggalBerikutnya)}*.\n\n` +
+          `Yuk lakukan servis berkala agar kondisi kendaraan tetap prima! Silakan balas pesan ini untuk booking jadwal ya Kak. Terima kasih! 🙏`
         );
 
         html += `
           <tr class="hover:bg-slate-50/80 transition-colors">
-            <td class="py-4 px-4 text-center whitespace-nowrap">${statusBadge}</td>
+            <td class="py-4 px-4 whitespace-nowrap">
+              ${statusBadge}
+              ${notifStatus}
+            </td>
             <td class="py-4 px-4">
               <div class="font-bold text-slate-900">${item.Nama || '-'}</div>
-              <div class="text-xs text-slate-400">${item.NoHP || '-'}</div>
+              <div class="text-xs text-slate-500 font-mono">${hpFormatted || '-'}</div>
             </td>
             <td class="py-4 px-4">
               <div class="font-medium text-slate-800">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
               <div class="text-xs text-slate-400">Plat: ${item.NoPlat || '-'}</div>
             </td>
             <td class="py-4 px-4 text-xs text-slate-500 whitespace-nowrap">${formatTanggalDisplay(item.Tanggal)}</td>
-            <td class="py-4 px-4 font-semibold text-slate-800 whitespace-nowrap">${formatTanggalDisplay(item.TanggalBerikutnya)}</td>
-            <td class="py-4 px-4 text-xs whitespace-nowrap">${sisaText}</td>
+            <td class="py-4 px-4 font-bold text-slate-800 whitespace-nowrap">${formatTanggalDisplay(item.TanggalBerikutnya)}</td>
+            <td class="py-4 px-4 text-xs whitespace-nowrap">${sisaWaktuText}</td>
             <td class="py-4 px-4 text-center whitespace-nowrap">
-              ${noWa ? `
-                <a href="https://wa.me/${noWa}?text=${pesanWA}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-medium transition-all shadow-sm">
-                  <i class="fa-brands fa-whatsapp text-sm"></i> Kirim WA
-                </a>
-              ` : `<span class="text-xs text-slate-300">Tanpa No HP</span>`}
+              <div class="flex items-center justify-center gap-1">
+                <button onclick="kirimWA(${item.rowId}, '${waNumber}', '${pesanWA}')" 
+                  class="px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${btnWAClass}">
+                  <i class="fa-brands fa-whatsapp text-sm"></i> ${btnWAText}
+                </button>
+                ${isDihubungi ? `
+                  <button onclick="resetStatusDihubungi(${item.rowId})" title="Tandai Belum Dihubungi" class="p-1.5 text-slate-400 hover:text-red-500 rounded-lg">
+                    <i class="fa-solid fa-rotate-left text-xs"></i>
+                  </button>
+                ` : ''}
+              </div>
             </td>
           </tr>
         `;
       });
 
       tbody.innerHTML = html;
+    }
+
+    function kirimWA(rowId, waNumber, pesan) {
+      if (!waNumber) {
+        alert("Nomor HP / WA tidak valid!");
+        return;
+      }
+
+      // 1. Buka Tab WhatsApp
+      window.open(`https://wa.me/${waNumber}?text=${pesan}`, '_blank');
+
+      // 2. Simpan status Sudah Dihubungi = TRUE ke Google Sheets
+      updateStatusDihubungi(rowId, true);
+    }
+
+    function resetStatusDihubungi(rowId) {
+      if (confirm("Ubah status menjadi Belum Dihubungi?")) {
+        updateStatusDihubungi(rowId, false);
+      }
+    }
+
+    function updateStatusDihubungi(rowId, isDihubungi) {
+      // Update lokal untuk performa instan
+      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
+      if (item) {
+        item.SudahDihubungi = isDihubungi;
+        renderTable(rawData);
+      }
+
+      // Kirim pembaruan ke Google Sheets
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "updateDihubungi",
+          rowId: rowId,
+          SudahDihubungi: isDihubungi
+        })
+      }).catch(err => console.error("Gagal memperbarui status ke Sheets:", err));
+    }
+
+    function filterTable() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const filtered = rawData.filter(d => 
+        (d.Nama && d.Nama.toLowerCase().includes(q)) ||
+        (d.NoHP && d.NoHP.toString().toLowerCase().includes(q)) ||
+        (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
+        (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q))
+      );
+      renderTable(filtered);
     }
 
     function formatTanggalUntukInput(str) {
