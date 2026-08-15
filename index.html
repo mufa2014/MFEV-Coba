@@ -144,32 +144,27 @@
           </div>
         </div>
 
-        <!-- ROW 4: RINCIAN PEKERJAAN & BIAYA (5 BARIS DENGAN HITUNG OTOMATIS) -->
+        <!-- ROW 4: RINCIAN PEKERJAAN & BIAYA -->
         <div class="space-y-3 pt-2">
           <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide">Rincian Pekerjaan &amp; Biaya</label>
 
           <div class="space-y-2" id="itemPekerjaanContainer">
-            <!-- Row 1 -->
             <div class="flex gap-2 items-center row-pekerjaan">
               <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="1. Jasa / Sparepart">
               <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
-            <!-- Row 2 -->
             <div class="flex gap-2 items-center row-pekerjaan">
               <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="2. Jasa / Sparepart">
               <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
-            <!-- Row 3 -->
             <div class="flex gap-2 items-center row-pekerjaan">
               <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="3. Jasa / Sparepart">
               <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
-            <!-- Row 4 -->
             <div class="flex gap-2 items-center row-pekerjaan">
               <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="4. Jasa / Sparepart">
               <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
-            <!-- Row 5 -->
             <div class="flex gap-2 items-center row-pekerjaan">
               <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="5. Jasa / Sparepart">
               <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
@@ -282,8 +277,9 @@
         <button id="btnDownloadStruk" onclick="downloadStrukGambar()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-download"></i> Unduh
         </button>
-        <button onclick="shareKirimWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
-          <i class="fa-brands fa-whatsapp text-sm"></i> WA
+        <!-- TOMBOL SHARE GAMBAR DENGAN NATIVE WEB SHARE API -->
+        <button id="btnShareStruk" onclick="shareStrukGambar()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
+          <i class="fa-solid fa-share-nodes"></i> Share
         </button>
         <button onclick="tutupModalStruk()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
           <i class="fa-solid fa-xmark"></i> Tutup
@@ -466,31 +462,56 @@
       });
     }
 
-    function shareKirimWA() {
-      if (!currentStrukItem) return;
-      const hp = formatNoHP(currentStrukItem.NoHP);
-      if (!hp) return alert("Nomor HP pelanggan tidak valid!");
-
-      let targetHP = hp.startsWith("0") ? "62" + hp.substring(1) : hp;
+    // MEMBAGIKAN STRUK DALAM BENTUK GAMBAR PNG KE BERBAGAI APLIKASI
+    function shareStrukGambar() {
+      const area = document.getElementById("areaStrukPrint");
+      const btn = document.getElementById("btnShareStruk");
       
-      let pesan = `*STRUK SERVIS - MF.EV SERVICE*\n`;
-      pesan += `-----------------------------------\n`;
-      pesan += `Tanggal : ${formatTanggalDisplay(currentStrukItem.Tanggal)}\n`;
-      pesan += `Nama    : ${currentStrukItem.Nama || '-'}\n`;
-      pesan += `Motor   : ${currentStrukItem.MerkMotor || ''} ${currentStrukItem.TipeMotor || ''} (${currentStrukItem.NoPlat || '-'})\n`;
-      pesan += `-----------------------------------\n`;
-      pesan += `*Rincian Pekerjaan:*\n`;
-      if (currentStrukItem.RincianPekerjaan) {
-        currentStrukItem.RincianPekerjaan.split(",").forEach(i => {
-          pesan += `• ${i.trim()}\n`;
-        });
-      }
-      pesan += `-----------------------------------\n`;
-      pesan += `*TOTAL BIAYA : Rp ${(parseFloat(currentStrukItem.TotalBiaya) || 0).toLocaleString('id-ID')}*\n\n`;
-      pesan += `Terima kasih telah mempercayakan servis kendaraan listrik Anda di *MF.EV Service*!`;
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
-      const url = `https://wa.me/${targetHP}?text=${encodeURIComponent(pesan)}`;
-      window.open(url, '_blank');
+      html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
+        canvas.toBlob(blob => {
+          if (!blob) {
+            alert("Gagal membuat gambar struk.");
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            return;
+          }
+
+          const namaPelanggan = currentStrukItem && currentStrukItem.Nama ? currentStrukItem.Nama.replace(/[^a-zA-Z0-9]/g, '_') : 'Pelanggan';
+          const file = new File([blob], `Struk_MFEV_${namaPelanggan}.png`, { type: "image/png" });
+
+          // Cek Apakah Browser Mendukung Fitur Share File Gambar Direct
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            navigator.share({
+              files: [file],
+              title: 'Struk Servis MF.EV',
+              text: `Struk Servis MF.EV - ${currentStrukItem ? currentStrukItem.Nama : ''}`
+            }).then(() => {
+              btn.disabled = false;
+              btn.innerHTML = originalText;
+            }).catch(err => {
+              btn.disabled = false;
+              btn.innerHTML = originalText;
+            });
+          } else {
+            // Fallback: Jika Browser Laptop/Desktop Tidak Mendukung Direct File Share
+            alert("Perangkat atau browser ini tidak mendukung fitur kirim gambar langsung. Gambar akan diunduh otomatis.");
+            const link = document.createElement("a");
+            link.download = file.name;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+          }
+        }, "image/png");
+      }).catch(err => {
+        alert("Gagal memproses gambar.");
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      });
     }
 
     function filterTable() {
