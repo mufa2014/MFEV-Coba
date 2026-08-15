@@ -310,8 +310,11 @@
         return;
       }
 
+      // MEMBALIK URUTAN DATA (Terbaru di paling atas, terlama di bawah)
+      const sortedData = [...data].reverse();
+
       let html = "";
-      data.forEach(item => {
+      sortedData.forEach(item => {
         const hpFormatted = formatNoHP(item.NoHP);
         const totalBiayaNum = parseFloat(item.TotalBiaya) || 0;
 
