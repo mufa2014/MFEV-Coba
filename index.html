@@ -6,6 +6,8 @@
   <title>MF.EV Service System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- LIBRARY UNTUK CONVERT STRUK KE GAMBAR PNG -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inconsolata:wght@400;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
@@ -208,9 +210,9 @@
     </div>
   </div>
 
-  <!-- MODAL STRUK SERVIS (CETAK & SHARE) -->
+  <!-- MODAL STRUK SERVIS (CETAK, DOWNLOAD, SHARE WA & TUTUP) -->
   <div id="modalStruk" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden border border-slate-200">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden border border-slate-200">
       
       <!-- STRUK PRINT AREA -->
       <div id="areaStrukPrint" class="p-6 bg-white font-mono-struk text-xs text-slate-800 space-y-4">
@@ -272,15 +274,18 @@
         </div>
       </div>
 
-      <!-- STRUK ACTION BUTTONS -->
-      <div class="p-4 bg-slate-50 border-t border-slate-100 grid grid-cols-3 gap-2">
-        <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm">
+      <!-- STRUK ACTION BUTTONS (4 TOMBOL RAPI) -->
+      <div class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-4 gap-1.5">
+        <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-print"></i> Cetak
         </button>
-        <button onclick="shareKirimWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm">
-          <i class="fa-brands fa-whatsapp text-sm"></i> Kirim WA
+        <button id="btnDownloadStruk" onclick="downloadStrukGambar()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
+          <i class="fa-solid fa-download"></i> Unduh
         </button>
-        <button onclick="tutupModalStruk()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 py-2.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all">
+        <button onclick="shareKirimWA()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
+          <i class="fa-brands fa-whatsapp text-sm"></i> WA
+        </button>
+        <button onclick="tutupModalStruk()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
           <i class="fa-solid fa-xmark"></i> Tutup
         </button>
       </div>
@@ -435,6 +440,34 @@
       win.document.close();
       win.focus();
       setTimeout(() => { win.print(); win.close(); }, 500);
+    }
+
+    // FUNGSI UNTUK DOWNLOAD STRUK DALAM BENTUK GAMBAR PNG
+    function downloadStrukGambar() {
+      const area = document.getElementById("areaStrukPrint");
+      const btn = document.getElementById("btnDownloadStruk");
+      
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+      html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
+        const link = document.createElement("a");
+        const namaFile = currentStrukItem && currentStrukItem.Nama 
+          ? `Struk_MFEV_${currentStrukItem.Nama.replace(/[^a-zA-Z0-9]/g, '_')}.png` 
+          : 'Struk_MFEV.png';
+
+        link.download = namaFile;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }).catch(err => {
+        alert("Gagal mengunduh gambar struk.");
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      });
     }
 
     function shareKirimWA() {
