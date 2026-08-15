@@ -439,6 +439,19 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
+    function getNamaFileStruk() {
+      const nama = (currentStrukItem && currentStrukItem.Nama) 
+        ? currentStrukItem.Nama.trim().replace(/[^a-zA-Z0-9]/g, '_') 
+        : 'Pelanggan';
+
+      let tanggal = '';
+      if (currentStrukItem && currentStrukItem.Tanggal) {
+        tanggal = '_' + formatTanggalDisplay(currentStrukItem.Tanggal).replace(/[^a-zA-Z0-9-]/g, '');
+      }
+
+      return `Struk_MFEV_${nama}${tanggal}.png`;
+    }
+
     function downloadStrukGambar() {
       const area = document.getElementById("areaStrukPrint");
       const btn = document.getElementById("btnDownloadStruk");
@@ -449,9 +462,7 @@
 
       html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
         const link = document.createElement("a");
-        const namaFile = currentStrukItem && currentStrukItem.Nama 
-          ? `Struk_MFEV_${currentStrukItem.Nama.replace(/[^a-zA-Z0-9]/g, '_')}.png` 
-          : 'Struk_MFEV.png';
+        const namaFile = getNamaFileStruk();
 
         link.download = namaFile;
         link.href = canvas.toDataURL("image/png");
@@ -483,8 +494,8 @@
             return;
           }
 
-          const namaPelanggan = currentStrukItem && currentStrukItem.Nama ? currentStrukItem.Nama.replace(/[^a-zA-Z0-9]/g, '_') : 'Pelanggan';
-          const file = new File([blob], `Struk_MFEV_${namaPelanggan}.png`, { type: "image/png" });
+          const namaFile = getNamaFileStruk();
+          const file = new File([blob], namaFile, { type: "image/png" });
 
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             navigator.share({
