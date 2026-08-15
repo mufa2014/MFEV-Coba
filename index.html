@@ -31,6 +31,11 @@
       </div>
       
       <div class="flex items-center gap-2">
+        <!-- TOMBOL MUAT ULANG -->
+        <button onclick="muatData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
+          <i class="fa-solid fa-rotate-right"></i>
+          <span class="hidden sm:inline">Muat Ulang</span>
+        </button>
         <a href="pengingat.html" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all">
           <i class="fa-solid fa-bell text-amber-600"></i>
           <span class="hidden sm:inline">Jadwal Pengingat</span>
@@ -277,7 +282,6 @@
         <button id="btnDownloadStruk" onclick="downloadStrukGambar()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-download"></i> Unduh
         </button>
-        <!-- TOMBOL SHARE GAMBAR DENGAN NATIVE WEB SHARE API -->
         <button id="btnShareStruk" onclick="shareStrukGambar()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-share-nodes"></i> Share
         </button>
@@ -462,7 +466,6 @@
       });
     }
 
-    // MEMBAGIKAN STRUK DALAM BENTUK GAMBAR PNG KE BERBAGAI APLIKASI
     function shareStrukGambar() {
       const area = document.getElementById("areaStrukPrint");
       const btn = document.getElementById("btnShareStruk");
@@ -483,7 +486,6 @@
           const namaPelanggan = currentStrukItem && currentStrukItem.Nama ? currentStrukItem.Nama.replace(/[^a-zA-Z0-9]/g, '_') : 'Pelanggan';
           const file = new File([blob], `Struk_MFEV_${namaPelanggan}.png`, { type: "image/png" });
 
-          // Cek Apakah Browser Mendukung Fitur Share File Gambar Direct
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
             navigator.share({
               files: [file],
@@ -497,7 +499,6 @@
               btn.innerHTML = originalText;
             });
           } else {
-            // Fallback: Jika Browser Laptop/Desktop Tidak Mendukung Direct File Share
             alert("Perangkat atau browser ini tidak mendukung fitur kirim gambar langsung. Gambar akan diunduh otomatis.");
             const link = document.createElement("a");
             link.download = file.name;
