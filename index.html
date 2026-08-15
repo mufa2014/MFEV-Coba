@@ -310,7 +310,7 @@
         return;
       }
 
-      // MEMBALIK URUTAN DATA (Terbaru di paling atas, terlama di bawah)
+      // MEMBALIK URUTAN DATA (Terbaru di paling atas)
       const sortedData = [...data].reverse();
 
       let html = "";
@@ -541,24 +541,31 @@
       document.getElementById("inputCatatan").value = item.Catatan || "";
       document.getElementById("inputTanggalBerikutnya").value = formatTanggalUntukInput(item.TanggalBerikutnya);
 
+      // Reset input rincian
       document.querySelectorAll('.input-jasa').forEach(i => i.value = "");
       document.querySelectorAll('.input-biaya').forEach(i => i.value = "");
 
       if (item.RincianPekerjaan) {
         const items = item.RincianPekerjaan.split(",");
         const rows = document.querySelectorAll('.row-pekerjaan');
+        
         items.forEach((txt, idx) => {
           if (rows[idx]) {
-            const match = txt.trim().match(/^(.*?)\s*\(Rp\s*([\d.]+)\)$/);
-            if (match) {
-              rows[idx].querySelector('.input-jasa').value = match[1];
+            const textTrimmed = txt.trim();
+            // Regex diperbarui agar mampu mengekstrak angka meskipun format bervariasi
+            const match = textTrimmed.match(/^(.*?)(?:\s*\((?:Rp\.?\s*)?([\d.]+)\))?$/i);
+            
+            if (match && match[2]) {
+              rows[idx].querySelector('.input-jasa').value = match[1].trim();
               rows[idx].querySelector('.input-biaya').value = match[2].replace(/\./g, '');
             } else {
-              rows[idx].querySelector('.input-jasa').value = txt.trim();
+              rows[idx].querySelector('.input-jasa').value = textTrimmed;
             }
           }
         });
       }
+      
+      // Hitung ulang total biaya setelah pengisian input
       hitungTotalBiaya();
 
       document.getElementById("modalForm").classList.remove("hidden");
