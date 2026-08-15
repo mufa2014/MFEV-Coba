@@ -12,15 +12,40 @@
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inconsolata:wght@400;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
     .font-mono-struk { font-family: 'Inconsolata', monospace; }
+
+    /* CSS STYLESHEET KHUSUS UNTUK PRINTER THERMAL (58mm) */
+    @media print {
+      @page {
+        size: 58mm auto;
+        margin: 0;
+      }
+      body {
+        width: 58mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .thermal-receipt {
+        width: 58mm !important;
+        max-width: 58mm !important;
+        padding: 8px 4px !important;
+        font-size: 10px !important;
+        box-shadow: none !important;
+        border: none !important;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
 
   <!-- TOP HEADER -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full no-print">
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- LOGO HEADER DENGAN LOGO-MFEV.PNG -->
+        <!-- LOGO HEADER -->
         <div class="w-10 h-10 rounded-xl overflow-hidden bg-amber-500 flex items-center justify-center shrink-0 shadow-sm">
           <img src="logo-mfev.png" alt="MF.EV Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-bolt text-white text-xl\'></i>';">
         </div>
@@ -49,7 +74,7 @@
   </header>
 
   <!-- MAIN CONTAINER -->
-  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4">
+  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4 no-print">
 
     <!-- TABLE CONTAINER -->
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden w-full">
@@ -94,7 +119,7 @@
   </main>
 
   <!-- MODAL FORM (TAMBAH / EDIT DATA) -->
-  <div id="modalForm" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <div id="modalForm" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
       
       <!-- MODAL HEADER -->
@@ -212,80 +237,77 @@
 
   <!-- MODAL STRUK SERVIS -->
   <div id="modalStruk" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden border border-slate-200">
+    <!-- LEBAR DISESUAIKAN AGAR SESUAI THERMAL 58MM -->
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[340px] flex flex-col overflow-hidden border border-slate-200">
       
-      <!-- STRUK PRINT AREA -->
-      <div id="areaStrukPrint" class="p-6 bg-white font-mono-struk text-xs text-slate-800 space-y-4">
+      <!-- STRUK PRINT AREA (UKURAN LEBAR 58MM / PAS UTK CASIO & BLUETOOTH PRINTER) -->
+      <div id="areaStrukPrint" class="thermal-receipt p-4 bg-white font-mono-struk text-[11px] text-slate-900 space-y-3 w-full">
+        
         <!-- HEADER STRUK -->
-        <div class="text-center space-y-1 pb-3 border-b border-dashed border-slate-300">
-          <div class="w-12 h-12 mx-auto rounded-xl overflow-hidden bg-amber-500 flex items-center justify-center mb-1">
-            <img src="logo-mfev.png" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-bolt text-white text-2xl\'></i>';">
+        <div class="text-center space-y-1 pb-2 border-b border-dashed border-slate-400">
+          <div class="w-10 h-10 mx-auto rounded-lg overflow-hidden bg-amber-500 flex items-center justify-center mb-1">
+            <img src="logo-mfev.png" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-bolt text-white text-xl\'></i>';">
           </div>
-          <h2 class="font-bold text-base tracking-wider text-slate-900 uppercase">MF.EV SERVICE</h2>
-          <p class="text-[11px] text-slate-500">Bengkel &amp; Spesialis Motor Listrik</p>
+          <h2 class="font-bold text-sm tracking-wide text-slate-900 uppercase">MF.EV SERVICE</h2>
+          <p class="text-[10px] text-slate-600">Spesialis Motor Listrik</p>
         </div>
 
         <!-- INFO PELANGGAN -->
-        <div class="space-y-1.5 text-[11px] border-b border-dashed border-slate-300 pb-3">
-          <div class="grid grid-cols-[110px_12px_1fr] items-start">
-            <span class="text-slate-500">TANGGAL</span>
-            <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukTanggal" class="font-semibold text-slate-900 text-right break-words">-</span>
+        <div class="space-y-1 text-[10px] border-b border-dashed border-slate-400 pb-2">
+          <div class="flex justify-between">
+            <span class="text-slate-500">TGL:</span>
+            <span id="strukTanggal" class="font-bold text-slate-900">-</span>
           </div>
-          <div class="grid grid-cols-[110px_12px_1fr] items-start">
-            <span class="text-slate-500">NAMA PELANGGAN</span>
-            <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukNama" class="font-semibold text-slate-900 text-right break-words">-</span>
+          <div class="flex justify-between">
+            <span class="text-slate-500">NAMA:</span>
+            <span id="strukNama" class="font-bold text-slate-900 text-right truncate max-w-[170px]">-</span>
           </div>
-          <div class="grid grid-cols-[110px_12px_1fr] items-start">
-            <span class="text-slate-500">NO HP</span>
-            <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukNoHP" class="font-semibold text-slate-900 text-right break-words">-</span>
+          <div class="flex justify-between">
+            <span class="text-slate-500">NO HP:</span>
+            <span id="strukNoHP" class="font-bold text-slate-900">-</span>
           </div>
-          <div class="grid grid-cols-[110px_12px_1fr] items-start">
-            <span class="text-slate-500">MERK / TIPE</span>
-            <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukMotor" class="font-semibold text-slate-900 text-right break-words">-</span>
+          <div class="flex justify-between">
+            <span class="text-slate-500">MOTOR:</span>
+            <span id="strukMotor" class="font-bold text-slate-900 text-right truncate max-w-[170px]">-</span>
           </div>
-          <div class="grid grid-cols-[110px_12px_1fr] items-start">
-            <span class="text-slate-500">PLAT / KM</span>
-            <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukPlatKM" class="font-semibold text-slate-900 text-right break-words">-</span>
+          <div class="flex justify-between">
+            <span class="text-slate-500">PLAT/KM:</span>
+            <span id="strukPlatKM" class="font-bold text-slate-900">-</span>
           </div>
         </div>
 
         <!-- DETAIL PEKERJAAN -->
-        <div class="space-y-2">
-          <div class="font-bold uppercase tracking-wider text-[11px] text-slate-700">RINCIAN PEKERJAAN:</div>
-          <div id="strukListPekerjaan" class="space-y-1 text-[11px]">
+        <div class="space-y-1.5">
+          <div class="font-bold uppercase tracking-wider text-[10px] text-slate-800">RINCIAN PEKERJAAN:</div>
+          <div id="strukListPekerjaan" class="space-y-1 text-[10px]">
             <!-- Dynamic items -->
           </div>
         </div>
 
         <!-- TOTAL BIAYA -->
-        <div class="border-t border-dashed border-slate-300 pt-3 flex justify-between items-center text-sm font-bold text-slate-900">
-          <span>TOTAL BIAYA:</span>
-          <span id="strukTotalBiaya" class="text-emerald-600 text-base">Rp 0</span>
+        <div class="border-t border-dashed border-slate-400 pt-2 flex justify-between items-center text-xs font-bold text-slate-900">
+          <span>TOTAL:</span>
+          <span id="strukTotalBiaya" class="text-emerald-700 text-sm">Rp 0</span>
         </div>
 
         <!-- FOOTER STRUK -->
-        <div class="text-center text-[10px] text-slate-400 border-t border-dashed border-slate-300 pt-3">
-          Terima kasih telah servis di MF.EV!<br>Simpan struk ini sebagai bukti pembayaran.
+        <div class="text-center text-[9px] text-slate-500 border-t border-dashed border-slate-400 pt-2 leading-tight">
+          Terima kasih atas kunjungan Anda!<br>Simpan struk ini sebagai bukti.
         </div>
       </div>
 
       <!-- STRUK ACTION BUTTONS -->
-      <div class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-4 gap-1.5">
-        <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
+      <div class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-4 gap-1.5 no-print">
+        <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-print"></i> Cetak
         </button>
-        <button id="btnDownloadStruk" onclick="downloadStrukGambar()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
+        <button id="btnDownloadStruk" onclick="downloadStrukGambar()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-download"></i> Unduh
         </button>
-        <button id="btnShareStruk" onclick="shareStrukGambar()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
+        <button id="btnShareStruk" onclick="shareStrukGambar()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-share-nodes"></i> Share
         </button>
-        <button onclick="tutupModalStruk()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
+        <button onclick="tutupModalStruk()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
           <i class="fa-solid fa-xmark"></i> Tutup
         </button>
       </div>
@@ -392,12 +414,12 @@
           if (match && match[2]) {
             const namaJasa = match[1].trim();
             const harga = parseInt(match[2].replace(/\./g, '')).toLocaleString('id-ID');
-            return `<div class="flex justify-between items-start gap-2">
-                      <span>• ${namaJasa}</span>
-                      <span class="font-semibold text-slate-700 whitespace-nowrap">Rp ${harga}</span>
+            return `<div class="flex justify-between items-start gap-1">
+                      <span class="truncate max-w-[170px]">• ${namaJasa}</span>
+                      <span class="font-semibold text-slate-900 whitespace-nowrap">Rp ${harga}</span>
                     </div>`;
           } else {
-            return `<div class="flex justify-between items-start gap-2">
+            return `<div class="flex justify-between items-start gap-1">
                       <span>• ${textTrimmed}</span>
                     </div>`;
           }
@@ -416,6 +438,7 @@
       document.getElementById("modalStruk").classList.add("hidden");
     }
 
+    /* PENCETAKAN TEPAT DENGAN TAMPILAN THERMAL 58MM */
     function prosesCetakStruk() {
       const content = document.getElementById("areaStrukPrint").innerHTML;
       const win = window.open('', '', 'width=400,height=600');
@@ -426,11 +449,21 @@
           <script src="https://cdn.tailwindcss.com"><\/script>
           <style>
             @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;600;700&display=swap');
-            body { font-family: 'Inconsolata', monospace; padding: 15px; margin: 0; background: #fff; }
+            @page {
+              size: 58mm auto;
+              margin: 0;
+            }
+            body { 
+              font-family: 'Inconsolata', monospace; 
+              width: 58mm;
+              margin: 0; 
+              padding: 4px;
+              background: #fff; 
+            }
           </style>
         </head>
         <body>
-          <div style="max-width:300px; margin:0 auto;">${content}</div>
+          <div>${content}</div>
         </body>
         </html>
       `);
