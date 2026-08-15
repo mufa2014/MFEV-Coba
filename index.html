@@ -210,7 +210,7 @@
     </div>
   </div>
 
-  <!-- MODAL STRUK SERVIS (CETAK, DOWNLOAD, SHARE WA & TUTUP) -->
+  <!-- MODAL STRUK SERVIS -->
   <div id="modalStruk" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col overflow-hidden border border-slate-200">
       
@@ -225,32 +225,32 @@
           <p class="text-[11px] text-slate-500">Bengkel &amp; Spesialis Motor Listrik</p>
         </div>
 
-        <!-- INFO PELANGGAN (TITIK DUA RATA TENGAH SANGAT RAPI) -->
+        <!-- INFO PELANGGAN -->
         <div class="space-y-1.5 text-[11px] border-b border-dashed border-slate-300 pb-3">
-          <div class="grid grid-cols-[80px_12px_1fr] items-center">
+          <div class="grid grid-cols-[110px_12px_1fr] items-start">
             <span class="text-slate-500">TANGGAL</span>
             <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukTanggal" class="font-semibold text-slate-900 text-right">-</span>
+            <span id="strukTanggal" class="font-semibold text-slate-900 text-right break-words">-</span>
           </div>
-          <div class="grid grid-cols-[80px_12px_1fr] items-center">
-            <span class="text-slate-500">PELANGGAN</span>
+          <div class="grid grid-cols-[110px_12px_1fr] items-start">
+            <span class="text-slate-500">NAMA PELANGGAN</span>
             <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukNama" class="font-semibold text-slate-900 text-right truncate">-</span>
+            <span id="strukNama" class="font-semibold text-slate-900 text-right break-words">-</span>
           </div>
-          <div class="grid grid-cols-[80px_12px_1fr] items-center">
+          <div class="grid grid-cols-[110px_12px_1fr] items-start">
             <span class="text-slate-500">NO HP</span>
             <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukNoHP" class="font-semibold text-slate-900 text-right">-</span>
+            <span id="strukNoHP" class="font-semibold text-slate-900 text-right break-words">-</span>
           </div>
-          <div class="grid grid-cols-[80px_12px_1fr] items-center">
-            <span class="text-slate-500">MOTOR</span>
+          <div class="grid grid-cols-[110px_12px_1fr] items-start">
+            <span class="text-slate-500">MERK / TIPE</span>
             <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukMotor" class="font-semibold text-slate-900 text-right truncate">-</span>
+            <span id="strukMotor" class="font-semibold text-slate-900 text-right break-words">-</span>
           </div>
-          <div class="grid grid-cols-[80px_12px_1fr] items-center">
+          <div class="grid grid-cols-[110px_12px_1fr] items-start">
             <span class="text-slate-500">PLAT / KM</span>
             <span class="text-center font-bold text-slate-400">:</span>
-            <span id="strukPlatKM" class="font-semibold text-slate-900 text-right">-</span>
+            <span id="strukPlatKM" class="font-semibold text-slate-900 text-right break-words">-</span>
           </div>
         </div>
 
@@ -274,7 +274,7 @@
         </div>
       </div>
 
-      <!-- STRUK ACTION BUTTONS (4 TOMBOL RAPI) -->
+      <!-- STRUK ACTION BUTTONS -->
       <div class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-4 gap-1.5">
         <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-print"></i> Cetak
@@ -335,7 +335,6 @@
         return;
       }
 
-      // MEMBALIK URUTAN DATA (Terbaru di paling atas)
       const sortedData = [...data].reverse();
 
       let html = "";
@@ -372,7 +371,6 @@
       tbody.innerHTML = html;
     }
 
-    // MODAL STRUK HANDLERS
     function bukaModalStruk(rowId) {
       const item = rawData.find(d => Number(d.rowId) === Number(rowId));
       if (!item) return;
@@ -384,7 +382,6 @@
       document.getElementById("strukMotor").innerText = `${item.MerkMotor || ''} ${item.TipeMotor || ''}`.trim() || '-';
       document.getElementById("strukPlatKM").innerText = `${item.NoPlat || '-'} / ${item.Kilometer || '-'} KM`;
 
-      // Render pekerjaan list (Pekerjaan di kiri & Biaya di kanan)
       const listContainer = document.getElementById("strukListPekerjaan");
       if (item.RincianPekerjaan) {
         const items = item.RincianPekerjaan.split(",");
@@ -442,7 +439,6 @@
       setTimeout(() => { win.print(); win.close(); }, 500);
     }
 
-    // FUNGSI UNTUK DOWNLOAD STRUK DALAM BENTUK GAMBAR PNG
     function downloadStrukGambar() {
       const area = document.getElementById("areaStrukPrint");
       const btn = document.getElementById("btnDownloadStruk");
@@ -610,7 +606,6 @@
       document.getElementById("inputCatatan").value = item.Catatan || "";
       document.getElementById("inputTanggalBerikutnya").value = formatTanggalUntukInput(item.TanggalBerikutnya);
 
-      // Reset input rincian
       document.querySelectorAll('.input-jasa').forEach(i => i.value = "");
       document.querySelectorAll('.input-biaya').forEach(i => i.value = "");
 
@@ -633,7 +628,6 @@
         });
       }
       
-      // Hitung ulang total biaya setelah pengisian input
       hitungTotalBiaya();
 
       document.getElementById("modalForm").classList.remove("hidden");
