@@ -134,16 +134,10 @@
       <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
         <input type="hidden" id="rowId">
 
-        <!-- ROW 1: Tanggal & KM -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Servis</label>
-            <input type="date" id="inputTanggal" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kilometer (KM)</label>
-            <input type="text" id="inputKilometer" placeholder="Contoh: 12.500" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
+        <!-- ROW 1: Tanggal Servis -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Servis</label>
+          <input type="date" id="inputTanggal" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
         </div>
 
         <!-- ROW 2: Nama & No HP -->
@@ -158,18 +152,22 @@
           </div>
         </div>
 
-        <!-- ROW 3: Merk, Tipe, Plat -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- ROW 3: Merk, Tipe, Kilometer (KM), & No. Plat -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Merk Motor</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Merk</label>
             <input type="text" id="inputMerkMotor" placeholder="Uwinfly, Gesits, dll." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tipe Motor</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tipe</label>
             <input type="text" id="inputTipeMotor" placeholder="T3, G1, dll." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">No. Plat Motor</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kilometer (KM)</label>
+            <input type="text" id="inputKilometer" placeholder="Contoh: 12.500" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5">No. Plat</label>
             <input type="text" id="inputNoPlat" placeholder="B 1234 ABC" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
         </div>
