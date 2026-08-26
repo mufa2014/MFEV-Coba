@@ -235,11 +235,10 @@
 
   <!-- MODAL STRUK SERVIS -->
   <div id="modalStruk" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <!-- LEBAR DISESUAIKAN AGAR SESUAI THERMAL 58MM -->
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[340px] flex flex-col overflow-hidden border border-slate-200">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] flex flex-col overflow-hidden border border-slate-200">
       
-      <!-- STRUK PRINT AREA (UKURAN LEBAR 58MM / PAS UTK CASIO & BLUETOOTH PRINTER) -->
-      <div id="areaStrukPrint" class="thermal-receipt p-4 bg-white font-mono-struk text-[11px] text-slate-900 space-y-3 w-full">
+      <!-- STRUK PRINT AREA -->
+      <div id="areaStrukPrint" class="thermal-receipt p-5 bg-white font-mono-struk text-[11px] text-slate-900 space-y-3 w-full">
         
         <!-- HEADER STRUK -->
         <div class="text-center space-y-1 pb-2 border-b border-dashed border-slate-400">
@@ -252,25 +251,25 @@
 
         <!-- INFO PELANGGAN -->
         <div class="space-y-1 text-[10px] border-b border-dashed border-slate-400 pb-2">
-          <div class="flex justify-between">
-            <span class="text-slate-500">TGL:</span>
-            <span id="strukTanggal" class="font-bold text-slate-900">-</span>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 shrink-0">TGL:</span>
+            <span id="strukTanggal" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
           </div>
-          <div class="flex justify-between">
-            <span class="text-slate-500">NAMA:</span>
-            <span id="strukNama" class="font-bold text-slate-900 text-right truncate max-w-[170px]">-</span>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 shrink-0">NAMA:</span>
+            <span id="strukNama" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
           </div>
-          <div class="flex justify-between">
-            <span class="text-slate-500">NO HP:</span>
-            <span id="strukNoHP" class="font-bold text-slate-900">-</span>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 shrink-0">NO HP:</span>
+            <span id="strukNoHP" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
           </div>
-          <div class="flex justify-between">
-            <span class="text-slate-500">MOTOR:</span>
-            <span id="strukMotor" class="font-bold text-slate-900 text-right truncate max-w-[170px]">-</span>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 shrink-0">MOTOR:</span>
+            <span id="strukMotor" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
           </div>
-          <div class="flex justify-between">
-            <span class="text-slate-500">PLAT/KM:</span>
-            <span id="strukPlatKM" class="font-bold text-slate-900">-</span>
+          <div class="flex justify-between items-start">
+            <span class="text-slate-500 shrink-0">PLAT/KM:</span>
+            <span id="strukPlatKM" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
           </div>
         </div>
 
@@ -412,13 +411,13 @@
           if (match && match[2]) {
             const namaJasa = match[1].trim();
             const harga = parseInt(match[2].replace(/\./g, '')).toLocaleString('id-ID');
-            return `<div class="flex justify-between items-start gap-1">
-                      <span class="truncate max-w-[170px]">• ${namaJasa}</span>
-                      <span class="font-semibold text-slate-900 whitespace-nowrap">Rp ${harga}</span>
+            return `<div class="flex justify-between items-start gap-2">
+                      <span class="break-words">• ${namaJasa}</span>
+                      <span class="font-semibold text-slate-900 whitespace-nowrap shrink-0">Rp ${harga}</span>
                     </div>`;
           } else {
-            return `<div class="flex justify-between items-start gap-1">
-                      <span>• ${textTrimmed}</span>
+            return `<div class="flex justify-between items-start gap-2">
+                      <span class="break-words">• ${textTrimmed}</span>
                     </div>`;
           }
         }).join("");
@@ -436,7 +435,6 @@
       document.getElementById("modalStruk").classList.add("hidden");
     }
 
-    /* PENCETAKAN TEPAT DENGAN TAMPILAN THERMAL 58MM */
     function prosesCetakStruk() {
       const content = document.getElementById("areaStrukPrint").innerHTML;
       const win = window.open('', '', 'width=400,height=600');
