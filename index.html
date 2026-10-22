@@ -1,775 +1,303 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MF.EV Service System</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- LIBRARY UNTUK CONVERT STRUK KE GAMBAR PNG -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inconsolata:wght@400;600;700&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .font-mono-struk { font-family: 'Inconsolata', monospace; }
-
-    /* CSS STYLESHEET KHUSUS UNTUK PRINTER THERMAL (58mm) */
-    @media print {
-      @page {
-        size: 58mm auto;
-        margin: 0;
-      }
-      body {
-        width: 58mm;
-        margin: 0;
-        padding: 0;
-        background: #fff;
-      }
-      .no-print {
-        display: none !important;
-      }
-      .thermal-receipt {
-        width: 58mm !important;
-        max-width: 58mm !important;
-        padding: 8px 4px !important;
-        font-size: 10px !important;
-        box-shadow: none !important;
-        border: none !important;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MF.EV Service — Riwayat Servis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #121212; color: #fff; }
+        .card { background: #1e1e1e; border-radius: 12px; }
+        .row-data:hover { background: #2a2a2a; }
+        input, button { outline: none; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+<body class="min-h-screen pb-20">
 
-  <!-- TOP HEADER -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full no-print">
-    <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <!-- LOGO HEADER -->
-        <div class="w-10 h-10 rounded-xl overflow-hidden bg-amber-500 flex items-center justify-center shrink-0 shadow-sm">
-          <img src="logo-mfev.png" alt="MF.EV Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-bolt text-white text-xl\'></i>';">
+    <!-- Header -->
+    <header class="sticky top-0 z-10 bg-gray-900 shadow-md px-4 py-3">
+        <div class="flex items-center justify-between max-w-4xl mx-auto">
+            <div class="flex items-center gap-3">
+                <img src="logo-mfev.png" alt="MF.EV Logo" class="w-10 h-10 rounded-full bg-white p-1">
+                <div>
+                    <h1 class="text-lg font-bold">MF.EV SERVICE</h1>
+                    <p class="text-xs text-gray-400">Sistem Pencatatan & Pengingat Servis</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="tarikDataDariSheets()" class="bg-green-600 p-2 rounded-full hover:bg-green-700" title="Muat Ulang">🔄</button>
+                <a href="pengingat.html" class="bg-yellow-600 p-2 rounded-full hover:bg-yellow-700" title="Pengingat">🔔</a>
+                <button onclick="bukaForm()" class="bg-blue-600 p-2 rounded-full hover:bg-blue-700" title="Tambah Data">+</button>
+            </div>
         </div>
-        <div>
-          <h1 class="font-bold text-base sm:text-lg text-slate-900 leading-tight">MF.EV SERVICE</h1>
-          <p class="text-xs text-slate-500">Sistem Pencatatan &amp; Pengingat Servis</p>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-4">
+        <!-- Pencarian -->
+        <div class="card p-4 mb-4">
+            <input type="text" id="cari" placeholder="🔍 Cari nama, plat, merk..." 
+                class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm" oninput="filterData()">
+            <span id="statusInfo" class="text-xs text-gray-400 mt-2 inline-block"></span>
         </div>
-      </div>
-      
-      <div class="flex items-center gap-2">
-        <!-- TOMBOL MUAT ULANG -->
-        <button onclick="muatData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
-          <i class="fa-solid fa-rotate-right"></i>
-          <span class="hidden sm:inline">Muat Ulang</span>
-        </button>
-        <a href="pengingat.html" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all">
-          <i class="fa-solid fa-bell text-amber-600"></i>
-          <span class="hidden sm:inline">Jadwal Pengingat</span>
-        </a>
-        <button onclick="bukaModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
-          <i class="fa-solid fa-plus"></i>
-          <span class="hidden sm:inline">Tambah Transaksi</span>
-        </button>
-      </div>
+
+        <!-- Tabel Data -->
+        <div class="card p-4 overflow-x-auto">
+            <h2 class="text-lg font-semibold mb-3">📋 Riwayat Servis Pelanggan</h2>
+            <div id="daftarRiwayat">
+                <div class="text-gray-400 italic text-center py-4">Memuat data...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Form Modal -->
+    <div id="formModal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="card p-5 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h3 id="formTitle" class="text-lg font-bold mb-4">Tambah Servis Baru</h3>
+            <form id="formData">
+                <input type="hidden" id="editRowId">
+                <div class="space-y-3">
+                    <div>
+                        <label class="text-sm text-gray-400">Tanggal</label>
+                        <input type="date" id="fTanggal" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-400">Nama Pelanggan</label>
+                        <input type="text" id="fNama" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-400">No HP</label>
+                        <input type="tel" id="fNoHP" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-sm text-gray-400">Merk Motor</label>
+                            <input type="text" id="fMerk" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-400">Tipe Motor</label>
+                            <input type="text" id="fTipe" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-sm text-gray-400">No Plat</label>
+                            <input type="text" id="fNoPlat" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-400">Kilometer</label>
+                            <input type="number" id="fKM" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-400">Rincian Pekerjaan</label>
+                        <textarea id="fRincian" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm"></textarea>
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-400">Total Biaya (Rp)</label>
+                        <input type="number" id="fBiaya" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-400">Tanggal Servis Berikutnya</label>
+                        <input type="date" id="fTglBerikutnya" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-400">Catatan</label>
+                        <textarea id="fCatatan" rows="2" class="w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm"></textarea>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-4">
+                    <button type="button" onclick="tutupForm()" class="flex-1 bg-gray-700 py-2 rounded text-sm">Batal</button>
+                    <button type="submit" class="flex-1 bg-blue-600 py-2 rounded text-sm hover:bg-blue-700">Simpan</button>
+                </div>
+            </form>
+        </div>
     </div>
-  </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4 no-print">
+<script>
+const URL_GOOGLE_SHEETS = "https://script.google.com/macros/s/AKfycbwBM1LwGMmGqaKvb6M8muJrsA0CjANmibC4BeQgTPEgxUtyvppdxiNf2f6c6J6h1TUS/exec";
+let daftarData = [];
 
-    <!-- TABLE CONTAINER -->
-    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden w-full">
-      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex items-center gap-2 text-slate-800 font-bold text-base sm:text-lg">
-          <i class="fa-solid fa-list-check text-emerald-600"></i>
-          <span>Riwayat Servis Pelanggan</span>
-        </div>
+function initApp() {
+    tarikDataDariSheets();
+}
+
+function formatTanggal(t) {
+    if (!t) return '-';
+    let s = String(t).replace(/T.*/,'').trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+        const [y,m,d] = s.split('-');
+        return `${d}/${m}/${y}`;
+    }
+    return s;
+}
+
+function tarikDataDariSheets() {
+    document.getElementById('statusInfo').textContent = '⏳ Mengambil data...';
+    
+    fetch(URL_GOOGLE_SHEETS + "?t=" + Date.now(), { cache: "no-store" })
+    .then(res => res.json())
+    .then(res => {
+        let rawList = [];
+        if (Array.isArray(res)) rawList = res;
+        else if (res.data && Array.isArray(res.data)) rawList = res.data;
         
-        <div class="relative w-full sm:w-72">
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-          <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
-            class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
-        </div>
-      </div>
+        daftarData = rawList.map((item, idx) => ({
+            rowId: Number(item.rowId || idx + 2),
+            Tanggal: item.Tanggal || '',
+            Nama: item.Nama || '',
+            NoHP: item.NoHP || '',
+            MerkMotor: item.MerkMotor || '',
+            TipeMotor: item.TipeMotor || '',
+            NoPlat: item.NoPlat || '',
+            Kilometer: item.Kilometer || '',
+            RincianPekerjaan: item.RincianPekerjaan || '',
+            TotalBiaya: item.TotalBiaya || '',
+            Catatan: item.Catatan || '',
+            TanggalBerikutnya: item.TanggalBerikutnya || ''
+        }));
 
-      <!-- TABLE AREA -->
-      <div class="overflow-x-auto w-full">
-        <table class="w-full text-left text-sm text-slate-600 min-w-[900px]">
-          <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
-            <tr>
-              <th class="py-3.5 px-4">TANGGAL</th>
-              <th class="py-3.5 px-4">PELANGGAN</th>
-              <th class="py-3.5 px-4">KENDARAAN</th>
-              <th class="py-3.5 px-4">KM</th>
-              <th class="py-3.5 px-4">RINCIAN PEKERJAAN</th>
-              <th class="py-3.5 px-4">TOTAL BIAYA</th>
-              <th class="py-3.5 px-4 text-center">AKSI</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-100">
-            <tr>
-              <td colspan="7" class="py-12 text-center text-slate-400">
-                <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i>
-                <p>Memuat data transaksi...</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
+        // ✅ URUTKAN: TANGGAL TERBARU DI ATAS
+        daftarData.sort((a, b) => {
+            const dateA = new Date(a.Tanggal);
+            const dateB = new Date(b.Tanggal);
+            return dateB - dateA;
+        });
 
-  <!-- MODAL FORM (TAMBAH / EDIT DATA) -->
-  <div id="modalForm" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
-      
-      <!-- MODAL HEADER -->
-      <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <h3 id="modalTitle" class="font-bold text-slate-900 text-base sm:text-lg">Tambah Transaksi Servis</h3>
-        <button onclick="tutupModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <!-- MODAL BODY -->
-      <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
-        <input type="hidden" id="rowId">
-
-        <!-- ROW 1: Tanggal Servis -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Servis</label>
-          <input type="date" id="inputTanggal" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-        </div>
-
-        <!-- ROW 2: Nama & No HP -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama Pelanggan</label>
-            <input type="text" id="inputNama" placeholder="Nama Pemilik" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">No. WhatsApp / HP</label>
-            <input type="text" id="inputNoHP" placeholder="08xxxxxxxxxx" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-        </div>
-
-        <!-- ROW 3: Merk, Tipe, Kilometer (KM), & No. Plat -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Merk</label>
-            <input type="text" id="inputMerkMotor" placeholder="Uwinfly, Gesits, dll." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tipe</label>
-            <input type="text" id="inputTipeMotor" placeholder="T3, G1, dll." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kilometer (KM)</label>
-            <input type="text" id="inputKilometer" placeholder="Contoh: 12.500" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">No. Plat</label>
-            <input type="text" id="inputNoPlat" placeholder="B 1234 ABC" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-        </div>
-
-        <!-- ROW 4: RINCIAN PEKERJAAN & BIAYA -->
-        <div class="space-y-3 pt-2">
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide">Rincian Pekerjaan &amp; Biaya</label>
-
-          <div class="space-y-2" id="itemPekerjaanContainer">
-            <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="1. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
-            </div>
-            <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="2. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
-            </div>
-            <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="3. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
-            </div>
-            <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="4. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
-            </div>
-            <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="5. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
-            </div>
-          </div>
-
-          <!-- TOTAL BIAYA BOX -->
-          <div class="flex items-center justify-between p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl mt-3">
-            <span class="font-bold text-slate-800 text-sm tracking-wide uppercase">Total Biaya</span>
-            <span id="displayTotalBiaya" class="font-extrabold text-emerald-600 text-lg">Rp 0</span>
-          </div>
-        </div>
-
-        <!-- ROW 5: Catatan & Tanggal Berikutnya -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Catatan Tambahan</label>
-            <input type="text" id="inputCatatan" placeholder="Catatan teknisi..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Jadwal Servis Berikutnya</label>
-            <input type="date" id="inputTanggalBerikutnya" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
-          </div>
-        </div>
-
-      </div>
-
-      <!-- MODAL FOOTER -->
-      <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-2">
-        <button onclick="tutupModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-100 transition-all">
-          Batal
-        </button>
-        <button id="btnSimpan" onclick="simpanData()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-all flex items-center gap-2 shadow-sm">
-          <i class="fa-solid fa-floppy-disk"></i> Simpan
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- MODAL STRUK SERVIS -->
-  <div id="modalStruk" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] flex flex-col overflow-hidden border border-slate-200">
-      
-      <!-- STRUK PRINT AREA -->
-      <div id="areaStrukPrint" class="thermal-receipt p-5 bg-white font-mono-struk text-[11px] text-slate-900 space-y-3 w-full">
-        
-        <!-- HEADER STRUK -->
-        <div class="text-center space-y-1 pb-2 border-b border-dashed border-slate-400">
-          <div class="w-10 h-10 mx-auto rounded-lg overflow-hidden bg-amber-500 flex items-center justify-center mb-1">
-            <img src="logo-mfev.png" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-bolt text-white text-xl\'></i>';">
-          </div>
-          <h2 class="font-bold text-sm tracking-wide text-slate-900 uppercase">MF.EV SERVICE</h2>
-          <p class="text-[10px] text-slate-600">Spesialis Sepeda Listrik dan Motor Listrik</p>
-        </div>
-
-        <!-- INFO PELANGGAN -->
-        <div class="space-y-1 text-[10px] border-b border-dashed border-slate-400 pb-2">
-          <div class="flex justify-between items-start">
-            <span class="text-slate-500 shrink-0">TGL:</span>
-            <span id="strukTanggal" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
-          </div>
-          <div class="flex justify-between items-start">
-            <span class="text-slate-500 shrink-0">NAMA:</span>
-            <span id="strukNama" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
-          </div>
-          <div class="flex justify-between items-start">
-            <span class="text-slate-500 shrink-0">NO HP:</span>
-            <span id="strukNoHP" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
-          </div>
-          <div class="flex justify-between items-start">
-            <span class="text-slate-500 shrink-0">MOTOR:</span>
-            <span id="strukMotor" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
-          </div>
-          <div class="flex justify-between items-start">
-            <span class="text-slate-500 shrink-0">PLAT/KM:</span>
-            <span id="strukPlatKM" class="font-bold text-slate-900 text-right break-words ml-2">-</span>
-          </div>
-        </div>
-
-        <!-- DETAIL PEKERJAAN -->
-        <div class="space-y-1.5">
-          <div class="font-bold uppercase tracking-wider text-[10px] text-slate-800">RINCIAN PEKERJAAN:</div>
-          <div id="strukListPekerjaan" class="space-y-1 text-[10px]">
-            <!-- Dynamic items -->
-          </div>
-        </div>
-
-        <!-- TOTAL BIAYA -->
-        <div class="border-t border-dashed border-slate-400 pt-2 flex justify-between items-center text-xs font-bold text-slate-900">
-          <span>TOTAL:</span>
-          <span id="strukTotalBiaya" class="text-emerald-700 text-sm">Rp 0</span>
-        </div>
-
-        <!-- CATATAN TEKNISI (HANYA MUNCUL JIKA ADA ISINYA) -->
-        <div id="strukContainerCatatan" class="border-t border-dashed border-slate-400 pt-2 space-y-0.5 hidden">
-          <div class="font-bold text-[10px] text-slate-800 uppercase">CATATAN:</div>
-          <div id="strukCatatan" class="text-[10px] text-slate-700 italic break-words">-</div>
-        </div>
-
-        <!-- FOOTER STRUK -->
-        <div class="text-center text-[9px] text-slate-500 border-t border-dashed border-slate-400 pt-2 leading-tight">
-          Terima kasih atas kunjungan Anda!<br>Simpan struk ini sebagai bukti.
-        </div>
-      </div>
-
-      <!-- STRUK ACTION BUTTONS -->
-      <div class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-4 gap-1.5 no-print">
-        <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
-          <i class="fa-solid fa-print"></i> Cetak
-        </button>
-        <button id="btnDownloadStruk" onclick="downloadStrukGambar()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
-          <i class="fa-solid fa-download"></i> Unduh
-        </button>
-        <button id="btnShareStruk" onclick="shareStrukGambar()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
-          <i class="fa-solid fa-share-nodes"></i> Share
-        </button>
-        <button onclick="tutupModalStruk()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all">
-          <i class="fa-solid fa-xmark"></i> Tutup
-        </button>
-      </div>
-
-    </div>
-  </div>
-
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqMV2lQsLeG2C70787Qw4zarJWv1023AxZj2XLuo_tUOMSVkash0ZeiXSs14BwqpI4/exec";
-    let rawData = [];
-    let currentStrukItem = null;
-
-    document.addEventListener("DOMContentLoaded", function() {
-      muatData();
+        document.getElementById('statusInfo').textContent = `✅ ${daftarData.length} data dimuat`;
+        tampilkanData(daftarData);
+    })
+    .catch(err => {
+        document.getElementById('statusInfo').textContent = '❌ Gagal terhubung';
     });
+}
 
-    function formatNoHP(val) {
-      if (!val) return "";
-      let hp = String(val).trim().replace(/[^0-9]/g, "");
-      if (hp.startsWith("8")) hp = "0" + hp;
-      return hp;
-    }
-
-    function muatData() {
-      const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = '<tr><td colspan="7" class="py-12 text-center text-slate-400"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i><p>Memuat data dari Spreadsheet...</p></td></tr>';
-
-      fetch(SCRIPT_URL + "?t=" + new Date().getTime())
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            rawData = data;
-            renderTable(rawData);
-          } else {
-            tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Gagal memuat data.</td></tr>';
-          }
-        })
-        .catch(err => {
-          tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-500">Gagal terhubung ke server/spreadsheet.</td></tr>';
-        });
-    }
-
-    function renderTable(data) {
-      const tbody = document.getElementById("tableBody");
-      if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-400">Belum ada data transaksi.</td></tr>';
+function tampilkanData(data) {
+    const wadah = document.getElementById('daftarRiwayat');
+    if (!data.length) {
+        wadah.innerHTML = '<div class="text-gray-400 italic text-center py-4">Belum ada data.</div>';
         return;
-      }
+    }
 
-      const sortedData = [...data].reverse();
-
-      let html = "";
-      sortedData.forEach(item => {
-        const hpFormatted = formatNoHP(item.NoHP);
-        const totalBiayaNum = parseFloat(item.TotalBiaya) || 0;
-
-        html += `<tr class="hover:bg-slate-50/80 transition-colors">
-          <td class="py-4 px-4 text-xs font-medium text-slate-500 whitespace-nowrap">${formatTanggalDisplay(item.Tanggal)}</td>
-          <td class="py-4 px-4">
-            <div class="font-bold text-slate-900 flex items-center gap-1.5">
-              ${item.Nama || '-'}
-              ${hpFormatted ? `<button onclick="simpanKontakVCF('${item.Nama || 'Pelanggan MFEV'}', '${hpFormatted}')" title="Simpan ke Kontak HP" class="text-slate-400 hover:text-emerald-600 text-xs p-1"><i class="fa-solid fa-user-plus"></i></button>` : ''}
+    wadah.innerHTML = `
+    <div class="hidden md:grid grid-cols-6 gap-2 text-xs text-gray-400 font-semibold pb-2 border-b border-gray-700">
+        <div>TANGGAL</div><div>PELANGGAN</div><div>KENDARAAN</div><div>KM</div><div>RINCIAN</div><div class="text-right">AKSI</div>
+    </div>` + data.map(item => `
+    <div class="row-data p-3 border-b border-gray-800 text-sm">
+        <div class="md:grid md:grid-cols-6 md:gap-2 md:items-center">
+            <div class="text-gray-300 font-medium">${formatTanggal(item.Tanggal)}</div>
+            <div class="my-1 md:my-0">
+                <div class="font-semibold">${item.Nama || '-'}</div>
+                <div class="text-xs text-gray-400">${item.NoHP || ''}</div>
             </div>
-            <div class="text-xs text-slate-500 font-mono">${hpFormatted || '-'}</div>
-          </td>
-          <td class="py-4 px-4">
-            <div class="font-medium text-slate-800">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
-            <div class="text-xs text-slate-400">Plat: ${item.NoPlat || '-'}</div>
-          </td>
-          <td class="py-4 px-4 text-xs font-mono text-slate-600">${item.Kilometer || '-'}</td>
-          <td class="py-4 px-4 text-xs text-slate-600 max-w-xs truncate" title="${item.RincianPekerjaan || ''}">${item.RincianPekerjaan || '-'}</td>
-          <td class="py-4 px-4 font-bold text-emerald-600 text-xs whitespace-nowrap">Rp ${totalBiayaNum.toLocaleString('id-ID')}</td>
-          <td class="py-4 px-4 text-center whitespace-nowrap">
-            <div class="flex items-center justify-center gap-1">
-              <button onclick="bukaModalStruk(${item.rowId})" title="Cetak / Share Struk" class="p-2 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"><i class="fa-solid fa-receipt"></i></button>
-              <button onclick="editRow(${item.rowId})" title="Edit Data" class="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"><i class="fa-solid fa-pen-to-square"></i></button>
-              <button onclick="hapusRow(${item.rowId})" title="Hapus Data" class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"><i class="fa-solid fa-trash-can"></i></button>
+            <div class="text-gray-300">
+                <div>${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
+                <div class="text-xs text-gray-400">Plat: ${item.NoPlat || '-'}</div>
             </div>
-          </td>
-        </tr>`;
-      });
+            <div class="text-gray-300">${item.Kilometer || '-'}</div>
+            <div class="text-gray-300 text-xs">${item.RincianPekerjaan || '-'}</div>
+            <div class="flex gap-2 mt-2 md:mt-0 md:justify-end">
+                <button onclick="editData(${item.rowId})" class="bg-amber-600 text-white px-2 py-1 rounded text-xs">✏️ Edit</button>
+                <button onclick="hapusData(${item.rowId})" class="bg-red-600 text-white px-2 py-1 rounded text-xs">🗑️ Hapus</button>
+            </div>
+        </div>
+    </div>`).join('');
+}
 
-      tbody.innerHTML = html;
+function filterData() {
+    const kata = document.getElementById('cari').value.toLowerCase();
+    const hasil = daftarData.filter(item => 
+        Object.values(item).some(v => String(v).toLowerCase().includes(kata))
+    );
+    tampilkanData(hasil);
+}
+
+function bukaForm() {
+    document.getElementById('formModal').classList.remove('hidden');
+    document.getElementById('formModal').classList.add('flex');
+    document.getElementById('formTitle').textContent = 'Tambah Servis Baru';
+    document.getElementById('formData').reset();
+    document.getElementById('editRowId').value = '';
+    document.getElementById('fTanggal').valueAsDate = new Date();
+}
+
+function tutupForm() {
+    document.getElementById('formModal').classList.add('hidden');
+    document.getElementById('formModal').classList.remove('flex');
+}
+
+function editData(id) {
+    const item = daftarData.find(d => d.rowId === id);
+    if (!item) return;
+    document.getElementById('formModal').classList.remove('hidden');
+    document.getElementById('formModal').classList.add('flex');
+    document.getElementById('formTitle').textContent = 'Edit Data Servis';
+    document.getElementById('editRowId').value = id;
+    document.getElementById('fTanggal').value = item.Tanggal || '';
+    document.getElementById('fNama').value = item.Nama || '';
+    document.getElementById('fNoHP').value = item.NoHP || '';
+    document.getElementById('fMerk').value = item.MerkMotor || '';
+    document.getElementById('fTipe').value = item.TipeMotor || '';
+    document.getElementById('fNoPlat').value = item.NoPlat || '';
+    document.getElementById('fKM').value = item.Kilometer || '';
+    document.getElementById('fRincian').value = item.RincianPekerjaan || '';
+    document.getElementById('fBiaya').value = item.TotalBiaya || '';
+    document.getElementById('fTglBerikutnya').value = item.TanggalBerikutnya || '';
+    document.getElementById('fCatatan').value = item.Catatan || '';
+}
+
+document.getElementById('formData').addEventListener('submit', async e => {
+    e.preventDefault();
+    const rowId = document.getElementById('editRowId').value;
+    const payload = {
+        Tanggal: document.getElementById('fTanggal').value,
+        Nama: document.getElementById('fNama').value,
+        NoHP: document.getElementById('fNoHP').value,
+        MerkMotor: document.getElementById('fMerk').value,
+        TipeMotor: document.getElementById('fTipe').value,
+        NoPlat: document.getElementById('fNoPlat').value,
+        Kilometer: document.getElementById('fKM').value,
+        RincianPekerjaan: document.getElementById('fRincian').value,
+        TotalBiaya: document.getElementById('fBiaya').value,
+        TanggalBerikutnya: document.getElementById('fTglBerikutnya').value,
+        Catatan: document.getElementById('fCatatan').value
+    };
+    if (rowId) {
+        payload.action = "update";
+        payload.rowId = Number(rowId);
     }
 
-    function bukaModalStruk(rowId) {
-      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
-      if (!item) return;
-      currentStrukItem = item;
-
-      document.getElementById("strukTanggal").innerText = formatTanggalDisplay(item.Tanggal);
-      document.getElementById("strukNama").innerText = item.Nama || '-';
-      document.getElementById("strukNoHP").innerText = formatNoHP(item.NoHP) || '-';
-      document.getElementById("strukMotor").innerText = `${item.MerkMotor || ''} ${item.TipeMotor || ''}`.trim() || '-';
-      document.getElementById("strukPlatKM").innerText = `${item.NoPlat || '-'} / ${item.Kilometer || '-'} KM`;
-
-      const listContainer = document.getElementById("strukListPekerjaan");
-      if (item.RincianPekerjaan) {
-        const items = item.RincianPekerjaan.split(",");
-        listContainer.innerHTML = items.map(i => {
-          const textTrimmed = i.trim();
-          const match = textTrimmed.match(/^(.*?)(?:\s*\((?:Rp\.?\s*)?([\d.]+)\))?$/i);
-          
-          if (match && match[2]) {
-            const namaJasa = match[1].trim();
-            const harga = parseInt(match[2].replace(/\./g, '')).toLocaleString('id-ID');
-            return `<div class="flex justify-between items-start gap-2">
-                      <span class="break-words">• ${namaJasa}</span>
-                      <span class="font-semibold text-slate-900 whitespace-nowrap shrink-0">Rp ${harga}</span>
-                    </div>`;
-          } else {
-            return `<div class="flex justify-between items-start gap-2">
-                      <span class="break-words">• ${textTrimmed}</span>
-                    </div>`;
-          }
-        }).join("");
-      } else {
-        listContainer.innerHTML = '<div>-</div>';
-      }
-
-      const totalNum = parseFloat(item.TotalBiaya) || 0;
-      document.getElementById("strukTotalBiaya").innerText = "Rp " + totalNum.toLocaleString('id-ID');
-
-      // MENAMPILKAN CATATAN TEKNISI PADA STRUK (BILA ADA)
-      const containerCatatan = document.getElementById("strukContainerCatatan");
-      const elCatatan = document.getElementById("strukCatatan");
-      if (item.Catatan && item.Catatan.trim() !== "") {
-        elCatatan.innerText = item.Catatan.trim();
-        containerCatatan.classList.remove("hidden");
-      } else {
-        elCatatan.innerText = "";
-        containerCatatan.classList.add("hidden");
-      }
-
-      document.getElementById("modalStruk").classList.remove("hidden");
-    }
-
-    function tutupModalStruk() {
-      document.getElementById("modalStruk").classList.add("hidden");
-    }
-
-    function prosesCetakStruk() {
-      const content = document.getElementById("areaStrukPrint").innerHTML;
-      const win = window.open('', '', 'width=400,height=600');
-      win.document.write(`
-        <html>
-        <head>
-          <title>Struk Servis - MF.EV</title>
-          <script src="https://cdn.tailwindcss.com"><\/script>
-          <style>
-            @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;600;700&display=swap');
-            @page {
-              size: 58mm auto;
-              margin: 0;
-            }
-            body { 
-              font-family: 'Inconsolata', monospace; 
-              width: 58mm;
-              margin: 0; 
-              padding: 4px;
-              background: #fff; 
-            }
-          </style>
-        </head>
-        <body>
-          <div>${content}</div>
-        </body>
-        </html>
-      `);
-      win.document.close();
-      win.focus();
-      setTimeout(() => { win.print(); win.close(); }, 500);
-    }
-
-    function getNamaFileStruk() {
-      const nama = (currentStrukItem && currentStrukItem.Nama) 
-        ? currentStrukItem.Nama.trim().replace(/[^a-zA-Z0-9]/g, '_') 
-        : 'Pelanggan';
-
-      let tanggal = '';
-      if (currentStrukItem && currentStrukItem.Tanggal) {
-        tanggal = '_' + formatTanggalDisplay(currentStrukItem.Tanggal).replace(/[^a-zA-Z0-9-]/g, '');
-      }
-
-      return `Struk_MFEV_${nama}${tanggal}.png`;
-    }
-
-    function downloadStrukGambar() {
-      const area = document.getElementById("areaStrukPrint");
-      const btn = document.getElementById("btnDownloadStruk");
-      
-      const originalText = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-      html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
-        const link = document.createElement("a");
-        const namaFile = getNamaFileStruk();
-
-        link.download = namaFile;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-      }).catch(err => {
-        alert("Gagal mengunduh gambar struk.");
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-      });
-    }
-
-    function shareStrukGambar() {
-      const area = document.getElementById("areaStrukPrint");
-      const btn = document.getElementById("btnShareStruk");
-      
-      const originalText = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-
-      html2canvas(area, { scale: 3, useCORS: true, backgroundColor: "#ffffff" }).then(canvas => {
-        canvas.toBlob(blob => {
-          if (!blob) {
-            alert("Gagal membuat gambar struk.");
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-            return;
-          }
-
-          const namaFile = getNamaFileStruk();
-          const file = new File([blob], namaFile, { type: "image/png" });
-
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            navigator.share({
-              files: [file],
-              title: 'Struk Servis MF.EV',
-              text: `Struk Servis MF.EV - ${currentStrukItem ? currentStrukItem.Nama : ''}`
-            }).then(() => {
-              btn.disabled = false;
-              btn.innerHTML = originalText;
-            }).catch(err => {
-              btn.disabled = false;
-              btn.innerHTML = originalText;
-            });
-          } else {
-            alert("Perangkat atau browser ini tidak mendukung fitur kirim gambar langsung. Gambar akan diunduh otomatis.");
-            const link = document.createElement("a");
-            link.download = file.name;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-          }
-        }, "image/png");
-      }).catch(err => {
-        alert("Gagal memproses gambar.");
-        btn.disabled = false;
-        btn.innerHTML = originalText;
-      });
-    }
-
-    function filterTable() {
-      const q = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = rawData.filter(d => 
-        (d.Nama && d.Nama.toLowerCase().includes(q)) ||
-        (d.NoHP && String(d.NoHP).toLowerCase().includes(q)) ||
-        (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
-        (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q))
-      );
-      renderTable(filtered);
-    }
-
-    function hitungTotalBiaya() {
-      let total = 0;
-      document.querySelectorAll('.input-biaya').forEach(input => {
-        total += parseFloat(input.value) || 0;
-      });
-      document.getElementById('displayTotalBiaya').innerText = "Rp " + total.toLocaleString('id-ID');
-      return total;
-    }
-
-    function getRincianPekerjaanData() {
-      let arrayRincian = [];
-      document.querySelectorAll('.row-pekerjaan').forEach(row => {
-        const jasa = row.querySelector('.input-jasa').value.trim();
-        const biaya = parseFloat(row.querySelector('.input-biaya').value) || 0;
-        if (jasa !== "") {
-          arrayRincian.push(`${jasa} (Rp ${biaya.toLocaleString('id-ID')})`);
-        }
-      });
-      return {
-        rincianTeks: arrayRincian.join(", "),
-        totalBiaya: hitungTotalBiaya()
-      };
-    }
-
-    function simpanData() {
-      const btnSimpan = document.getElementById("btnSimpan");
-      const rowId = document.getElementById("rowId").value;
-      const dataPekerjaan = getRincianPekerjaanData();
-
-      const payload = {
-        action: rowId ? "update" : "create",
-        rowId: rowId || "",
-        Tanggal: document.getElementById("inputTanggal").value,
-        Kilometer: document.getElementById("inputKilometer").value,
-        Nama: document.getElementById("inputNama").value,
-        NoHP: document.getElementById("inputNoHP").value,
-        MerkMotor: document.getElementById("inputMerkMotor").value,
-        TipeMotor: document.getElementById("inputTipeMotor").value,
-        NoPlat: document.getElementById("inputNoPlat").value,
-        RincianPekerjaan: dataPekerjaan.rincianTeks,
-        TotalBiaya: dataPekerjaan.totalBiaya,
-        Catatan: document.getElementById("inputCatatan").value,
-        TanggalBerikutnya: document.getElementById("inputTanggalBerikutnya").value
-      };
-
-      btnSimpan.disabled = true;
-      btnSimpan.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-      .then(() => {
-        alert("Data berhasil disimpan!");
-        tutupModal();
-        muatData();
-      })
-      .catch(err => alert("Gagal menyimpan data."))
-      .finally(() => {
-        btnSimpan.disabled = false;
-        btnSimpan.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan';
-      });
-    }
-
-    function bukaModalTambah() {
-      document.getElementById("modalTitle").innerText = "Tambah Transaksi Servis";
-      document.getElementById("rowId").value = "";
-      document.getElementById("inputTanggal").value = new Date().toISOString().split("T")[0];
-      document.getElementById("inputKilometer").value = "";
-      document.getElementById("inputNama").value = "";
-      document.getElementById("inputNoHP").value = "";
-      document.getElementById("inputMerkMotor").value = "";
-      document.getElementById("inputTipeMotor").value = "";
-      document.getElementById("inputNoPlat").value = "";
-      document.getElementById("inputCatatan").value = "";
-      document.getElementById("inputTanggalBerikutnya").value = "";
-
-      document.querySelectorAll('.input-jasa').forEach(i => i.value = "");
-      document.querySelectorAll('.input-biaya').forEach(i => i.value = "");
-      hitungTotalBiaya();
-
-      document.getElementById("modalForm").classList.remove("hidden");
-    }
-
-    function editRow(rowId) {
-      const item = rawData.find(d => Number(d.rowId) === Number(rowId));
-      if (!item) return;
-
-      document.getElementById("modalTitle").innerText = "Edit Transaksi Servis";
-      document.getElementById("rowId").value = item.rowId;
-      document.getElementById("inputTanggal").value = formatTanggalUntukInput(item.Tanggal);
-      document.getElementById("inputKilometer").value = item.Kilometer || "";
-      document.getElementById("inputNama").value = item.Nama || "";
-      document.getElementById("inputNoHP").value = formatNoHP(item.NoHP);
-      document.getElementById("inputMerkMotor").value = item.MerkMotor || "";
-      document.getElementById("inputTipeMotor").value = item.TipeMotor || "";
-      document.getElementById("inputNoPlat").value = item.NoPlat || "";
-      document.getElementById("inputCatatan").value = item.Catatan || "";
-      document.getElementById("inputTanggalBerikutnya").value = formatTanggalUntukInput(item.TanggalBerikutnya);
-
-      document.querySelectorAll('.input-jasa').forEach(i => i.value = "");
-      document.querySelectorAll('.input-biaya').forEach(i => i.value = "");
-
-      if (item.RincianPekerjaan) {
-        const items = item.RincianPekerjaan.split(",");
-        const rows = document.querySelectorAll('.row-pekerjaan');
-        
-        items.forEach((txt, idx) => {
-          if (rows[idx]) {
-            const textTrimmed = txt.trim();
-            const match = textTrimmed.match(/^(.*?)(?:\s*\((?:Rp\.?\s*)?([\d.]+)\))?$/i);
-            
-            if (match && match[2]) {
-              rows[idx].querySelector('.input-jasa').value = match[1].trim();
-              rows[idx].querySelector('.input-biaya').value = match[2].replace(/\./g, '');
-            } else {
-              rows[idx].querySelector('.input-jasa').value = textTrimmed;
-            }
-          }
+    try {
+        await fetch(URL_GOOGLE_SHEETS, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
-      }
-      
-      hitungTotalBiaya();
-
-      document.getElementById("modalForm").classList.remove("hidden");
+        alert('✅ Tersimpan!');
+        tutupForm();
+        tarikDataDariSheets();
+    } catch {
+        alert('⚠️ Gagal tersimpan');
     }
+});
 
-    function hapusRow(rowId) {
-      if (!confirm("Apakah Anda yakin ingin menghapus transaksi ini?")) return;
-
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "hapus", rowId: rowId })
-      })
-      .then(() => {
-        alert("Data berhasil dihapus!");
-        muatData();
-      })
-      .catch(err => alert("Gagal menghapus data."));
+async function hapusData(id) {
+    if (!confirm('Yakin hapus data ini?')) return;
+    try {
+        await fetch(URL_GOOGLE_SHEETS, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: "hapus", rowId: id })
+        });
+        alert('✅ Dihapus!');
+        tarikDataDariSheets();
+    } catch {
+        alert('⚠️ Gagal dihapus');
     }
+}
 
-    function tutupModal() {
-      document.getElementById("modalForm").classList.add("hidden");
-    }
-
-    function simpanKontakVCF(nama, noHP) {
-      if (!noHP) return alert("Nomor HP tidak ada!");
-      const formatHP = noHP.startsWith("0") ? "+62" + noHP.substring(1) : noHP;
-      const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:${nama} (MF.EV)\nTEL;TYPE=CELL:${formatHP}\nEND:VCARD`;
-
-      const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = nama.replace(/[^a-zA-Z0-9]/g, "_") + "_MFEV.vcf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }
-
-    function formatTanggalUntukInput(str) {
-      if (!str) return "";
-      if (str.includes("T")) str = str.split("T")[0];
-      if (str.includes("/")) {
-        const p = str.split("/");
-        if (p.length === 3) return p[2] + "-" + p[1].padStart(2,'0') + "-" + p[0].padStart(2,'0');
-      }
-      if (str.includes("-")) {
-        const p = str.split("-");
-        if (p[0].length === 4) return str; 
-        if (p[2].length === 4) return p[2] + "-" + p[1].padStart(2,'0') + "-" + p[0].padStart(2,'0');
-      }
-      return str;
-    }
-
-    function formatTanggalDisplay(str) {
-      if (!str) return "-";
-      const iso = formatTanggalUntukInput(str);
-      const p = iso.split("-");
-      if (p.length === 3) return p[2] + "-" + p[1] + "-" + p[0];
-      return str;
-    }
-  </script>
+window.onload = initApp;
+</script>
 </body>
 </html>
