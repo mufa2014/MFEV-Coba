@@ -81,7 +81,7 @@
   <!-- MAIN CONTAINER -->
   <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4 no-print">
 
-    <!-- FITUR 4: DASHBOARD CARDS RINGKASAN CEPAT -->
+    <!-- DASHBOARD CARDS RINGKASAN CEPAT -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
       <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
         <div>
@@ -123,7 +123,7 @@
         </div>
         
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-          <!-- FITUR 3: FILTER MERK MOTOR -->
+          <!-- FILTER MERK MOTOR -->
           <select id="filterMerk" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
             <option value="ALL">Semua Merk</option>
           </select>
@@ -154,12 +154,6 @@
             <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
               class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
           </div>
-
-          <!-- FITUR 5: TOMBOL EKSPOR EXCEL/CSV -->
-          <button onclick="eksporKeCSV()" title="Unduh Data ke CSV / Excel" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 transition-all border border-slate-200">
-            <i class="fa-solid fa-file-csv text-emerald-600 text-base"></i>
-            <span class="hidden sm:inline">Ekspor Excel</span>
-          </button>
         </div>
       </div>
 
@@ -198,13 +192,13 @@
     </div>
   </main>
 
-  <!-- MODAL REKAP BULANAN & TAHUNAN -->
+  <!-- MODAL REKAP BULANAN, STATISTIK TERBANYAK & TAHUNAN -->
   <div id="modalRekap" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden border border-slate-100">
       <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-chart-pie text-indigo-600 text-lg"></i>
-          <h3 class="font-bold text-slate-900 text-base sm:text-lg">Rekap Pendapatan</h3>
+          <h3 class="font-bold text-slate-900 text-base sm:text-lg">Rekap &amp; Statistik Servis</h3>
         </div>
         <button onclick="tutupModalRekap()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all">
           <i class="fa-solid fa-xmark text-lg"></i>
@@ -212,6 +206,29 @@
       </div>
       <div class="p-4 sm:p-6 overflow-y-auto space-y-5">
         
+        <!-- FITUR STATISTIK TERBANYAK (TOP STATS) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- MERK TERBANYAK -->
+          <div class="p-3.5 bg-amber-50/60 border border-amber-200 rounded-xl space-y-1.5">
+            <div class="text-xs font-bold text-amber-800 uppercase flex items-center gap-1.5">
+              <i class="fa-solid fa-trophy text-amber-500"></i> Merk Sering Diservis
+            </div>
+            <div id="rekapTopMerk" class="text-xs text-slate-700 space-y-1 font-medium">
+              <!-- Item Merk Terbanyak -->
+            </div>
+          </div>
+
+          <!-- PELANGGAN TERBANYAK -->
+          <div class="p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-1.5">
+            <div class="text-xs font-bold text-indigo-800 uppercase flex items-center gap-1.5">
+              <i class="fa-solid fa-users text-indigo-500"></i> Pelanggan Sering Servis
+            </div>
+            <div id="rekapTopPelanggan" class="text-xs text-slate-700 space-y-1 font-medium">
+              <!-- Item Pelanggan Terbanyak -->
+            </div>
+          </div>
+        </div>
+
         <!-- BAGIAN REKAP PER BULAN -->
         <div>
           <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -233,8 +250,14 @@
         </div>
 
       </div>
-      <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
-        <button onclick="tutupModalRekap()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-sm font-medium transition-all">
+
+      <!-- FOOTER MODAL REKAP & TOMBOL EXPORT CSV -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-2">
+        <button onclick="eksporKeCSV()" title="Unduh Data ke CSV / Excel" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all shadow-sm">
+          <i class="fa-solid fa-file-csv"></i>
+          <span>Ekspor ke CSV / Excel</span>
+        </button>
+        <button onclick="tutupModalRekap()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs sm:text-sm font-medium transition-all">
           Tutup
         </button>
       </div>
@@ -427,7 +450,6 @@
         <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-print"></i> Cetak
         </button>
-        <!-- FITUR 6: TOMBOL CETAK STIKER LABEL SERVIS -->
         <button onclick="prosesCetakStikerLabel()" title="Cetak Label Stiker Servis Berikunya" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-tag"></i> Stiker
         </button>
@@ -484,7 +506,6 @@
         });
     }
 
-    /* FITUR 3: PENGISIAN FILTER MERK MOTOR OTOMATIS */
     function isiOpsiMerk(data) {
       const selectMerk = document.getElementById("filterMerk");
       const merkSet = new Set();
@@ -503,7 +524,6 @@
       selectMerk.innerHTML = html;
     }
 
-    /* FITUR 4: UPDATE DASHBOARD CARDS BULAN INI */
     function updateDashboardCards(data) {
       const skrg = new Date();
       const bulanSkrg = String(skrg.getMonth() + 1).padStart(2, '0');
@@ -665,7 +685,6 @@
       tbody.innerHTML = html;
     }
 
-    /* FITUR 5: EKSPOR DATA KE FORMAT EXCEL/CSV */
     function eksporKeCSV() {
       if (rawData.length === 0) return alert("Belum ada data untuk diekspor!");
 
@@ -698,7 +717,6 @@
       document.body.removeChild(link);
     }
 
-    /* FITUR 6: CETAK STIKER LABEL SERVIS (PRINTER THERMAL 58mm) */
     function prosesCetakStikerLabel() {
       if (!currentStrukItem) return;
 
@@ -760,8 +778,22 @@
 
       const rekapBulanGroup = {};
       const rekapTahunGroup = {};
+      const merkCounts = {};
+      const pelangganCounts = {};
 
       rawData.forEach(item => {
+        // Hitung Merk Terbanyak
+        if (item.MerkMotor && item.MerkMotor.trim() !== "") {
+          const m = item.MerkMotor.trim().toUpperCase();
+          merkCounts[m] = (merkCounts[m] || 0) + 1;
+        }
+
+        // Hitung Pelanggan Terbanyak
+        if (item.Nama && item.Nama.trim() !== "") {
+          const p = item.Nama.trim();
+          pelangganCounts[p] = (pelangganCounts[p] || 0) + 1;
+        }
+
         const iso = formatTanggalUntukInput(item.Tanggal);
         if (iso && iso.includes("-")) {
           const parts = iso.split("-");
@@ -784,6 +816,35 @@
         }
       });
 
+      // Render Top Merk (Ambil Top 3)
+      const sortedMerk = Object.keys(merkCounts).sort((a,b) => merkCounts[b] - merkCounts[a]).slice(0, 3);
+      const elTopMerk = document.getElementById("rekapTopMerk");
+      if (sortedMerk.length === 0) {
+        elTopMerk.innerHTML = '<span class="text-slate-400 font-normal">-</span>';
+      } else {
+        elTopMerk.innerHTML = sortedMerk.map((m, idx) => `
+          <div class="flex justify-between items-center">
+            <span>${idx+1}. ${m}</span>
+            <span class="font-bold text-amber-700">${merkCounts[m]} Unit</span>
+          </div>
+        `).join("");
+      }
+
+      // Render Top Pelanggan (Ambil Top 3)
+      const sortedPelanggan = Object.keys(pelangganCounts).sort((a,b) => pelangganCounts[b] - pelangganCounts[a]).slice(0, 3);
+      const elTopPelanggan = document.getElementById("rekapTopPelanggan");
+      if (sortedPelanggan.length === 0) {
+        elTopPelanggan.innerHTML = '<span class="text-slate-400 font-normal">-</span>';
+      } else {
+        elTopPelanggan.innerHTML = sortedPelanggan.map((p, idx) => `
+          <div class="flex justify-between items-center">
+            <span class="truncate pr-2">${idx+1}. ${p}</span>
+            <span class="font-bold text-indigo-700 whitespace-nowrap">${pelangganCounts[p]}x Servis</span>
+          </div>
+        `).join("");
+      }
+
+      // Render Rekap Bulanan
       const bulanKeysSorted = Object.keys(rekapBulanGroup).sort().reverse();
       const containerBulan = document.getElementById("rekapContainer");
 
@@ -809,6 +870,7 @@
         containerBulan.innerHTML = htmlBulan;
       }
 
+      // Render Rekap Tahunan
       const tahunKeysSorted = Object.keys(rekapTahunGroup).sort().reverse();
       const containerTahun = document.getElementById("rekapTahunanContainer");
 
