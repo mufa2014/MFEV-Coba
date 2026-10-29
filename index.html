@@ -607,7 +607,6 @@
       const urlScheme = `whatsapp://send?phone=${waNum}&text=${encodeURIComponent(pesan)}`;
       const urlWeb = `https://api.whatsapp.com/send?phone=${waNum}&text=${encodeURIComponent(pesan)}`;
 
-      // Memicu skema aplikasi lokal Android agar muncul pilihan aplikasi (WA / WA Business)
       window.location.href = urlScheme;
       setTimeout(() => {
         window.open(urlWeb, '_blank');
@@ -1459,7 +1458,7 @@
       if (!str) return "-";
       const iso = formatTanggalUntukInput(str);
       const p = iso.split("-");
-      if (p.length === 3) return p[2] + "-" + p[1] + "-" + p0];
+      if (p.length === 3) return p[2] + "-" + p[1] + "-" + p[0];
       return str;
     }
   </script>
