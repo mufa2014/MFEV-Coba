@@ -157,22 +157,40 @@
     </div>
   </main>
 
-  <!-- MODAL REKAP BULANAN -->
+  <!-- MODAL REKAP BULANAN & TAHUNAN -->
   <div id="modalRekap" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
     <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden border border-slate-100">
       <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-chart-pie text-indigo-600 text-lg"></i>
-          <h3 class="font-bold text-slate-900 text-base sm:text-lg">Rekap Pendapatan Bulanan</h3>
+          <h3 class="font-bold text-slate-900 text-base sm:text-lg">Rekap Pendapatan</h3>
         </div>
         <button onclick="tutupModalRekap()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
-      <div class="p-4 sm:p-6 overflow-y-auto">
-        <div id="rekapContainer" class="space-y-3">
-          <!-- Item rekap bulanan akan dirender di sini -->
+      <div class="p-4 sm:p-6 overflow-y-auto space-y-5">
+        
+        <!-- BAGIAN REKAP PER BULAN -->
+        <div>
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-calendar-day text-indigo-500"></i> Rincian Per Bulan
+          </h4>
+          <div id="rekapContainer" class="space-y-2.5">
+            <!-- Item rekap bulanan akan dirender di sini -->
+          </div>
         </div>
+
+        <!-- BAGIAN REKAP TOTAL PER TAHUN -->
+        <div class="pt-2 border-t border-slate-200">
+          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-calendar-check text-emerald-500"></i> Total Rekap Per Tahun
+          </h4>
+          <div id="rekapTahunanContainer" class="space-y-2.5">
+            <!-- Item rekap tahunan akan dirender di sini -->
+          </div>
+        </div>
+
       </div>
       <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
         <button onclick="tutupModalRekap()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-sm font-medium transition-all">
@@ -477,7 +495,7 @@
         return matchBulan && matchTahun && matchSearch;
       });
 
-      // PENGURUTAN SEPENUHNYA BERDASARKAN TANGGAL SERVICE
+      // PENGURUTAN BERDASARKAN TANGGAL SERVICE
       filtered.sort((a, b) => {
         const dateA = new Date(formatTanggalUntukInput(a.Tanggal));
         const dateB = new Date(formatTanggalUntukInput(b.Tanggal));
@@ -548,46 +566,83 @@
         "09": "September", "10": "Oktober", "11": "November", "12": "Desember"
       };
 
-      const rekapGroup = {};
+      const rekapBulanGroup = {};
+      const rekapTahunGroup = {};
 
       rawData.forEach(item => {
         const iso = formatTanggalUntukInput(item.Tanggal);
         if (iso && iso.includes("-")) {
           const parts = iso.split("-");
-          const key = parts[0] + "-" + parts[1]; // YYYY-MM
+          const yyyy = parts[0];
+          const mm = parts[1];
+          const keyBulan = yyyy + "-" + mm; // YYYY-MM
           const nominal = parseFloat(item.TotalBiaya) || 0;
 
-          if (!rekapGroup[key]) {
-            rekapGroup[key] = { total: 0, count: 0, year: parts[0], month: parts[1] };
+          // Hitung per Bulan
+          if (!rekapBulanGroup[keyBulan]) {
+            rekapBulanGroup[keyBulan] = { total: 0, count: 0, year: yyyy, month: mm };
           }
-          rekapGroup[key].total += nominal;
-          rekapGroup[key].count += 1;
+          rekapBulanGroup[keyBulan].total += nominal;
+          rekapBulanGroup[keyBulan].count += 1;
+
+          // Hitung per Tahun
+          if (!rekapTahunGroup[yyyy]) {
+            rekapTahunGroup[yyyy] = { total: 0, count: 0, year: yyyy };
+          }
+          rekapTahunGroup[yyyy].total += nominal;
+          rekapTahunGroup[yyyy].count += 1;
         }
       });
 
-      const keysSorted = Object.keys(rekapGroup).sort().reverse();
-      const container = document.getElementById("rekapContainer");
+      // Render Rekap Bulanan
+      const bulanKeysSorted = Object.keys(rekapBulanGroup).sort().reverse();
+      const containerBulan = document.getElementById("rekapContainer");
 
-      if (keysSorted.length === 0) {
-        container.innerHTML = '<div class="text-center py-6 text-slate-400">Belum ada data rekap.</div>';
+      if (bulanKeysSorted.length === 0) {
+        containerBulan.innerHTML = '<div class="text-center py-4 text-slate-400 text-xs">Belum ada data rekap.</div>';
       } else {
-        let html = "";
-        keysSorted.forEach(k => {
-          const g = rekapGroup[k];
+        let htmlBulan = "";
+        bulanKeysSorted.forEach(k => {
+          const g = rekapBulanGroup[k];
           const bulanNama = namaBulanMap[g.month] || g.month;
-          html += `
-            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between hover:border-indigo-200 transition-colors">
+          htmlBulan += `
+            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between hover:border-indigo-200 transition-colors">
               <div>
-                <div class="font-bold text-slate-800 text-sm sm:text-base">${bulanNama} ${g.year}</div>
+                <div class="font-bold text-slate-800 text-sm">${bulanNama} ${g.year}</div>
                 <div class="text-xs text-slate-500">${g.count} Transaksi Servis</div>
               </div>
-              <div class="font-extrabold text-indigo-600 text-sm sm:text-base">
+              <div class="font-extrabold text-indigo-600 text-sm">
                 Rp ${g.total.toLocaleString('id-ID')}
               </div>
             </div>
           `;
         });
-        container.innerHTML = html;
+        containerBulan.innerHTML = htmlBulan;
+      }
+
+      // Render Rekap Tahunan
+      const tahunKeysSorted = Object.keys(rekapTahunGroup).sort().reverse();
+      const containerTahun = document.getElementById("rekapTahunanContainer");
+
+      if (tahunKeysSorted.length === 0) {
+        containerTahun.innerHTML = '<div class="text-center py-4 text-slate-400 text-xs">Belum ada data rekap.</div>';
+      } else {
+        let htmlTahun = "";
+        tahunKeysSorted.forEach(y => {
+          const g = rekapTahunGroup[y];
+          htmlTahun += `
+            <div class="p-3.5 bg-emerald-50/60 border border-emerald-200 rounded-xl flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">Tahun ${g.year}</div>
+                <div class="text-xs text-slate-500">${g.count} Transaksi Servis Total</div>
+              </div>
+              <div class="font-black text-emerald-700 text-base">
+                Rp ${g.total.toLocaleString('id-ID')}
+              </div>
+            </div>
+          `;
+        });
+        containerTahun.innerHTML = htmlTahun;
       }
 
       document.getElementById("modalRekap").classList.remove("hidden");
@@ -957,7 +1012,7 @@
       if (!str) return "-";
       const iso = formatTanggalUntukInput(str);
       const p = iso.split("-");
-      if (p.length === 3) return p[2] + "-" + p[1] + "-" + p[0];
+      if (p.length === 3) return p[2] + "-" + p[1] + "-" + p0;
       return str;
     }
   </script>
