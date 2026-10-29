@@ -81,44 +81,85 @@
   <!-- MAIN CONTAINER -->
   <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4 no-print">
 
+    <!-- FITUR 4: DASHBOARD CARDS RINGKASAN CEPAT -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-medium">Omset Bulan Ini</p>
+          <h3 id="cardOmsetBulanIni" class="text-lg font-extrabold text-emerald-600 mt-0.5">Rp 0</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-wallet"></i>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-medium">Total Unit Diservis (Bulan Ini)</p>
+          <h3 id="cardUnitBulanIni" class="text-lg font-bold text-slate-800 mt-0.5">0 Unit</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-motorcycle"></i>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-medium">Servis Berikutnya (Bulan Ini)</p>
+          <h3 id="cardJatuhTempo" class="text-lg font-bold text-amber-600 mt-0.5">0 Pelanggan</h3>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-bell"></i>
+        </div>
+      </div>
+    </div>
+
     <!-- TABLE CONTAINER -->
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden w-full">
-      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div class="flex items-center gap-2 text-slate-800 font-bold text-base sm:text-lg">
           <i class="fa-solid fa-list-check text-emerald-600"></i>
           <span>Riwayat Servis Pelanggan</span>
         </div>
         
-        <div class="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+          <!-- FITUR 3: FILTER MERK MOTOR -->
+          <select id="filterMerk" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+            <option value="ALL">Semua Merk</option>
+          </select>
+
           <!-- FILTER BULAN & TAHUN -->
-          <div class="flex items-center gap-1.5 w-full sm:w-auto">
-            <i class="fa-solid fa-calendar-days text-slate-400 text-sm"></i>
-            <select id="filterBulan" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
-              <option value="ALL">Semua Bulan</option>
-              <option value="01">Januari</option>
-              <option value="02">Februari</option>
-              <option value="03">Maret</option>
-              <option value="04">April</option>
-              <option value="05">Mei</option>
-              <option value="06">Juni</option>
-              <option value="07">Juli</option>
-              <option value="08">Agustus</option>
-              <option value="09">September</option>
-              <option value="10">Oktober</option>
-              <option value="11">November</option>
-              <option value="12">Desember</option>
-            </select>
-            <select id="filterTahun" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
-              <option value="ALL">Semua Tahun</option>
-            </select>
-          </div>
+          <select id="filterBulan" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+            <option value="ALL">Semua Bulan</option>
+            <option value="01">Januari</option>
+            <option value="02">Februari</option>
+            <option value="03">Maret</option>
+            <option value="04">April</option>
+            <option value="05">Mei</option>
+            <option value="06">Juni</option>
+            <option value="07">Juli</option>
+            <option value="08">Agustus</option>
+            <option value="09">September</option>
+            <option value="10">Oktober</option>
+            <option value="11">November</option>
+            <option value="12">Desember</option>
+          </select>
+          <select id="filterTahun" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+            <option value="ALL">Semua Tahun</option>
+          </select>
 
           <!-- SEARCH INPUT -->
-          <div class="relative w-full sm:w-64">
+          <div class="relative flex-1 sm:w-52">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
             <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
               class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
           </div>
+
+          <!-- FITUR 5: TOMBOL EKSPOR EXCEL/CSV -->
+          <button onclick="eksporKeCSV()" title="Unduh Data ke CSV / Excel" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-1.5 transition-all border border-slate-200">
+            <i class="fa-solid fa-file-csv text-emerald-600 text-base"></i>
+            <span class="hidden sm:inline">Ekspor Excel</span>
+          </button>
         </div>
       </div>
 
@@ -130,7 +171,7 @@
 
       <!-- TABLE AREA -->
       <div class="overflow-x-auto w-full">
-        <table class="w-full text-left text-sm text-slate-600 min-w-[900px]">
+        <table class="w-full text-left text-sm text-slate-600 min-w-[950px]">
           <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
             <tr>
               <th class="py-3.5 px-4 cursor-pointer hover:bg-slate-100 transition-colors" onclick="toggleUrutanTanggal()" title="Klik untuk mengubah urutan tanggal">
@@ -369,7 +410,7 @@
           <span id="strukTotalBiaya" class="text-emerald-700 text-sm">Rp 0</span>
         </div>
 
-        <!-- CATATAN TEKNISI (HANYA MUNCUL JIKA ADA ISINYA) -->
+        <!-- CATATAN TEKNISI -->
         <div id="strukContainerCatatan" class="border-t border-dashed border-slate-400 pt-2 space-y-0.5 hidden">
           <div class="font-bold text-[10px] text-slate-800 uppercase">CATATAN:</div>
           <div id="strukCatatan" class="text-[10px] text-slate-700 italic break-words">-</div>
@@ -382,9 +423,13 @@
       </div>
 
       <!-- STRUK ACTION BUTTONS -->
-      <div class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-4 gap-1.5 no-print">
+      <div class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-5 gap-1.5 no-print">
         <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-print"></i> Cetak
+        </button>
+        <!-- FITUR 6: TOMBOL CETAK STIKER LABEL SERVIS -->
+        <button onclick="prosesCetakStikerLabel()" title="Cetak Label Stiker Servis Berikunya" class="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
+          <i class="fa-solid fa-tag"></i> Stiker
         </button>
         <button id="btnDownloadStruk" onclick="downloadStrukGambar()" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-download"></i> Unduh
@@ -404,7 +449,7 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqMV2lQsLeG2C70787Qw4zarJWv1023AxZj2XLuo_tUOMSVkash0ZeiXSs14BwqpI4/exec";
     let rawData = [];
     let currentStrukItem = null;
-    let isSortDesc = true; // true: Terbaru ke Terlama (Desc), false: Terlama ke Terbaru (Asc)
+    let isSortDesc = true;
 
     document.addEventListener("DOMContentLoaded", function() {
       muatData();
@@ -427,6 +472,8 @@
           if (Array.isArray(data)) {
             rawData = data;
             isiOpsiTahun(rawData);
+            isiOpsiMerk(rawData);
+            updateDashboardCards(rawData);
             filterTable();
           } else {
             tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Gagal memuat data.</td></tr>';
@@ -435,6 +482,59 @@
         .catch(err => {
           tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-500">Gagal terhubung ke server/spreadsheet.</td></tr>';
         });
+    }
+
+    /* FITUR 3: PENGISIAN FILTER MERK MOTOR OTOMATIS */
+    function isiOpsiMerk(data) {
+      const selectMerk = document.getElementById("filterMerk");
+      const merkSet = new Set();
+
+      data.forEach(item => {
+        if (item.MerkMotor && item.MerkMotor.trim() !== "") {
+          merkSet.add(item.MerkMotor.trim().toUpperCase());
+        }
+      });
+
+      const sortedMerk = Array.from(merkSet).sort();
+      let html = '<option value="ALL">Semua Merk</option>';
+      sortedMerk.forEach(m => {
+        html += `<option value="${m}">${m}</option>`;
+      });
+      selectMerk.innerHTML = html;
+    }
+
+    /* FITUR 4: UPDATE DASHBOARD CARDS BULAN INI */
+    function updateDashboardCards(data) {
+      const skrg = new Date();
+      const bulanSkrg = String(skrg.getMonth() + 1).padStart(2, '0');
+      const tahunSkrg = String(skrg.getFullYear());
+
+      let totalOmset = 0;
+      let totalUnit = 0;
+      let totalJatuhTempo = 0;
+
+      data.forEach(item => {
+        const isoServis = formatTanggalUntukInput(item.Tanggal);
+        if (isoServis && isoServis.includes("-")) {
+          const p = isoServis.split("-");
+          if (p[0] === tahunSkrg && p[1] === bulanSkrg) {
+            totalOmset += parseFloat(item.TotalBiaya) || 0;
+            totalUnit += 1;
+          }
+        }
+
+        const isoBerikutnya = formatTanggalUntukInput(item.TanggalBerikutnya);
+        if (isoBerikutnya && isoBerikutnya.includes("-")) {
+          const pB = isoBerikutnya.split("-");
+          if (pB[0] === tahunSkrg && pB[1] === bulanSkrg) {
+            totalJatuhTempo += 1;
+          }
+        }
+      });
+
+      document.getElementById("cardOmsetBulanIni").innerText = "Rp " + totalOmset.toLocaleString('id-ID');
+      document.getElementById("cardUnitBulanIni").innerText = totalUnit + " Unit";
+      document.getElementById("cardJatuhTempo").innerText = totalJatuhTempo + " Pelanggan";
     }
 
     function isiOpsiTahun(data) {
@@ -472,11 +572,13 @@
       const q = document.getElementById("searchInput").value.toLowerCase();
       const bulan = document.getElementById("filterBulan").value;
       const tahun = document.getElementById("filterTahun").value;
+      const merk = document.getElementById("filterMerk").value;
 
       let filtered = rawData.filter(d => {
         const iso = formatTanggalUntukInput(d.Tanggal);
         let matchBulan = true;
         let matchTahun = true;
+        let matchMerk = true;
 
         if (iso && iso.includes("-")) {
           const parts = iso.split("-");
@@ -487,15 +589,19 @@
           if (tahun !== "ALL" && yyyy !== tahun) matchTahun = false;
         }
 
+        if (merk !== "ALL") {
+          const merkItem = (d.MerkMotor || "").trim().toUpperCase();
+          if (merkItem !== merk) matchMerk = false;
+        }
+
         const matchSearch = (d.Nama && d.Nama.toLowerCase().includes(q)) ||
           (d.NoHP && String(d.NoHP).toLowerCase().includes(q)) ||
           (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
           (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q));
 
-        return matchBulan && matchTahun && matchSearch;
+        return matchBulan && matchTahun && matchMerk && matchSearch;
       });
 
-      // PENGURUTAN BERDASARKAN TANGGAL SERVICE
       filtered.sort((a, b) => {
         const dateA = new Date(formatTanggalUntukInput(a.Tanggal));
         const dateB = new Date(formatTanggalUntukInput(b.Tanggal));
@@ -559,6 +665,92 @@
       tbody.innerHTML = html;
     }
 
+    /* FITUR 5: EKSPOR DATA KE FORMAT EXCEL/CSV */
+    function eksporKeCSV() {
+      if (rawData.length === 0) return alert("Belum ada data untuk diekspor!");
+
+      let csv = "Tanggal,Nama Pelanggan,No HP,Merk Motor,Tipe Motor,No Plat,Kilometer,Rincian Pekerjaan,Total Biaya,Catatan,Servis Berikutnya\n";
+
+      rawData.forEach(item => {
+        const row = [
+          `"${formatTanggalDisplay(item.Tanggal)}"`,
+          `"${item.Nama || ''}"`,
+          `"${formatNoHP(item.NoHP)}"`,
+          `"${item.MerkMotor || ''}"`,
+          `"${item.TipeMotor || ''}"`,
+          `"${item.NoPlat || ''}"`,
+          `"${item.Kilometer || ''}"`,
+          `"${(item.RincianPekerjaan || '').replace(/"/g, '""')}"`,
+          item.TotalBiaya || 0,
+          `"${(item.Catatan || '').replace(/"/g, '""')}"`,
+          `"${formatTanggalDisplay(item.TanggalBerikutnya)}"`
+        ];
+        csv += row.join(",") + "\n";
+      });
+
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Riwayat_Servis_MFEV_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /* FITUR 6: CETAK STIKER LABEL SERVIS (PRINTER THERMAL 58mm) */
+    function prosesCetakStikerLabel() {
+      if (!currentStrukItem) return;
+
+      const tglServis = formatTanggalDisplay(currentStrukItem.Tanggal);
+      const tglBerikutnya = formatTanggalDisplay(currentStrukItem.TanggalBerikutnya);
+      const kendaraan = `${currentStrukItem.MerkMotor || ''} ${currentStrukItem.TipeMotor || ''}`.trim() || 'Motor Listrik';
+      const plat = currentStrukItem.NoPlat || '-';
+      const km = currentStrukItem.Kilometer || '-';
+      const nama = currentStrukItem.Nama || 'Pelanggan';
+
+      const win = window.open('', '', 'width=380,height=500');
+      win.document.write(`
+        <html>
+        <head>
+          <title>Stiker Servis - MF.EV</title>
+          <script src="https://cdn.tailwindcss.com"><\/script>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;600;700&display=swap');
+            @page { size: 58mm auto; margin: 0; }
+            body { font-family: 'Inconsolata', monospace; width: 58mm; margin: 0; padding: 4px; background: #fff; }
+          </style>
+        </head>
+        <body>
+          <div class="border-2 border-black p-2 text-center rounded-lg space-y-1 text-slate-900">
+            <div class="font-black text-xs uppercase tracking-wide border-b border-black pb-1">
+              ⚡ MF.EV SERVICE ⚡
+            </div>
+            <div class="text-[9px] font-bold text-slate-700 uppercase">${kendaraan} (${plat})</div>
+            <div class="text-[9px] border-b border-black pb-1">An. ${nama} | KM: ${km}</div>
+            
+            <div class="pt-1">
+              <div class="text-[9px] uppercase font-bold text-slate-600">Servis Terakhir:</div>
+              <div class="text-xs font-bold">${tglServis}</div>
+            </div>
+
+            <div class="pt-1 bg-black text-white p-1 rounded mt-1">
+              <div class="text-[8px] uppercase tracking-wider font-semibold">Jadwal Servis Berikutnya:</div>
+              <div class="text-xs font-extrabold tracking-wider">${tglBerikutnya !== '-' ? tglBerikutnya : '1 Bulan Lagi'}</div>
+            </div>
+
+            <div class="text-[8px] pt-1 text-slate-600 italic">
+              "Rawat Baterai & Motor Berkala"
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+      win.document.close();
+      win.focus();
+      setTimeout(() => { win.print(); win.close(); }, 500);
+    }
+
     function bukaModalRekap() {
       const namaBulanMap = {
         "01": "Januari", "02": "Februari", "03": "Maret", "04": "April",
@@ -575,17 +767,15 @@
           const parts = iso.split("-");
           const yyyy = parts[0];
           const mm = parts[1];
-          const keyBulan = yyyy + "-" + mm; // YYYY-MM
+          const keyBulan = yyyy + "-" + mm;
           const nominal = parseFloat(item.TotalBiaya) || 0;
 
-          // Hitung per Bulan
           if (!rekapBulanGroup[keyBulan]) {
             rekapBulanGroup[keyBulan] = { total: 0, count: 0, year: yyyy, month: mm };
           }
           rekapBulanGroup[keyBulan].total += nominal;
           rekapBulanGroup[keyBulan].count += 1;
 
-          // Hitung per Tahun
           if (!rekapTahunGroup[yyyy]) {
             rekapTahunGroup[yyyy] = { total: 0, count: 0, year: yyyy };
           }
@@ -594,7 +784,6 @@
         }
       });
 
-      // Render Rekap Bulanan
       const bulanKeysSorted = Object.keys(rekapBulanGroup).sort().reverse();
       const containerBulan = document.getElementById("rekapContainer");
 
@@ -620,7 +809,6 @@
         containerBulan.innerHTML = htmlBulan;
       }
 
-      // Render Rekap Tahunan
       const tahunKeysSorted = Object.keys(rekapTahunGroup).sort().reverse();
       const containerTahun = document.getElementById("rekapTahunanContainer");
 
@@ -690,7 +878,6 @@
       const totalNum = parseFloat(item.TotalBiaya) || 0;
       document.getElementById("strukTotalBiaya").innerText = "Rp " + totalNum.toLocaleString('id-ID');
 
-      // MENAMPILKAN CATATAN TEKNISI PADA STRUK (BILA ADA)
       const containerCatatan = document.getElementById("strukContainerCatatan");
       const elCatatan = document.getElementById("strukCatatan");
       if (item.Catatan && item.Catatan.trim() !== "") {
