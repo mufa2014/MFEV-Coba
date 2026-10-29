@@ -5,15 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MF.EV Service System</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- LIBRARY UNTUK CONVERT STRUK KE GAMBAR PNG -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Inconsolata:wght@400;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
     .font-mono-struk { font-family: 'Inconsolata', monospace; }
 
-    /* CSS STYLESHEET KHUSUS UNTUK PRINTER THERMAL (58mm) */
     @media print {
       @page {
         size: 58mm auto;
@@ -35,39 +38,44 @@
         font-size: 10px !important;
         box-shadow: none !important;
         border: none !important;
+        color: #000 !important;
+        background: #fff !important;
       }
     }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen pb-12 transition-colors duration-200">
 
   <!-- TOP HEADER -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm w-full no-print">
+  <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm w-full no-print transition-colors">
     <div class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <!-- LOGO HEADER -->
         <div class="w-10 h-10 rounded-xl overflow-hidden bg-amber-500 flex items-center justify-center shrink-0 shadow-sm">
           <img src="logo-mfev.png" alt="MF.EV Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-bolt text-white text-xl\'></i>';">
         </div>
         <div>
-          <h1 class="font-bold text-base sm:text-lg text-slate-900 leading-tight">MF.EV SERVICE</h1>
-          <p class="text-xs text-slate-500">Sistem Pencatatan &amp; Pengingat Servis</p>
+          <h1 class="font-bold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">MF.EV SERVICE</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Sistem Pencatatan &amp; Pengingat Servis</p>
         </div>
       </div>
       
       <div class="flex items-center gap-2">
-        <!-- TOMBOL REKAP BULANAN -->
+        <!-- TOMBOL MODE GELAP / TERANG -->
+        <button onclick="toggleDarkMode()" id="btnDarkMode" title="Ganti Mode Gelap/Terang" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-amber-400 p-2 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-medium flex items-center gap-2 transition-all">
+          <i id="iconDarkMode" class="fa-solid fa-moon"></i>
+          <span id="textDarkMode" class="hidden md:inline">Gelap</span>
+        </button>
+
         <button onclick="bukaModalRekap()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
           <i class="fa-solid fa-chart-pie"></i>
           <span class="hidden sm:inline">Rekap Bulanan</span>
         </button>
-        <!-- TOMBOL MUAT ULANG -->
         <button onclick="muatData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
           <i class="fa-solid fa-rotate-right"></i>
           <span class="hidden sm:inline">Muat Ulang</span>
         </button>
-        <a href="pengingat.html" class="bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all">
-          <i class="fa-solid fa-bell text-amber-600"></i>
+        <a href="pengingat.html" class="bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800 px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all">
+          <i class="fa-solid fa-bell text-amber-600 dark:text-amber-400"></i>
           <span class="hidden sm:inline">Jadwal Pengingat</span>
         </a>
         <button onclick="bukaModalTambah()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
@@ -81,55 +89,53 @@
   <!-- MAIN CONTAINER -->
   <main class="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-4 no-print">
 
-    <!-- DASHBOARD CARDS RINGKASAN CEPAT -->
+    <!-- DASHBOARD CARDS -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm flex items-center justify-between transition-colors">
         <div>
-          <p class="text-xs text-slate-500 font-medium">Omset Bulan Ini</p>
-          <h3 id="cardOmsetBulanIni" class="text-lg font-extrabold text-emerald-600 mt-0.5">Rp 0</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Omset Bulan Ini</p>
+          <h3 id="cardOmsetBulanIni" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">Rp 0</h3>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg">
           <i class="fa-solid fa-wallet"></i>
         </div>
       </div>
 
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm flex items-center justify-between transition-colors">
         <div>
-          <p class="text-xs text-slate-500 font-medium">Total Unit Diservis (Bulan Ini)</p>
-          <h3 id="cardUnitBulanIni" class="text-lg font-bold text-slate-800 mt-0.5">0 Unit</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Unit Diservis (Bulan Ini)</p>
+          <h3 id="cardUnitBulanIni" class="text-lg font-bold text-slate-800 dark:text-white mt-0.5">0 Unit</h3>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center text-lg">
           <i class="fa-solid fa-motorcycle"></i>
         </div>
       </div>
 
-      <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center justify-between">
+      <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm flex items-center justify-between transition-colors">
         <div>
-          <p class="text-xs text-slate-500 font-medium">Servis Berikutnya (Bulan Ini)</p>
-          <h3 id="cardJatuhTempo" class="text-lg font-bold text-amber-600 mt-0.5">0 Pelanggan</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Servis Berikutnya (Bulan Ini)</p>
+          <h3 id="cardJatuhTempo" class="text-lg font-bold text-amber-600 dark:text-amber-400 mt-0.5">0 Pelanggan</h3>
         </div>
-        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg">
           <i class="fa-solid fa-bell"></i>
         </div>
       </div>
     </div>
 
     <!-- TABLE CONTAINER -->
-    <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden w-full">
-      <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div class="flex items-center gap-2 text-slate-800 font-bold text-base sm:text-lg">
-          <i class="fa-solid fa-list-check text-emerald-600"></i>
+    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden w-full transition-colors">
+      <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-slate-800 dark:text-white font-bold text-base sm:text-lg">
+          <i class="fa-solid fa-list-check text-emerald-600 dark:text-emerald-400"></i>
           <span>Riwayat Servis Pelanggan</span>
         </div>
         
         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-          <!-- FILTER MERK MOTOR -->
-          <select id="filterMerk" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+          <select id="filterMerk" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
             <option value="ALL">Semua Merk</option>
           </select>
 
-          <!-- FILTER BULAN & TAHUN -->
-          <select id="filterBulan" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+          <select id="filterBulan" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
             <option value="ALL">Semua Bulan</option>
             <option value="01">Januari</option>
             <option value="02">Februari</option>
@@ -144,31 +150,29 @@
             <option value="11">November</option>
             <option value="12">Desember</option>
           </select>
-          <select id="filterTahun" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+
+          <select id="filterTahun" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200">
             <option value="ALL">Semua Tahun</option>
           </select>
 
-          <!-- SEARCH INPUT -->
           <div class="relative flex-1 sm:w-52">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
             <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
-              class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+              class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 placeholder-slate-400">
           </div>
         </div>
       </div>
 
-      <!-- SUMMARY BAR HALAMAN UTAMA -->
-      <div id="summaryBar" class="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-slate-600">
-        <div>Total Transaksi Tampil: <span id="summaryJumlah" class="font-bold text-slate-900">0</span></div>
-        <div>Total Pendapatan Tampil: <span id="summaryTotalBiaya" class="font-extrabold text-emerald-600">Rp 0</span></div>
+      <div id="summaryBar" class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+        <div>Total Transaksi Tampil: <span id="summaryJumlah" class="font-bold text-slate-900 dark:text-white">0</span></div>
+        <div>Total Pendapatan Tampil: <span id="summaryTotalBiaya" class="font-extrabold text-emerald-600 dark:text-emerald-400">Rp 0</span></div>
       </div>
 
-      <!-- TABLE AREA -->
       <div class="overflow-x-auto w-full">
-        <table class="w-full text-left text-sm text-slate-600 min-w-[950px]">
-          <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
+        <table class="w-full text-left text-sm text-slate-600 dark:text-slate-300 min-w-[950px]">
+          <thead class="bg-slate-50 dark:bg-slate-900/80 text-slate-500 dark:text-slate-400 font-semibold uppercase text-xs tracking-wider border-b border-slate-200 dark:border-slate-700">
             <tr>
-              <th class="py-3.5 px-4 cursor-pointer hover:bg-slate-100 transition-colors" onclick="toggleUrutanTanggal()" title="Klik untuk mengubah urutan tanggal">
+              <th class="py-3.5 px-4 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onclick="toggleUrutanTanggal()" title="Klik untuk mengubah urutan tanggal">
                 TANGGAL <i id="iconUrutanTanggal" class="fa-solid fa-sort-down ml-1"></i>
               </th>
               <th class="py-3.5 px-4">PELANGGAN</th>
@@ -179,7 +183,7 @@
               <th class="py-3.5 px-4 text-center">AKSI</th>
             </tr>
           </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-100">
+          <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-slate-700/50">
             <tr>
               <td colspan="7" class="py-12 text-center text-slate-400">
                 <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-emerald-600"></i>
@@ -193,182 +197,166 @@
   </main>
 
   <!-- MODAL REKAP BULANAN, STATISTIK TERBANYAK & TAHUNAN -->
-  <div id="modalRekap" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden border border-slate-100">
-      <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+  <div id="modalRekap" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700">
+      <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
         <div class="flex items-center gap-2">
-          <i class="fa-solid fa-chart-pie text-indigo-600 text-lg"></i>
-          <h3 class="font-bold text-slate-900 text-base sm:text-lg">Rekap &amp; Statistik Servis</h3>
+          <i class="fa-solid fa-chart-pie text-indigo-600 dark:text-indigo-400 text-lg"></i>
+          <h3 class="font-bold text-slate-900 dark:text-white text-base sm:text-lg">Rekap &amp; Statistik Servis</h3>
         </div>
-        <button onclick="tutupModalRekap()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all">
+        <button onclick="tutupModalRekap()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
       <div class="p-4 sm:p-6 overflow-y-auto space-y-5">
         
-        <!-- FITUR STATISTIK TERBANYAK (TOP STATS) -->
+        <!-- STATISTIK TOP 5 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <!-- MERK TERBANYAK -->
-          <div class="p-3.5 bg-amber-50/60 border border-amber-200 rounded-xl space-y-1.5">
-            <div class="text-xs font-bold text-amber-800 uppercase flex items-center gap-1.5">
-              <i class="fa-solid fa-trophy text-amber-500"></i> Merk Sering Diservis
+          <!-- MERK TERBANYAK (TOP 5) -->
+          <div class="p-3.5 bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl space-y-1.5">
+            <div class="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase flex items-center gap-1.5">
+              <i class="fa-solid fa-trophy text-amber-500"></i> Top 5 Merk Sering Diservis
             </div>
-            <div id="rekapTopMerk" class="text-xs text-slate-700 space-y-1 font-medium">
-              <!-- Item Merk Terbanyak -->
+            <div id="rekapTopMerk" class="text-xs text-slate-700 dark:text-slate-300 space-y-1 font-medium">
             </div>
           </div>
 
-          <!-- PELANGGAN TERBANYAK -->
-          <div class="p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-1.5">
-            <div class="text-xs font-bold text-indigo-800 uppercase flex items-center gap-1.5">
-              <i class="fa-solid fa-users text-indigo-500"></i> Pelanggan Sering Servis
+          <!-- PELANGGAN TERBANYAK (TOP 5) -->
+          <div class="p-3.5 bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-xl space-y-1.5">
+            <div class="text-xs font-bold text-indigo-800 dark:text-indigo-400 uppercase flex items-center gap-1.5">
+              <i class="fa-solid fa-users text-indigo-500"></i> Top 5 Pelanggan Sering Servis
             </div>
-            <div id="rekapTopPelanggan" class="text-xs text-slate-700 space-y-1 font-medium">
-              <!-- Item Pelanggan Terbanyak -->
+            <div id="rekapTopPelanggan" class="text-xs text-slate-700 dark:text-slate-300 space-y-1 font-medium">
             </div>
           </div>
         </div>
 
-        <!-- BAGIAN REKAP PER BULAN -->
         <div>
-          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <i class="fa-solid fa-calendar-day text-indigo-500"></i> Rincian Per Bulan
           </h4>
           <div id="rekapContainer" class="space-y-2.5">
-            <!-- Item rekap bulanan akan dirender di sini -->
           </div>
         </div>
 
-        <!-- BAGIAN REKAP TOTAL PER TAHUN -->
-        <div class="pt-2 border-t border-slate-200">
-          <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
+          <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
             <i class="fa-solid fa-calendar-check text-emerald-500"></i> Total Rekap Per Tahun
           </h4>
           <div id="rekapTahunanContainer" class="space-y-2.5">
-            <!-- Item rekap tahunan akan dirender di sini -->
           </div>
         </div>
 
       </div>
 
-      <!-- FOOTER MODAL REKAP & TOMBOL EXPORT CSV -->
-      <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between gap-2">
+      <div class="p-4 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between gap-2">
         <button onclick="eksporKeCSV()" title="Unduh Data ke CSV / Excel" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all shadow-sm">
           <i class="fa-solid fa-file-csv"></i>
           <span>Ekspor ke CSV / Excel</span>
         </button>
-        <button onclick="tutupModalRekap()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs sm:text-sm font-medium transition-all">
+        <button onclick="tutupModalRekap()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-xs sm:text-sm font-medium transition-all">
           Tutup
         </button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL FORM (TAMBAH / EDIT DATA) -->
-  <div id="modalForm" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-100">
+  <!-- MODAL FORM -->
+  <div id="modalForm" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-slate-100 dark:border-slate-700">
       
-      <!-- MODAL HEADER -->
-      <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <h3 id="modalTitle" class="font-bold text-slate-900 text-base sm:text-lg">Tambah Transaksi Servis</h3>
-        <button onclick="tutupModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all">
+      <div class="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
+        <h3 id="modalTitle" class="font-bold text-slate-900 dark:text-white text-base sm:text-lg">Tambah Transaksi Servis</h3>
+        <button onclick="tutupModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <!-- MODAL BODY -->
       <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
         <input type="hidden" id="rowId">
 
-        <!-- ROW 1: Tanggal Servis -->
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tanggal Servis</label>
-          <input type="date" id="inputTanggal" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+          <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Tanggal Servis</label>
+          <input type="date" id="inputTanggal" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
         </div>
 
-        <!-- ROW 2: Nama & No HP -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Nama Pelanggan</label>
-            <input type="text" id="inputNama" placeholder="Nama Pemilik" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Nama Pelanggan</label>
+            <input type="text" id="inputNama" placeholder="Nama Pemilik" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">No. WhatsApp / HP</label>
-            <input type="text" id="inputNoHP" placeholder="08xxxxxxxxxx" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">No. WhatsApp / HP</label>
+            <input type="text" id="inputNoHP" placeholder="08xxxxxxxxxx" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
         </div>
 
-        <!-- ROW 3: Merk, Tipe, Kilometer (KM), & No. Plat -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Merk</label>
-            <input type="text" id="inputMerkMotor" placeholder="Uwinfly, Gesits, dll." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Merk</label>
+            <input type="text" id="inputMerkMotor" placeholder="Uwinfly, Gesits, dll." class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Tipe</label>
-            <input type="text" id="inputTipeMotor" placeholder="T3, G1, dll." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Tipe</label>
+            <input type="text" id="inputTipeMotor" placeholder="T3, G1, dll." class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Kilometer (KM)</label>
-            <input type="text" id="inputKilometer" placeholder="Contoh: 12.500" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Kilometer (KM)</label>
+            <input type="text" id="inputKilometer" placeholder="Contoh: 12.500" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">No. Plat</label>
-            <input type="text" id="inputNoPlat" placeholder="B 1234 ABC" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">No. Plat</label>
+            <input type="text" id="inputNoPlat" placeholder="B 1234 ABC" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
         </div>
 
-        <!-- ROW 4: RINCIAN PEKERJAAN & BIAYA -->
         <div class="space-y-3 pt-2">
-          <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wide">Rincian Pekerjaan &amp; Biaya</label>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Rincian Pekerjaan &amp; Biaya</label>
 
           <div class="space-y-2" id="itemPekerjaanContainer">
             <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="1. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
+              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="1. Jasa / Sparepart">
+              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
             <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="2. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
+              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="2. Jasa / Sparepart">
+              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
             <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="3. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
+              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="3. Jasa / Sparepart">
+              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
             <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="4. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
+              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="4. Jasa / Sparepart">
+              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
             <div class="flex gap-2 items-center row-pekerjaan">
-              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="5. Jasa / Sparepart">
-              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
+              <input type="text" class="input-jasa flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="5. Jasa / Sparepart">
+              <input type="number" class="input-biaya w-32 px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm text-right focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="0" oninput="hitungTotalBiaya()">
             </div>
           </div>
 
-          <!-- TOTAL BIAYA BOX -->
-          <div class="flex items-center justify-between p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl mt-3">
-            <span class="font-bold text-slate-800 text-sm tracking-wide uppercase">Total Biaya</span>
-            <span id="displayTotalBiaya" class="font-extrabold text-emerald-600 text-lg">Rp 0</span>
+          <div class="flex items-center justify-between p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl mt-3">
+            <span class="font-bold text-slate-800 dark:text-slate-200 text-sm tracking-wide uppercase">Total Biaya</span>
+            <span id="displayTotalBiaya" class="font-extrabold text-emerald-600 dark:text-emerald-400 text-lg">Rp 0</span>
           </div>
         </div>
 
-        <!-- ROW 5: Catatan & Tanggal Berikutnya -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Catatan Tambahan</label>
-            <input type="text" id="inputCatatan" placeholder="Catatan teknisi..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Catatan Tambahan</label>
+            <input type="text" id="inputCatatan" placeholder="Catatan teknisi..." class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1.5">Jadwal Servis Berikutnya</label>
-            <input type="date" id="inputTanggalBerikutnya" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Jadwal Servis Berikutnya</label>
+            <input type="date" id="inputTanggalBerikutnya" class="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
           </div>
         </div>
 
       </div>
 
-      <!-- MODAL FOOTER -->
-      <div class="p-4 sm:p-5 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-2">
-        <button onclick="tutupModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl text-sm font-medium hover:bg-slate-100 transition-all">
+      <div class="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 flex justify-end gap-2">
+        <button onclick="tutupModal()" class="px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-700 transition-all">
           Batal
         </button>
         <button id="btnSimpan" onclick="simpanData()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-medium transition-all flex items-center gap-2 shadow-sm">
@@ -383,10 +371,8 @@
   <div id="modalStruk" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[360px] flex flex-col overflow-hidden border border-slate-200">
       
-      <!-- STRUK PRINT AREA -->
       <div id="areaStrukPrint" class="thermal-receipt p-5 bg-white font-mono-struk text-[11px] text-slate-900 space-y-3 w-full">
         
-        <!-- HEADER STRUK -->
         <div class="text-center space-y-1 pb-2 border-b border-dashed border-slate-400">
           <div class="w-10 h-10 mx-auto rounded-lg overflow-hidden bg-amber-500 flex items-center justify-center mb-1">
             <img src="logo-mfev.png" alt="Logo" class="w-full h-full object-cover" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'fa-solid fa-bolt text-white text-xl\'></i>';">
@@ -395,7 +381,6 @@
           <p class="text-[10px] text-slate-600">Spesialis Sepeda Listrik dan Motor Listrik</p>
         </div>
 
-        <!-- INFO PELANGGAN -->
         <div class="space-y-1 text-[10px] border-b border-dashed border-slate-400 pb-2">
           <div class="flex justify-between items-start">
             <span class="text-slate-500 shrink-0">TGL:</span>
@@ -419,33 +404,27 @@
           </div>
         </div>
 
-        <!-- DETAIL PEKERJAAN -->
         <div class="space-y-1.5">
           <div class="font-bold uppercase tracking-wider text-[10px] text-slate-800">RINCIAN PEKERJAAN:</div>
           <div id="strukListPekerjaan" class="space-y-1 text-[10px]">
-            <!-- Dynamic items -->
           </div>
         </div>
 
-        <!-- TOTAL BIAYA -->
         <div class="border-t border-dashed border-slate-400 pt-2 flex justify-between items-center text-xs font-bold text-slate-900">
           <span>TOTAL:</span>
           <span id="strukTotalBiaya" class="text-emerald-700 text-sm">Rp 0</span>
         </div>
 
-        <!-- CATATAN TEKNISI -->
         <div id="strukContainerCatatan" class="border-t border-dashed border-slate-400 pt-2 space-y-0.5 hidden">
           <div class="font-bold text-[10px] text-slate-800 uppercase">CATATAN:</div>
           <div id="strukCatatan" class="text-[10px] text-slate-700 italic break-words">-</div>
         </div>
 
-        <!-- FOOTER STRUK -->
         <div class="text-center text-[9px] text-slate-500 border-t border-dashed border-slate-400 pt-2 leading-tight">
           Terima kasih atas kunjungan Anda!<br>Simpan struk ini sebagai bukti.
         </div>
       </div>
 
-      <!-- STRUK ACTION BUTTONS -->
       <div class="p-3 bg-slate-50 border-t border-slate-100 grid grid-cols-5 gap-1.5 no-print">
         <button onclick="prosesCetakStruk()" class="bg-amber-500 hover:bg-amber-600 text-white py-2 px-1 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all shadow-sm">
           <i class="fa-solid fa-print"></i> Cetak
@@ -474,8 +453,38 @@
     let isSortDesc = true;
 
     document.addEventListener("DOMContentLoaded", function() {
+      initDarkMode();
       muatData();
     });
+
+    /* FITUR DARK MODE SWITCHER */
+    function initDarkMode() {
+      if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        updateDarkModeUI(true);
+      } else {
+        document.documentElement.classList.remove('dark');
+        updateDarkModeUI(false);
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      updateDarkModeUI(isDark);
+    }
+
+    function updateDarkModeUI(isDark) {
+      const icon = document.getElementById("iconDarkMode");
+      const text = document.getElementById("textDarkMode");
+      if (isDark) {
+        icon.className = "fa-solid fa-sun text-amber-400";
+        text.innerText = "Terang";
+      } else {
+        icon.className = "fa-solid fa-moon text-slate-600";
+        text.innerText = "Gelap";
+      }
+    }
 
     function formatNoHP(val) {
       if (!val) return "";
@@ -656,27 +665,27 @@
         const hpFormatted = formatNoHP(item.NoHP);
         const totalBiayaNum = parseFloat(item.TotalBiaya) || 0;
 
-        html += `<tr class="hover:bg-slate-50/80 transition-colors">
-          <td class="py-4 px-4 text-xs font-medium text-slate-500 whitespace-nowrap">${formatTanggalDisplay(item.Tanggal)}</td>
+        html += `<tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/50 transition-colors">
+          <td class="py-4 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">${formatTanggalDisplay(item.Tanggal)}</td>
           <td class="py-4 px-4">
-            <div class="font-bold text-slate-900 flex items-center gap-1.5">
+            <div class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               ${item.Nama || '-'}
               ${hpFormatted ? `<button onclick="simpanKontakVCF('${item.Nama || 'Pelanggan MFEV'}', '${hpFormatted}')" title="Simpan ke Kontak HP" class="text-slate-400 hover:text-emerald-600 text-xs p-1"><i class="fa-solid fa-user-plus"></i></button>` : ''}
             </div>
-            <div class="text-xs text-slate-500 font-mono">${hpFormatted || '-'}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono">${hpFormatted || '-'}</div>
           </td>
           <td class="py-4 px-4">
-            <div class="font-medium text-slate-800">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
+            <div class="font-medium text-slate-800 dark:text-slate-200">${item.MerkMotor || '-'} ${item.TipeMotor || ''}</div>
             <div class="text-xs text-slate-400">Plat: ${item.NoPlat || '-'}</div>
           </td>
-          <td class="py-4 px-4 text-xs font-mono text-slate-600">${item.Kilometer || '-'}</td>
-          <td class="py-4 px-4 text-xs text-slate-600 max-w-xs truncate" title="${item.RincianPekerjaan || ''}">${item.RincianPekerjaan || '-'}</td>
-          <td class="py-4 px-4 font-bold text-emerald-600 text-xs whitespace-nowrap">Rp ${totalBiayaNum.toLocaleString('id-ID')}</td>
+          <td class="py-4 px-4 text-xs font-mono text-slate-600 dark:text-slate-400">${item.Kilometer || '-'}</td>
+          <td class="py-4 px-4 text-xs text-slate-600 dark:text-slate-300 max-w-xs truncate" title="${item.RincianPekerjaan || ''}">${item.RincianPekerjaan || '-'}</td>
+          <td class="py-4 px-4 font-bold text-emerald-600 dark:text-emerald-400 text-xs whitespace-nowrap">Rp ${totalBiayaNum.toLocaleString('id-ID')}</td>
           <td class="py-4 px-4 text-center whitespace-nowrap">
             <div class="flex items-center justify-center gap-1">
-              <button onclick="bukaModalStruk(${item.rowId})" title="Cetak / Share Struk" class="p-2 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"><i class="fa-solid fa-receipt"></i></button>
-              <button onclick="editRow(${item.rowId})" title="Edit Data" class="p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"><i class="fa-solid fa-pen-to-square"></i></button>
-              <button onclick="hapusRow(${item.rowId})" title="Hapus Data" class="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"><i class="fa-solid fa-trash-can"></i></button>
+              <button onclick="bukaModalStruk(${item.rowId})" title="Cetak / Share Struk" class="p-2 text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/50 rounded-lg transition-all"><i class="fa-solid fa-receipt"></i></button>
+              <button onclick="editRow(${item.rowId})" title="Edit Data" class="p-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 rounded-lg transition-all"><i class="fa-solid fa-pen-to-square"></i></button>
+              <button onclick="hapusRow(${item.rowId})" title="Hapus Data" class="p-2 text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg transition-all"><i class="fa-solid fa-trash-can"></i></button>
             </div>
           </td>
         </tr>`;
@@ -782,13 +791,11 @@
       const pelangganCounts = {};
 
       rawData.forEach(item => {
-        // Hitung Merk Terbanyak
         if (item.MerkMotor && item.MerkMotor.trim() !== "") {
           const m = item.MerkMotor.trim().toUpperCase();
           merkCounts[m] = (merkCounts[m] || 0) + 1;
         }
 
-        // Hitung Pelanggan Terbanyak
         if (item.Nama && item.Nama.trim() !== "") {
           const p = item.Nama.trim();
           pelangganCounts[p] = (pelangganCounts[p] || 0) + 1;
@@ -816,8 +823,8 @@
         }
       });
 
-      // Render Top Merk (Ambil Top 3)
-      const sortedMerk = Object.keys(merkCounts).sort((a,b) => merkCounts[b] - merkCounts[a]).slice(0, 3);
+      /* RENDER TOP 5 MERK */
+      const sortedMerk = Object.keys(merkCounts).sort((a,b) => merkCounts[b] - merkCounts[a]).slice(0, 5);
       const elTopMerk = document.getElementById("rekapTopMerk");
       if (sortedMerk.length === 0) {
         elTopMerk.innerHTML = '<span class="text-slate-400 font-normal">-</span>';
@@ -825,13 +832,13 @@
         elTopMerk.innerHTML = sortedMerk.map((m, idx) => `
           <div class="flex justify-between items-center">
             <span>${idx+1}. ${m}</span>
-            <span class="font-bold text-amber-700">${merkCounts[m]} Unit</span>
+            <span class="font-bold text-amber-700 dark:text-amber-400">${merkCounts[m]} Unit</span>
           </div>
         `).join("");
       }
 
-      // Render Top Pelanggan (Ambil Top 3)
-      const sortedPelanggan = Object.keys(pelangganCounts).sort((a,b) => pelangganCounts[b] - pelangganCounts[a]).slice(0, 3);
+      /* RENDER TOP 5 PELANGGAN */
+      const sortedPelanggan = Object.keys(pelangganCounts).sort((a,b) => pelangganCounts[b] - pelangganCounts[a]).slice(0, 5);
       const elTopPelanggan = document.getElementById("rekapTopPelanggan");
       if (sortedPelanggan.length === 0) {
         elTopPelanggan.innerHTML = '<span class="text-slate-400 font-normal">-</span>';
@@ -839,12 +846,11 @@
         elTopPelanggan.innerHTML = sortedPelanggan.map((p, idx) => `
           <div class="flex justify-between items-center">
             <span class="truncate pr-2">${idx+1}. ${p}</span>
-            <span class="font-bold text-indigo-700 whitespace-nowrap">${pelangganCounts[p]}x Servis</span>
+            <span class="font-bold text-indigo-700 dark:text-indigo-400 whitespace-nowrap">${pelangganCounts[p]}x Servis</span>
           </div>
         `).join("");
       }
 
-      // Render Rekap Bulanan
       const bulanKeysSorted = Object.keys(rekapBulanGroup).sort().reverse();
       const containerBulan = document.getElementById("rekapContainer");
 
@@ -856,12 +862,12 @@
           const g = rekapBulanGroup[k];
           const bulanNama = namaBulanMap[g.month] || g.month;
           htmlBulan += `
-            <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between hover:border-indigo-200 transition-colors">
+            <div class="p-3.5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-between hover:border-indigo-200 transition-colors">
               <div>
-                <div class="font-bold text-slate-800 text-sm">${bulanNama} ${g.year}</div>
-                <div class="text-xs text-slate-500">${g.count} Transaksi Servis</div>
+                <div class="font-bold text-slate-800 dark:text-slate-200 text-sm">${bulanNama} ${g.year}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">${g.count} Transaksi Servis</div>
               </div>
-              <div class="font-extrabold text-indigo-600 text-sm">
+              <div class="font-extrabold text-indigo-600 dark:text-indigo-400 text-sm">
                 Rp ${g.total.toLocaleString('id-ID')}
               </div>
             </div>
@@ -870,7 +876,6 @@
         containerBulan.innerHTML = htmlBulan;
       }
 
-      // Render Rekap Tahunan
       const tahunKeysSorted = Object.keys(rekapTahunGroup).sort().reverse();
       const containerTahun = document.getElementById("rekapTahunanContainer");
 
@@ -881,12 +886,12 @@
         tahunKeysSorted.forEach(y => {
           const g = rekapTahunGroup[y];
           htmlTahun += `
-            <div class="p-3.5 bg-emerald-50/60 border border-emerald-200 rounded-xl flex items-center justify-between">
+            <div class="p-3.5 bg-emerald-50/60 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl flex items-center justify-between">
               <div>
-                <div class="font-bold text-slate-900 text-sm">Tahun ${g.year}</div>
-                <div class="text-xs text-slate-500">${g.count} Transaksi Servis Total</div>
+                <div class="font-bold text-slate-900 dark:text-white text-sm">Tahun ${g.year}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">${g.count} Transaksi Servis Total</div>
               </div>
-              <div class="font-black text-emerald-700 text-base">
+              <div class="font-black text-emerald-700 dark:text-emerald-400 text-base">
                 Rp ${g.total.toLocaleString('id-ID')}
               </div>
             </div>
