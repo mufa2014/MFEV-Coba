@@ -56,6 +56,11 @@
       </div>
       
       <div class="flex items-center gap-2">
+        <!-- TOMBOL REKAP BULANAN -->
+        <button onclick="bukaModalRekap()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span class="hidden sm:inline">Rekap Bulanan</span>
+        </button>
         <!-- TOMBOL MUAT ULANG -->
         <button onclick="muatData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 sm:px-4 rounded-xl font-medium text-xs sm:text-sm flex items-center gap-2 transition-all shadow-sm">
           <i class="fa-solid fa-rotate-right"></i>
@@ -84,11 +89,43 @@
           <span>Riwayat Servis Pelanggan</span>
         </div>
         
-        <div class="relative w-full sm:w-72">
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-          <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
-            class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+        <div class="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+          <!-- FILTER BULAN & TAHUN -->
+          <div class="flex items-center gap-1.5 w-full sm:w-auto">
+            <i class="fa-solid fa-calendar-days text-slate-400 text-sm"></i>
+            <select id="filterBulan" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+              <option value="ALL">Semua Bulan</option>
+              <option value="01">Januari</option>
+              <option value="02">Februari</option>
+              <option value="03">Maret</option>
+              <option value="04">April</option>
+              <option value="05">Mei</option>
+              <option value="06">Juni</option>
+              <option value="07">Juli</option>
+              <option value="08">Agustus</option>
+              <option value="09">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Desember</option>
+            </select>
+            <select id="filterTahun" onchange="filterTable()" class="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+              <option value="ALL">Semua Tahun</option>
+            </select>
+          </div>
+
+          <!-- SEARCH INPUT -->
+          <div class="relative w-full sm:w-64">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="searchInput" oninput="filterTable()" placeholder="Cari nama, plat, merk..." 
+              class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 bg-slate-50/50">
+          </div>
         </div>
+      </div>
+
+      <!-- SUMMARY BAR HALAMAN UTAMA -->
+      <div id="summaryBar" class="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-slate-600">
+        <div>Total Transaksi Tampil: <span id="summaryJumlah" class="font-bold text-slate-900">0</span></div>
+        <div>Total Pendapatan Tampil: <span id="summaryTotalBiaya" class="font-extrabold text-emerald-600">Rp 0</span></div>
       </div>
 
       <!-- TABLE AREA -->
@@ -96,7 +133,9 @@
         <table class="w-full text-left text-sm text-slate-600 min-w-[900px]">
           <thead class="bg-slate-50 text-slate-500 font-semibold uppercase text-xs tracking-wider border-b border-slate-200">
             <tr>
-              <th class="py-3.5 px-4">TANGGAL</th>
+              <th class="py-3.5 px-4 cursor-pointer hover:bg-slate-100 transition-colors" onclick="toggleUrutanTanggal()" title="Klik untuk mengubah urutan tanggal">
+                TANGGAL <i id="iconUrutanTanggal" class="fa-solid fa-sort-down ml-1"></i>
+              </th>
               <th class="py-3.5 px-4">PELANGGAN</th>
               <th class="py-3.5 px-4">KENDARAAN</th>
               <th class="py-3.5 px-4">KM</th>
@@ -117,6 +156,31 @@
       </div>
     </div>
   </main>
+
+  <!-- MODAL REKAP BULANAN -->
+  <div id="modalRekap" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden border border-slate-100">
+      <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie text-indigo-600 text-lg"></i>
+          <h3 class="font-bold text-slate-900 text-base sm:text-lg">Rekap Pendapatan Bulanan</h3>
+        </div>
+        <button onclick="tutupModalRekap()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-all">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="p-4 sm:p-6 overflow-y-auto">
+        <div id="rekapContainer" class="space-y-3">
+          <!-- Item rekap bulanan akan dirender di sini -->
+        </div>
+      </div>
+      <div class="p-4 border-t border-slate-100 bg-slate-50/50 flex justify-end">
+        <button onclick="tutupModalRekap()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-sm font-medium transition-all">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL FORM (TAMBAH / EDIT DATA) -->
   <div id="modalForm" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
@@ -322,6 +386,7 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqMV2lQsLeG2C70787Qw4zarJWv1023AxZj2XLuo_tUOMSVkash0ZeiXSs14BwqpI4/exec";
     let rawData = [];
     let currentStrukItem = null;
+    let isSortDesc = true; // true: Terbaru ke Terlama (Desc), false: Terlama ke Terbaru (Asc)
 
     document.addEventListener("DOMContentLoaded", function() {
       muatData();
@@ -343,7 +408,8 @@
         .then(data => {
           if (Array.isArray(data)) {
             rawData = data;
-            renderTable(rawData);
+            isiOpsiTahun(rawData);
+            filterTable();
           } else {
             tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-red-500 font-semibold">Gagal memuat data.</td></tr>';
           }
@@ -353,17 +419,96 @@
         });
     }
 
+    function isiOpsiTahun(data) {
+      const selectTahun = document.getElementById("filterTahun");
+      const tahunSet = new Set();
+      
+      data.forEach(item => {
+        const iso = formatTanggalUntukInput(item.Tanggal);
+        if (iso && iso.includes("-")) {
+          const yyyy = iso.split("-")[0];
+          if (yyyy && yyyy.length === 4) tahunSet.add(yyyy);
+        }
+      });
+
+      const sortedTahun = Array.from(tahunSet).sort().reverse();
+      let html = '<option value="ALL">Semua Tahun</option>';
+      sortedTahun.forEach(t => {
+        html += `<option value="${t}">${t}</option>`;
+      });
+      selectTahun.innerHTML = html;
+    }
+
+    function toggleUrutanTanggal() {
+      isSortDesc = !isSortDesc;
+      const icon = document.getElementById("iconUrutanTanggal");
+      if (isSortDesc) {
+        icon.className = "fa-solid fa-sort-down ml-1";
+      } else {
+        icon.className = "fa-solid fa-sort-up ml-1";
+      }
+      filterTable();
+    }
+
+    function filterTable() {
+      const q = document.getElementById("searchInput").value.toLowerCase();
+      const bulan = document.getElementById("filterBulan").value;
+      const tahun = document.getElementById("filterTahun").value;
+
+      let filtered = rawData.filter(d => {
+        const iso = formatTanggalUntukInput(d.Tanggal);
+        let matchBulan = true;
+        let matchTahun = true;
+
+        if (iso && iso.includes("-")) {
+          const parts = iso.split("-");
+          const yyyy = parts[0];
+          const mm = parts[1];
+
+          if (bulan !== "ALL" && mm !== bulan) matchBulan = false;
+          if (tahun !== "ALL" && yyyy !== tahun) matchTahun = false;
+        }
+
+        const matchSearch = (d.Nama && d.Nama.toLowerCase().includes(q)) ||
+          (d.NoHP && String(d.NoHP).toLowerCase().includes(q)) ||
+          (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
+          (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q));
+
+        return matchBulan && matchTahun && matchSearch;
+      });
+
+      // PENGURUTAN SEPENUHNYA BERDASARKAN TANGGAL SERVICE
+      filtered.sort((a, b) => {
+        const dateA = new Date(formatTanggalUntukInput(a.Tanggal));
+        const dateB = new Date(formatTanggalUntukInput(b.Tanggal));
+        
+        if (isNaN(dateA.getTime())) return 1;
+        if (isNaN(dateB.getTime())) return -1;
+
+        return isSortDesc ? (dateB - dateA) : (dateA - dateB);
+      });
+
+      renderTable(filtered);
+    }
+
     function renderTable(data) {
       const tbody = document.getElementById("tableBody");
+      
+      let totalPendapatan = 0;
+      data.forEach(item => {
+        totalPendapatan += parseFloat(item.TotalBiaya) || 0;
+      });
+
+      document.getElementById("summaryJumlah").innerText = data.length + " Transaksi";
+      document.getElementById("summaryTotalBiaya").innerText = "Rp " + totalPendapatan.toLocaleString('id-ID');
+
       if (data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-400">Belum ada data transaksi.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-slate-400">Tidak ada data transaksi yang sesuai filter.</td></tr>';
         return;
       }
 
-      const sortedData = [...data].reverse();
-
       let html = "";
-      sortedData.forEach(item => {
+      data.forEach(item => {
         const hpFormatted = formatNoHP(item.NoHP);
         const totalBiayaNum = parseFloat(item.TotalBiaya) || 0;
 
@@ -394,6 +539,62 @@
       });
 
       tbody.innerHTML = html;
+    }
+
+    function bukaModalRekap() {
+      const namaBulanMap = {
+        "01": "Januari", "02": "Februari", "03": "Maret", "04": "April",
+        "05": "Mei", "06": "Juni", "07": "Juli", "08": "Agustus",
+        "09": "September", "10": "Oktober", "11": "November", "12": "Desember"
+      };
+
+      const rekapGroup = {};
+
+      rawData.forEach(item => {
+        const iso = formatTanggalUntukInput(item.Tanggal);
+        if (iso && iso.includes("-")) {
+          const parts = iso.split("-");
+          const key = parts[0] + "-" + parts[1]; // YYYY-MM
+          const nominal = parseFloat(item.TotalBiaya) || 0;
+
+          if (!rekapGroup[key]) {
+            rekapGroup[key] = { total: 0, count: 0, year: parts[0], month: parts[1] };
+          }
+          rekapGroup[key].total += nominal;
+          rekapGroup[key].count += 1;
+        }
+      });
+
+      const keysSorted = Object.keys(rekapGroup).sort().reverse();
+      const container = document.getElementById("rekapContainer");
+
+      if (keysSorted.length === 0) {
+        container.innerHTML = '<div class="text-center py-6 text-slate-400">Belum ada data rekap.</div>';
+      } else {
+        let html = "";
+        keysSorted.forEach(k => {
+          const g = rekapGroup[k];
+          const bulanNama = namaBulanMap[g.month] || g.month;
+          html += `
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between hover:border-indigo-200 transition-colors">
+              <div>
+                <div class="font-bold text-slate-800 text-sm sm:text-base">${bulanNama} ${g.year}</div>
+                <div class="text-xs text-slate-500">${g.count} Transaksi Servis</div>
+              </div>
+              <div class="font-extrabold text-indigo-600 text-sm sm:text-base">
+                Rp ${g.total.toLocaleString('id-ID')}
+              </div>
+            </div>
+          `;
+        });
+        container.innerHTML = html;
+      }
+
+      document.getElementById("modalRekap").classList.remove("hidden");
+    }
+
+    function tutupModalRekap() {
+      document.getElementById("modalRekap").classList.add("hidden");
     }
 
     function bukaModalStruk(rowId) {
@@ -570,17 +771,6 @@
         btn.disabled = false;
         btn.innerHTML = originalText;
       });
-    }
-
-    function filterTable() {
-      const q = document.getElementById("searchInput").value.toLowerCase();
-      const filtered = rawData.filter(d => 
-        (d.Nama && d.Nama.toLowerCase().includes(q)) ||
-        (d.NoHP && String(d.NoHP).toLowerCase().includes(q)) ||
-        (d.NoPlat && d.NoPlat.toLowerCase().includes(q)) ||
-        (d.MerkMotor && d.MerkMotor.toLowerCase().includes(q))
-      );
-      renderTable(filtered);
     }
 
     function hitungTotalBiaya() {
